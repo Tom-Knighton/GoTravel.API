@@ -1,0 +1,16 @@
+FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build-env
+WORKDIR /App
+
+COPY GoLondon.API.csproj ./
+RUN dotnet nuget add source https://nuget.pkg.jetbrains.space/tomkonline/p/main/tomknuget/v3/index.json -n space-tomknuget -u tomk -p eyJhbGciOiJSUzUxMiJ9.eyJzdWIiOiIxUXVFSW8xZE9TcEIiLCJhdWQiOiJjaXJjbGV0LXdlYi11aSIsIm9yZ0RvbWFpbiI6InRvbWtvbmxpbmUiLCJuYW1lIjoidG9tayIsImlzcyI6Imh0dHBzOlwvXC90b21rb25saW5lLmpldGJyYWlucy5zcGFjZSIsInBlcm1fdG9rZW4iOiIzbTR0UGkzWXVpWksiLCJwcmluY2lwYWxfdHlwZSI6IlVTRVIiLCJpYXQiOjE2ODIyNzc4NjV9.JTLuDIl2vs85ltWbdqjloSGQDksPuLj2GD6BaRYcFTbek6jYXWQBMQ10L9Mqc1PgOvgpWHsE3T6VU1O4f50hPsFiIRJEeaMrAC_FsHXLXLx3xAfCL6mdjEI2lOv7xbyP8NW_mPbPXHqJ4Tk0sEq-96No2Q7QLFXDO3WqAI3nYAY --store-password-in-clear-text
+
+COPY . ./
+RUN dotnet publish GoLondon.API.sln -c Debug -o out
+
+FROM mcr.microsoft.com/dotnet/aspnet:7.0
+WORKDIR /App
+COPY --from=build-env /App/out .
+EXPOSE 6009
+ENV ASPNETCORE_ENVIRONMENT=Development
+ENV ASPNETCORE_URLS=http://*:6009
+ENTRYPOINT ["dotnet", "GoLondon.API.dll"]
