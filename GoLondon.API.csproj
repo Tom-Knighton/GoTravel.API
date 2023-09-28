@@ -4,12 +4,74 @@
         <TargetFramework>net7.0</TargetFramework>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
+        <UserSecretsId>e15750aa-cb81-4485-a7c5-ebfc62b827d2</UserSecretsId>
     </PropertyGroup>
 
 
 
     <ItemGroup>
+      <PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.11" />
+      <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="7.0.11">
+        <PrivateAssets>all</PrivateAssets>
+        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      </PackageReference>
+      <PackageReference Include="NetTopologySuite.IO.GeoJSON4STJ" Version="4.0.0" />
+      <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL.NetTopologySuite" Version="7.0.11" />
       <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
     </ItemGroup>
 
+
+
+
+
+
+    <ItemGroup>
+      <Compile Remove="GoLondon.API.Domain\**" />
+      <Compile Remove="GoLondon.API.Services\**" />
+    </ItemGroup>
+
+
+
+    <ItemGroup>
+      <EmbeddedResource Remove="GoLondon.API.Domain\**" />
+      <EmbeddedResource Remove="GoLondon.API.Services\**" />
+    </ItemGroup>
+
+
+
+    <ItemGroup>
+      <Content Remove="GoLondon.API.Domain\**" />
+      <Content Remove="GoLondon.API.Services\**" />
+    </ItemGroup>
+
+
+
+    <ItemGroup>
+      <None Remove="GoLondon.API.Domain\**" />
+      <None Remove="GoLondon.API.Services\**" />
+    </ItemGroup>
+
+
+
+    <ItemGroup>
+      <_ContentIncludedByDefault Remove="GoLondon.API.Domain\appsettings.Development.json" />
+      <_ContentIncludedByDefault Remove="GoLondon.API.Domain\appsettings.json" />
+      <_ContentIncludedByDefault Remove="GoLondon.API.Domain\obj\GoLondon.API.Domain.csproj.nuget.dgspec.json" />
+      <_ContentIncludedByDefault Remove="GoLondon.API.Domain\obj\project.assets.json" />
+      <_ContentIncludedByDefault Remove="GoLondon.API.Domain\obj\project.packagespec.json" />
+      <_ContentIncludedByDefault Remove="GoLondon.API.Domain\Properties\launchSettings.json" />
+      <_ContentIncludedByDefault Remove="GoLondon.API.Services\obj\GoLondon.API.Services.csproj.nuget.dgspec.json" />
+      <_ContentIncludedByDefault Remove="GoLondon.API.Services\obj\project.assets.json" />
+      <_ContentIncludedByDefault Remove="GoLondon.API.Services\obj\project.packagespec.json" />
+    </ItemGroup>
+
+
+
+
+
+
+    <ItemGroup>
+      <ProjectReference Include="GoLondon.API.Domain\GoLondon.API.Domain.csproj" />
+      <ProjectReference Include="GoLondon.API.Services\GoLondon.API.Services.csproj" />
+    </ItemGroup>
 </Project>
