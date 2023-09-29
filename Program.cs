@@ -1,5 +1,5 @@
 using System.Reflection;
-using GoLondon.API.Data;
+using GoLondon.API.Domain.Data;
 using GoLondon.API.Services.ServiceCollections;
 using NetTopologySuite;
 using NetTopologySuite.IO.Converters;
@@ -27,7 +27,9 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services
-    .AddEFCore<GoLondonContext>(builder.Configuration.GetSection("Database"));
+    .AddEFCore<GoLondonContext>(builder.Configuration.GetSection("Database"))
+    .AddMapperCollection()
+    .AddGLServiceCollection();
 
 var app = builder.Build();
 
