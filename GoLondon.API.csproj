@@ -28,6 +28,7 @@
     <ItemGroup>
       <Compile Remove="GoLondon.API.Domain\**" />
       <Compile Remove="GoLondon.API.Services\**" />
+      <Compile Remove="GoLondon.API.UnitTests\**" />
     </ItemGroup>
 
 
@@ -35,6 +36,7 @@
     <ItemGroup>
       <EmbeddedResource Remove="GoLondon.API.Domain\**" />
       <EmbeddedResource Remove="GoLondon.API.Services\**" />
+      <EmbeddedResource Remove="GoLondon.API.UnitTests\**" />
     </ItemGroup>
 
 
@@ -42,6 +44,7 @@
     <ItemGroup>
       <Content Remove="GoLondon.API.Domain\**" />
       <Content Remove="GoLondon.API.Services\**" />
+      <Content Remove="GoLondon.API.UnitTests\**" />
     </ItemGroup>
 
 
@@ -49,6 +52,7 @@
     <ItemGroup>
       <None Remove="GoLondon.API.Domain\**" />
       <None Remove="GoLondon.API.Services\**" />
+      <None Remove="GoLondon.API.UnitTests\**" />
     </ItemGroup>
 
 
@@ -63,6 +67,9 @@
       <_ContentIncludedByDefault Remove="GoLondon.API.Services\obj\GoLondon.API.Services.csproj.nuget.dgspec.json" />
       <_ContentIncludedByDefault Remove="GoLondon.API.Services\obj\project.assets.json" />
       <_ContentIncludedByDefault Remove="GoLondon.API.Services\obj\project.packagespec.json" />
+      <_ContentIncludedByDefault Remove="GoLondon.API.UnitTests\obj\GoLondon.API.UnitTests.csproj.nuget.dgspec.json" />
+      <_ContentIncludedByDefault Remove="GoLondon.API.UnitTests\obj\project.assets.json" />
+      <_ContentIncludedByDefault Remove="GoLondon.API.UnitTests\obj\project.packagespec.json" />
     </ItemGroup>
 
 
