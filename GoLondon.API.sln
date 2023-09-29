@@ -6,6 +6,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GoLondon.API.Domain", "GoLo
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GoLondon.API.Services", "GoLondon.API.Services\GoLondon.API.Services.csproj", "{22D71D05-0BBE-429A-84BA-98AC1631702A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GoLondon.API.UnitTests", "GoLondon.API.UnitTests\GoLondon.API.UnitTests.csproj", "{AEB09165-21BF-4AD3-B3F9-1B79DE9E761C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,5 +26,9 @@ Global
 		{22D71D05-0BBE-429A-84BA-98AC1631702A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{22D71D05-0BBE-429A-84BA-98AC1631702A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{22D71D05-0BBE-429A-84BA-98AC1631702A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AEB09165-21BF-4AD3-B3F9-1B79DE9E761C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AEB09165-21BF-4AD3-B3F9-1B79DE9E761C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AEB09165-21BF-4AD3-B3F9-1B79DE9E761C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AEB09165-21BF-4AD3-B3F9-1B79DE9E761C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

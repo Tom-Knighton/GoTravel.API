@@ -1,16 +1,18 @@
+using System.Reflection;
 using GoLondon.API.Domain.Models.Database;
 using Microsoft.EntityFrameworkCore;
 
-namespace GoLondon.API.Data;
+namespace GoLondon.API.Domain.Data;
 
 public class GoLondonContext: DbContext
 {
+    public GoLondonContext() {}
     public GoLondonContext(DbContextOptions<GoLondonContext> options): base(options) {}
     
-    public DbSet<GLStopPoint> StopPoints { get; set; }
-    public DbSet<GLLine> Lines { get; set; }
-    public DbSet<GLLineMode> LineModes { get; set; }
-    public DbSet<GLStopPointLine> StopPointLines { get; set; }
+    public virtual DbSet<GLStopPoint> StopPoints { get; set; }
+    public virtual DbSet<GLLine> Lines { get; set; }
+    public virtual DbSet<GLLineMode> LineModes { get; set; }
+    public virtual DbSet<GLStopPointLine> StopPointLines { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -25,6 +27,10 @@ public class GoLondonContext: DbContext
             e.HasMany(s => s.StopPointLines)
                 .WithOne(l => l.StopPoint)
                 .HasForeignKey(l => l.StopPointId);
+
+            e.HasMany(s => s.Children)
+                .WithOne(s => s.Parent)
+                .HasForeignKey(s => s.StopPointParentId);
         });
 
         modelBuilder.Entity<GLStopPointLine>(e =>
