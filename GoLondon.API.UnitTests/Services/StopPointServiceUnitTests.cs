@@ -114,4 +114,52 @@ public class StopPointServiceUnitTests
         Assert.That(results, Is.Not.Empty);
         Assert.That(results.Count, Is.EqualTo(expectedCount));
     }
+
+    [TestCase(0, true)]
+    [TestCase(1, true)]
+    [TestCase(25, false)]
+    public async Task SearchByName_LimitsToMaxResults(int maxResults, bool shouldBeEqual)
+    {
+        // Arrange
+        _mockContext.Setup(x => x.StopPoints)
+            .ReturnsDbSet(new List<GLStopPoint>
+            {
+                new GLStopPoint
+                {
+                    StopPointId = "1",
+                    StopPointType = GLStopPointType.TrainStopPoint,
+                    StopPointName = "Test Stop 1",
+                },
+                new GLStopPoint
+                {
+                    StopPointId = "2",
+                    StopPointType = GLStopPointType.TrainStopPoint,
+                    StopPointName = "tesTinG",
+                },
+                new GLStopPoint
+                {
+                    StopPointId = "3",
+                    StopPointType = GLStopPointType.TrainStopPoint,
+                    StopPointName = "Test Stop 2",
+                },
+                new GLStopPoint
+                {
+                    StopPointId = "4",
+                    StopPointType = GLStopPointType.TrainStopPoint,
+                    StopPointName = "Stratford Test 3",
+                },
+                new GLStopPoint
+                {
+                    StopPointId = "5",
+                    StopPointType = GLStopPointType.TrainStopPoint,
+                    StopPointName = "XXX Place",
+                },
+            });
+        
+        // Act
+        var results = await _sut.GetStopPointsByNameAsync("test", maxResults);
+        
+        // Assert
+        Assert.That(results.Count, shouldBeEqual ? Is.EqualTo(maxResults) : Is.LessThanOrEqualTo(maxResults));
+    }
 }

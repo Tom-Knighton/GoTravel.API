@@ -18,13 +18,14 @@ public class StopPointService: IStopPointService
         _mapper = mapper;
     }
     
-    public async Task<ICollection<StopPointBaseDto>> GetStopPointsByNameAsync(string nameQuery, CancellationToken ct = default)
+    public async Task<ICollection<StopPointBaseDto>> GetStopPointsByNameAsync(string nameQuery, int maxResults = 25, CancellationToken ct = default)
     {
         var results = await _context.StopPoints
             .Include(s => s.StopPointLines)
                 .ThenInclude(l => l.Line)
                     .ThenInclude(l => l.LineMode)
             .Where(s => s.StopPointName.Contains(nameQuery, StringComparison.InvariantCultureIgnoreCase))
+            .Take(maxResults)
             .ToListAsync(cancellationToken: ct);
 
         var mapped = results.Select(s => _mapper.Map(s)).ToList();
