@@ -24,7 +24,7 @@ public class StopPointService: IStopPointService
             .Include(s => s.StopPointLines)
                 .ThenInclude(l => l.Line)
                     .ThenInclude(l => l.LineMode)
-            .Where(s => s.StopPointName.Contains(nameQuery, StringComparison.InvariantCultureIgnoreCase))
+            .Where(s => EF.Functions.ILike(s.StopPointName, $"%{nameQuery}%") || s.BusStopSMSCode == nameQuery)
             .Take(maxResults)
             .ToListAsync(cancellationToken: ct);
 
