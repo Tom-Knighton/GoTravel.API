@@ -20,8 +20,10 @@ public class GLStopPoint
     public string? BusStopIndicator { get; set; }
     public string? BusStopLetter { get; set; }
     public string? BusStopSMSCode { get; set; }
-    public string? BikesAvailable { get; set; }
-    public string? EBikesAvailable { get; set; }
-    
-    public virtual ICollection<GLStopPointLine> StopPointLines { get; set; }
+    public int? BikesAvailable { get; set; }
+    public int? EBikesAvailable { get; set; }
+
+    public virtual ICollection<GLStopPointLine> StopPointLines { get; set; } = new List<GLStopPointLine>();
+    public virtual ICollection<GLStopPoint> Children { get; set; } = new List<GLStopPoint>();
+    public virtual GLStopPoint? Parent { get; set; }
 }
