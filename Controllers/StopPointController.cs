@@ -21,8 +21,16 @@ public class StopPointController: ControllerBase
     {
         try
         {
+            if (maxResults < 1)
+            {
+                throw new ArgumentException("Max results must be greater than 0.");
+            }
             var results = await _stopPointService.GetStopPointsByNameAsync(searchQuery, maxResults, ct);
             return Ok(results);
+        }
+        catch (ArgumentException e)
+        {
+            return BadRequest(new { error = e.Message });
         }
         catch (Exception e)
         {
