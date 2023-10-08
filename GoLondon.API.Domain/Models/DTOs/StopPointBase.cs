@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using NetTopologySuite.Geometries;
 
 namespace GoLondon.API.Domain.Models.DTOs;
@@ -5,6 +6,10 @@ namespace GoLondon.API.Domain.Models.DTOs;
 /// <summary>
 /// Represents a kind of stop point
 /// </summary>
+[JsonPolymorphic]
+[JsonDerivedType(typeof(BikeStopPointDto))]
+[JsonDerivedType(typeof(BusStopPointDto))]
+[JsonDerivedType(typeof(TrainStopPointDto))]
 public class StopPointBaseDto
 {
     /// <summary>
@@ -16,6 +21,11 @@ public class StopPointBaseDto
     /// The coordinate of the stop point
     /// </summary>
     public Point StopPointCoordinate { get; set; }
+    
+    /// <summary>
+    /// The type of stop point
+    /// </summary>
+    public StopPointType StopPointType { get; set; }
     
     /// <summary>
     /// The friendly name of the stop point

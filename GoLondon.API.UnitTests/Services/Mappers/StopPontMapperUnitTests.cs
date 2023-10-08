@@ -72,6 +72,7 @@ public class StopPontMapperUnitTests
         Assert.That(result.StopPointName, Is.EqualTo("Test Stop"));
         Assert.That(result.StopPointCoordinate.X, Is.EqualTo(255));
         Assert.That(result.StopPointCoordinate.Y, Is.EqualTo(555));
+        Assert.That(result.StopPointType, Is.EqualTo(StopPointType.Train));
         Assert.That(result, Is.InstanceOf(typeof(TrainStopPointDto)));
     }
 
@@ -91,6 +92,7 @@ public class StopPontMapperUnitTests
         // Assert
         Assert.That(result, Is.Not.Null);
         Assert.That(result, Is.InstanceOf(typeof(BusStopPointDto)));
+        Assert.That(result.StopPointType, Is.EqualTo(StopPointType.Bus));
         Assert.That(result.StopPointId, Is.EqualTo("123"));
         Assert.That(result.StopPointName, Is.EqualTo("Test Stop"));
         Assert.That(result.BusStopIndicator, Is.EqualTo("X"));
@@ -113,6 +115,7 @@ public class StopPontMapperUnitTests
         // Assert
         Assert.That(result, Is.Not.Null);
         Assert.That(result, Is.InstanceOf(typeof(BikeStopPointDto)));
+        Assert.That(result.StopPointType, Is.EqualTo(StopPointType.Bike));
         Assert.That(result.StopPointId, Is.EqualTo("123"));
         Assert.That(result.StopPointName, Is.EqualTo("Test Stop"));
         Assert.That(result.BikesRemaining, Is.EqualTo(10));

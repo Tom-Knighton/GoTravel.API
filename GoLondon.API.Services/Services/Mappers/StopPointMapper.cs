@@ -14,6 +14,7 @@ public class StopPointMapper: IMapper<GLStopPoint, StopPointBaseDto>
         dest.StopPointParentId = src.StopPointParentId;
         dest.StopPointHub = src.StopPointHub;
         dest.StopPointCoordinate = src.StopPointCoordinate;
+        dest.StopPointType = MapType(src.StopPointType);
 
         dest = src.StopPointType switch
         {
@@ -77,5 +78,16 @@ public class StopPointMapper: IMapper<GLStopPoint, StopPointBaseDto>
         bikeStop.EBikesRemaining = src.EBikesAvailable ?? 0;
 
         return bikeStop;
+    }
+
+    private StopPointType MapType(GLStopPointType glType)
+    {
+        return glType switch
+        {
+            GLStopPointType.TrainStopPoint => StopPointType.Train,
+            GLStopPointType.BusStopPoint => StopPointType.Bus,
+            GLStopPointType.BikeStopPoint => StopPointType.Bike,
+            _ => throw new ArgumentOutOfRangeException(nameof(glType))
+        };
     }
 }
