@@ -1,4 +1,5 @@
 using System.Reflection;
+using System.Text.Json.Serialization;
 using GoLondon.API.Domain.Data;
 using GoLondon.API.Services.ServiceCollections;
 using NetTopologySuite;
@@ -21,6 +22,7 @@ builder.Services.AddControllers().AddJsonOptions(o =>
 {
     var geoJsonConverterFactory = new GeoJsonConverterFactory();
     o.JsonSerializerOptions.Converters.Add(geoJsonConverterFactory);
+    o.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
 });
 builder.Services.AddSingleton(NtsGeometryServices.Instance);
 builder.Services.AddEndpointsApiExplorer();
