@@ -1,4 +1,5 @@
 using GoLondon.API.Services.Services.Mappers;
+using NetTopologySuite.Geometries;
 using Newtonsoft.Json;
 
 namespace GoLondon.API.UnitTests.Services.Mappers;
@@ -18,6 +19,7 @@ public class StopPontMapperUnitTests
         {
             StopPointId = "123",
             StopPointName = "Test Stop",
+            StopPointCoordinate = new Point(255, 555),
             StopPointType = GLStopPointType.TrainStopPoint,
             StopPointLines = new List<GLStopPointLine>
             {
@@ -68,6 +70,8 @@ public class StopPontMapperUnitTests
         Assert.That(result, Is.Not.Null);
         Assert.That(result.StopPointId, Is.EqualTo("123"));
         Assert.That(result.StopPointName, Is.EqualTo("Test Stop"));
+        Assert.That(result.StopPointCoordinate.X, Is.EqualTo(255));
+        Assert.That(result.StopPointCoordinate.Y, Is.EqualTo(555));
         Assert.That(result, Is.InstanceOf(typeof(TrainStopPointDto)));
     }
 
