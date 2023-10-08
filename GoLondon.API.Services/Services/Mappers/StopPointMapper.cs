@@ -13,6 +13,7 @@ public class StopPointMapper: IMapper<GLStopPoint, StopPointBaseDto>
         dest.StopPointName = src.StopPointName;
         dest.StopPointParentId = src.StopPointParentId;
         dest.StopPointHub = src.StopPointHub;
+        dest.StopPointCoordinate = src.StopPointCoordinate;
 
         dest = src.StopPointType switch
         {

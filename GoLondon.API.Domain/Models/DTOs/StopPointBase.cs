@@ -1,3 +1,5 @@
+using NetTopologySuite.Geometries;
+
 namespace GoLondon.API.Domain.Models.DTOs;
 
 /// <summary>
@@ -9,6 +11,11 @@ public class StopPointBaseDto
     /// The ID (Naptan) of the stop point.
     /// </summary>
     public string StopPointId { get; set; }
+    
+    /// <summary>
+    /// The coordinate of the stop point
+    /// </summary>
+    public Point StopPointCoordinate { get; set; }
     
     /// <summary>
     /// The friendly name of the stop point
