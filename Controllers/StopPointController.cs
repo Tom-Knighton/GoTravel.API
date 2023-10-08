@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.Net;
+using GoLondon.API.Domain.Models.DTOs;
 using GoLondon.API.Domain.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -18,6 +19,10 @@ public class StopPointController: ControllerBase
 
     [HttpGet]
     [Route("Search/{searchQuery}")]
+    [Produces(typeof(ICollection<StopPointBaseDto>))]
+    [ProducesResponseType(typeof(ICollection<StopPointBaseDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> SearchByName(string searchQuery, [Range(1, 255)] int maxResults = 25, CancellationToken ct = default)
     {
         try
@@ -37,6 +42,10 @@ public class StopPointController: ControllerBase
 
     [HttpGet]
     [Route("Search/Around/{lat:float}/{lon:float}")]
+    [Produces(typeof(ICollection<StopPointBaseDto>))]
+    [ProducesResponseType(typeof(ICollection<StopPointBaseDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> SearchAroundPoint(float lat, float lon, [Range(1, 10000)] int radius = 850, [Range(1, 255)] int maxResults = 25, CancellationToken ct = default)
     {
         try
