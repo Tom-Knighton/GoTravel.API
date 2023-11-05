@@ -19,7 +19,7 @@ public class StopPointService: IStopPointService
         _mapper = mapper;
     }
     
-    public async Task<ICollection<StopPointBaseDto>> GetStopPointsByNameAsync(string nameQuery, int maxResults = 25, CancellationToken ct = default)
+    public async Task<ICollection<StopPointBaseDto>> GetStopPointsByNameAsync(string nameQuery, ICollection<string> filterLineModes, int maxResults = 25, CancellationToken ct = default)
     {
         var results = await _context.StopPoints
             .Include(s => s.StopPointLines)
@@ -34,11 +34,16 @@ public class StopPointService: IStopPointService
         {
             stop.Children = await GetStopPointChildrenAsync(stop, ct);
         }
+        
+        if (filterLineModes.Any())
+        {
+            mapped = FilterLineModes(mapped, filterLineModes).ToList();
+        }
 
         return mapped;
     }
 
-    public async Task<ICollection<StopPointBaseDto>> GetStopPointsAroundPointAsync(float latitude, float longitude, int radius = 850, int maxResults = 25, CancellationToken ct = default)
+    public async Task<ICollection<StopPointBaseDto>> GetStopPointsAroundPointAsync(float latitude, float longitude, ICollection<string> filterLineModes = null, int radius = 850, int maxResults = 25, CancellationToken ct = default)
     {
         var searchAroundPoint = new Point(longitude, latitude);
         var results = await _context.StopPoints
@@ -54,6 +59,11 @@ public class StopPointService: IStopPointService
         foreach (var stop in mapped)
         {
             stop.Children = await GetStopPointChildrenAsync(stop, ct);
+        }
+
+        if (filterLineModes.Any())
+        {
+            mapped = FilterLineModes(mapped, filterLineModes).ToList();
         }
 
         return mapped;
@@ -73,7 +83,22 @@ public class StopPointService: IStopPointService
         {
             child.Children = await GetStopPointChildrenAsync(child, ct);
         }
-
+        
         return mapped;
+    }
+
+    /// <summary>
+    /// Removes any line modes that are not in the filterLineModes list.
+    /// Removes any stop points that have no line modes left after filtering.
+    /// </summary>
+    private static IEnumerable<StopPointBaseDto> FilterLineModes(ICollection<StopPointBaseDto> stopPoints, ICollection<string> filterLineModes)
+    {
+        foreach (var stopPoint in stopPoints)
+        {
+            stopPoint.LineModes = stopPoint.LineModes.Where(lm => filterLineModes.Contains(lm.LineModeName)).ToList();
+            stopPoint.Children = FilterLineModes(stopPoint.Children, filterLineModes).ToList();
+        }
+
+        return stopPoints.Where(s => s.LineModes.Any());
     }
 }
