@@ -31,6 +31,7 @@ builder.Services.AddSwaggerGen();
 builder.Services
     .AddEFCore<GoLondonContext>(builder.Configuration.GetSection("Database"))
     .AddMapperCollection()
+    .AddRepositories()
     .AddGLServiceCollection();
 
 var app = builder.Build();
