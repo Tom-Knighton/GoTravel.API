@@ -1,0 +1,84 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+    <PropertyGroup>
+        <TargetFramework>net7.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <UserSecretsId>e15750aa-cb81-4485-a7c5-ebfc62b827d2</UserSecretsId>
+    </PropertyGroup>
+
+
+
+    <ItemGroup>
+      <PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.11" />
+      <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="7.0.11">
+        <PrivateAssets>all</PrivateAssets>
+        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      </PackageReference>
+      <PackageReference Include="NetTopologySuite.IO.GeoJSON4STJ" Version="4.0.0" />
+      <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL.NetTopologySuite" Version="7.0.11" />
+      <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
+    </ItemGroup>
+
+
+
+
+
+
+    <ItemGroup>
+      <Compile Remove="GoTravel.API.Domain\**" />
+      <Compile Remove="GoTravel.API.Services\**" />
+      <Compile Remove="GoTravel.API.UnitTests\**" />
+    </ItemGroup>
+
+
+
+    <ItemGroup>
+      <EmbeddedResource Remove="GoTravel.API.Domain\**" />
+      <EmbeddedResource Remove="GoTravel.API.Services\**" />
+      <EmbeddedResource Remove="GoTravel.API.UnitTests\**" />
+    </ItemGroup>
+
+
+
+    <ItemGroup>
+      <Content Remove="GoTravel.API.Domain\**" />
+      <Content Remove="GoTravel.API.Services\**" />
+      <Content Remove="GoTravel.API.UnitTests\**" />
+    </ItemGroup>
+
+
+
+    <ItemGroup>
+      <None Remove="GoTravel.API.Domain\**" />
+      <None Remove="GoTravel.API.Services\**" />
+      <None Remove="GoTravel.API.UnitTests\**" />
+    </ItemGroup>
+
+
+
+    <ItemGroup>
+      <_ContentIncludedByDefault Remove="GoTravel.API.Domain\appsettings.Development.json" />
+      <_ContentIncludedByDefault Remove="GoTravel.API.Domain\appsettings.json" />
+      <_ContentIncludedByDefault Remove="GoTravel.API.Domain\obj\GoTravel.API.Domain.csproj.nuget.dgspec.json" />
+      <_ContentIncludedByDefault Remove="GoTravel.API.Domain\obj\project.assets.json" />
+      <_ContentIncludedByDefault Remove="GoTravel.API.Domain\obj\project.packagespec.json" />
+      <_ContentIncludedByDefault Remove="GoTravel.API.Domain\Properties\launchSettings.json" />
+      <_ContentIncludedByDefault Remove="GoTravel.API.Services\obj\GoTravel.API.Services.csproj.nuget.dgspec.json" />
+      <_ContentIncludedByDefault Remove="GoTravel.API.Services\obj\project.assets.json" />
+      <_ContentIncludedByDefault Remove="GoTravel.API.Services\obj\project.packagespec.json" />
+      <_ContentIncludedByDefault Remove="GoTravel.API.UnitTests\obj\GoTravel.API.UnitTests.csproj.nuget.dgspec.json" />
+      <_ContentIncludedByDefault Remove="GoTravel.API.UnitTests\obj\project.assets.json" />
+      <_ContentIncludedByDefault Remove="GoTravel.API.UnitTests\obj\project.packagespec.json" />
+    </ItemGroup>
+
+
+
+
+
+
+    <ItemGroup>
+      <ProjectReference Include="..\GoTravel.API.Domain\GoTravel.API.Domain.csproj" />
+      <ProjectReference Include="..\GoTravel.API.Services\GoTravel.API.Services.csproj" />
+    </ItemGroup>
+</Project>
