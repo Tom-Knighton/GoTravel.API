@@ -73,8 +73,8 @@ pipeline {
                 }
 
                 if (env.BRANCH_NAME == "develop") {
-                    sh "docker build -t gotravelapidev:latest -f 'Project Files/Dockerfile.dev' . --progress=plain"
-                    sh "docker save -o gotravelapi_dev.tar gotravelapidev:latest"
+                    sh "docker build -t gotravelapi_dev:latest -f 'Project Files/Dockerfile.dev' . --progress=plain"
+                    sh "docker save -o gotravelapi_dev.tar gotravelapi_dev:latest"
                 }
             }
         }
