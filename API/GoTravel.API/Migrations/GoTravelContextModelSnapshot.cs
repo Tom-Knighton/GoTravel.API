@@ -62,6 +62,10 @@ namespace GoTravel.API.Migrations
                     b.Property<bool>("IsEnabled")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("LogoUrl")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<string>("PrimaryColour")
                         .IsRequired()
                         .HasColumnType("text");

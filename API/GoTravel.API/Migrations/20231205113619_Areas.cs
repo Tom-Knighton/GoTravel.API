@@ -26,6 +26,13 @@ namespace GoTravel.API.Migrations
                 defaultValue: "");
 
             migrationBuilder.AddColumn<string>(
+                name: "LogoUrl",
+                table: "LineMode",
+                type: "text",
+                nullable: false,
+                defaultValue: "");
+
+            migrationBuilder.AddColumn<string>(
                 name: "PrimaryColour",
                 table: "LineMode",
                 type: "text",
@@ -85,6 +92,10 @@ namespace GoTravel.API.Migrations
 
             migrationBuilder.DropColumn(
                 name: "BrandingColour",
+                table: "LineMode");
+
+            migrationBuilder.DropColumn(
+                name: "LogoUrl",
                 table: "LineMode");
 
             migrationBuilder.DropColumn(

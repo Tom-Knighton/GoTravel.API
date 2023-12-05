@@ -13,7 +13,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace GoTravel.API.Migrations
 {
     [DbContext(typeof(GoTravelContext))]
-    [Migration("20231205105344_Areas")]
+    [Migration("20231205113619_Areas")]
     partial class Areas
     {
         /// <inheritdoc />
@@ -64,6 +64,10 @@ namespace GoTravel.API.Migrations
 
                     b.Property<bool>("IsEnabled")
                         .HasColumnType("boolean");
+
+                    b.Property<string>("LogoUrl")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<string>("PrimaryColour")
                         .IsRequired()

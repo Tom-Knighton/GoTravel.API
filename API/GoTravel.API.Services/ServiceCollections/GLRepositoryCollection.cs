@@ -9,7 +9,9 @@ public static class GLRepositoryCollection
     public static IServiceCollection AddRepositories(this IServiceCollection services)
     {
         services.AddTransient<IStopPointRepository, StopPointRepository>();
-
+        services.AddTransient<IAreaRepository, AreaRepository>();
+        services.AddTransient<ILineModeRepository, LineModeRepository>();
+        
         return services;
     }
 }
