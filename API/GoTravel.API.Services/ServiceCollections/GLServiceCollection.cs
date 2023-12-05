@@ -9,7 +9,8 @@ public static class GLServiceCollection
     public static IServiceCollection AddGLServiceCollection(this IServiceCollection services)
     {
         services.AddTransient<IStopPointService, StopPointService>();
-
+        services.AddTransient<ILineModeService, LineModeService>();
+        
         return services;
     }
 }

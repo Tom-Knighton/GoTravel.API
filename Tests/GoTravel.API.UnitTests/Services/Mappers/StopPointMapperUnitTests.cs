@@ -5,7 +5,7 @@ using Newtonsoft.Json;
 namespace GoTravel.API.UnitTests.Services.Mappers;
 
 [TestFixture]
-public class StopPontMapperUnitTests
+public class StopPointMapperUnitTests
 {
     private IMapper<GLStopPoint, StopPointBaseDto> _sut;
 
