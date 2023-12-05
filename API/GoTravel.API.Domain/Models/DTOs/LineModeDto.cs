@@ -14,4 +14,14 @@ public class LineModeDto
     /// The lines under this line mode
     /// </summary>
     public ICollection<LineDto> Lines { get; set; }
+    
+    /// <summary>
+    /// The line may have a primary area, i.e. London, Manchester etc. Will default to 'UK'
+    /// </summary>
+    public string PrimaryAreaName { get; set; }
+    
+    /// <summary>
+    /// The branding information for the line mode
+    /// </summary>
+    public LineModeBrandingDto Branding { get; set; }
 }

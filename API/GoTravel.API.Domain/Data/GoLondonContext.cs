@@ -13,6 +13,7 @@ public class GoTravelContext: DbContext
     public virtual DbSet<GLLine> Lines { get; set; }
     public virtual DbSet<GLLineMode> LineModes { get; set; }
     public virtual DbSet<GLStopPointLine> StopPointLines { get; set; }
+    public virtual DbSet<GTArea> Areas { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -55,6 +56,17 @@ public class GoTravelContext: DbContext
         {
             e.ToTable("LineMode");
             e.HasKey(lm => lm.LineModeName);
+
+            e.HasOne(lm => lm.PrimaryArea)
+                .WithMany(a => a.LineModes)
+                .HasForeignKey(lm => lm.AreaId);
+        });
+
+        modelBuilder.Entity<GTArea>(e =>
+        {
+            e.ToTable("Area");
+            e.Property(a => a.AreaId).ValueGeneratedOnAdd();
+            e.HasKey(a => a.AreaId);
         });
     }
 }

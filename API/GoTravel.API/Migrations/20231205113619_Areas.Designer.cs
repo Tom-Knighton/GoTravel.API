@@ -3,6 +3,7 @@ using System;
 using GoTravel.API.Domain.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NetTopologySuite.Geometries;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -12,9 +13,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace GoTravel.API.Migrations
 {
     [DbContext(typeof(GoTravelContext))]
-    partial class GoTravelContextModelSnapshot : ModelSnapshot
+    [Migration("20231205113619_Areas")]
+    partial class Areas
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -52,10 +55,30 @@ namespace GoTravel.API.Migrations
                     b.Property<string>("LineModeName")
                         .HasColumnType("text");
 
+                    b.Property<int?>("AreaId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("BrandingColour")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<bool>("IsEnabled")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("LogoUrl")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("PrimaryColour")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("SecondaryColour")
+                        .HasColumnType("text");
+
                     b.HasKey("LineModeName");
+
+                    b.HasIndex("AreaId");
 
                     b.ToTable("LineMode", (string)null);
                 });
@@ -123,6 +146,27 @@ namespace GoTravel.API.Migrations
                     b.ToTable("StopPointLine", (string)null);
                 });
 
+            modelBuilder.Entity("GoTravel.API.Domain.Models.Database.GTArea", b =>
+                {
+                    b.Property<int>("AreaId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("AreaId"));
+
+                    b.Property<Polygon>("AreaCatchment")
+                        .IsRequired()
+                        .HasColumnType("geometry");
+
+                    b.Property<string>("AreaName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("AreaId");
+
+                    b.ToTable("Area", (string)null);
+                });
+
             modelBuilder.Entity("GoTravel.API.Domain.Models.Database.GLLine", b =>
                 {
                     b.HasOne("GoTravel.API.Domain.Models.Database.GLLineMode", "LineMode")
@@ -132,6 +176,15 @@ namespace GoTravel.API.Migrations
                         .IsRequired();
 
                     b.Navigation("LineMode");
+                });
+
+            modelBuilder.Entity("GoTravel.API.Domain.Models.Database.GLLineMode", b =>
+                {
+                    b.HasOne("GoTravel.API.Domain.Models.Database.GTArea", "PrimaryArea")
+                        .WithMany("LineModes")
+                        .HasForeignKey("AreaId");
+
+                    b.Navigation("PrimaryArea");
                 });
 
             modelBuilder.Entity("GoTravel.API.Domain.Models.Database.GLStopPoint", b =>
@@ -177,6 +230,11 @@ namespace GoTravel.API.Migrations
                     b.Navigation("Children");
 
                     b.Navigation("StopPointLines");
+                });
+
+            modelBuilder.Entity("GoTravel.API.Domain.Models.Database.GTArea", b =>
+                {
+                    b.Navigation("LineModes");
                 });
 #pragma warning restore 612, 618
         }

@@ -11,7 +11,8 @@ public static class MapperCollection
     public static IServiceCollection AddMapperCollection(this IServiceCollection services)
     {
         services.AddTransient<IMapper<GLStopPoint, StopPointBaseDto>, StopPointMapper>();
-
+        services.AddTransient<IMapper<GLLineMode, LineModeDto>, LineModeMapper>();
+        
         return services;
     }
 }
