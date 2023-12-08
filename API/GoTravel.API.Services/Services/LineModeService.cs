@@ -34,11 +34,18 @@ public class LineModeService: ILineModeService
         
         if (searchLatitude.HasValue && searchLongitude.HasValue)
         {
-            var searchPoint = new Point(searchLongitude.Value, searchLatitude.Value);
+            var searchPoint = new Point(searchLongitude.Value, searchLatitude.Value) { SRID = 4326 };
             var area = await _areaRepo.GetAreaFromPoint(searchPoint, ct);
             dtos = dtos.OrderByDescending(g => g.AreaName == area?.AreaName);
         }
 
         return dtos;
+    }
+
+    public async Task<string> GetAreaNameFromCoordinates(float latitude, float longitude, CancellationToken ct = default)
+    {
+        var area = await _areaRepo.GetAreaFromPoint(new Point(longitude, latitude) { SRID = 4326 }, ct);
+        
+        return area?.AreaName ?? "UK";
     }
 }
