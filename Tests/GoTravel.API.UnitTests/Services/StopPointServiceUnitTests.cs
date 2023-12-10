@@ -75,10 +75,10 @@ public class StopPointServiceUnitTests
     }
 
     [Test]
-    public async Task SearchStopPoint_Filters_ByLineMode()
+    public async Task SearchStopPoint_FiltersOut_ByLineMode()
     {
         // Arrange
-        var filters = new List<string> { "LINE MODE 3" };
+        var hiddenLineModes = new List<string> { "LINE MODE 3" };
         _mockRepo.Setup(x => x.GetStopPoints(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<GLStopPoint>()
             {
@@ -104,6 +104,22 @@ public class StopPointServiceUnitTests
                                     LineModeName = "LINE MODE 3"
                                 }
                             }
+                        },
+                        new()
+                        {
+                            StopPointId = "1",
+                            IsEnabled = true,
+                            LineId = "Line 2",
+                            Line = new()
+                            {
+                                IsEnabled = true,
+                                LineId = "2",
+                                LineMode = new()
+                                {
+                                    IsEnabled = true,
+                                    LineModeName = "LINE MODE 2"
+                                }
+                            }
                         }
                     }
                 }
@@ -113,7 +129,7 @@ public class StopPointServiceUnitTests
             .ReturnsAsync(new List<GLStopPoint>());
         
         // Act
-        var result = await _sut.GetStopPointsByNameAsync("Stop", filters);
+        var result = await _sut.GetStopPointsByNameAsync("Stop", hiddenLineModes);
         
         // Assert
         Assert.That(result, Is.Not.Null);
