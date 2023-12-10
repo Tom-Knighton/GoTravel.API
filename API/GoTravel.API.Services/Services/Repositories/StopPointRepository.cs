@@ -20,7 +20,8 @@ public class StopPointRepository: IStopPointRepository
         var results = await _context.StopPoints
             .Include(s => s.StopPointLines)
                 .ThenInclude(l => l.Line)
-                .ThenInclude(l => l.LineMode)
+                    .ThenInclude(l => l.LineMode)
+                        .ThenInclude(lm => lm.PrimaryArea)
             .Where(s => EF.Functions.ILike(s.StopPointName, $"%{searchQuery}%") || s.BusStopSMSCode == searchQuery)
             .Take(maxResults)
             .ToListAsync(cancellationToken: ct);
@@ -34,6 +35,7 @@ public class StopPointRepository: IStopPointRepository
             .Include(s => s.StopPointLines)
                 .ThenInclude(l => l.Line)
                     .ThenInclude(l => l.LineMode)
+                        .ThenInclude(lm => lm.PrimaryArea)
             .Where(s => EF.Functions.IsWithinDistance(searchPoint, s.StopPointCoordinate, searchRadius, true))
             .OrderBy(s => EF.Functions.Distance(searchPoint, s.StopPointCoordinate, true))
             .Take(maxResults)
@@ -48,6 +50,7 @@ public class StopPointRepository: IStopPointRepository
             .Include(s => s.StopPointLines)
                 .ThenInclude(l => l.Line)
                     .ThenInclude(l => l.LineMode)
+                        .ThenInclude(lm => lm.PrimaryArea)
             .Where(s => s.StopPointParentId == stopPointId)
             .ToListAsync(cancellationToken: ct);
 

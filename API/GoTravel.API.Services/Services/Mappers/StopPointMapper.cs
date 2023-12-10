@@ -6,6 +6,14 @@ namespace GoTravel.API.Services.Services.Mappers;
 
 public class StopPointMapper: IMapper<GLStopPoint, StopPointBaseDto>
 {
+
+    private IMapper<GLLineMode, LineModeDto> _lineModeMapper;
+
+    public StopPointMapper(IMapper<GLLineMode, LineModeDto> lineModeMapper)
+    {
+        _lineModeMapper = lineModeMapper;
+    }
+    
     public StopPointBaseDto Map(GLStopPoint src)
     {
         var dest = CreateBaseTypeDto(src);
@@ -28,16 +36,20 @@ public class StopPointMapper: IMapper<GLStopPoint, StopPointBaseDto>
         dest.Children = src.Children?.Select(Map).ToList();
 
         var lineLinks = src.StopPointLines;
-        var lines = lineLinks.Select(sl => sl.Line);
-        var grouped = lines
-            .GroupBy(l => l.LineMode)
-            .Select(group => new LineModeDto
-            {
-                LineModeName = group.Key.LineModeName,
-                Lines = group.Select(v => new LineDto { LineName = v.LineName }).ToList()
-            });
+        var lines = lineLinks.Select(sl => sl.Line).ToList();
+        var modes = lines
+            .Select(x => x.LineMode)
+            .DistinctBy(x => x.LineModeName);
+        
+        var newLineModes = new List<LineModeDto>();
+        foreach (var mode in modes)
+        {
+            mode.Lines = lines.Where(l => l.LineModeId == mode.LineModeName).ToList();
+            var newMode = _lineModeMapper.Map(mode);
+            newLineModes.Add(newMode);
+        }
 
-        dest.LineModes = grouped.ToList();
+        dest.LineModes = newLineModes;
 
         return dest;
     }
