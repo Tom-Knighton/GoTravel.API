@@ -17,7 +17,7 @@ public class StopPointServiceUnitTests
     public void SetUp()
     {
         _mockRepo = new Mock<IStopPointRepository>();
-        _sut = new StopPointService(_mockRepo.Object, new StopPointMapper(new LineModeMapper()));
+        _sut = new StopPointService(_mockRepo.Object, new StopPointMapper(new LineModeMapper(new FlagsMapper())));
     }
 
     [Test]

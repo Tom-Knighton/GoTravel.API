@@ -24,4 +24,9 @@ public class LineModeDto
     /// The branding information for the line mode
     /// </summary>
     public LineModeBrandingDto Branding { get; set; }
+    
+    /// <summary>
+    /// Flagged information for this line mode
+    /// </summary>
+    public ICollection<string> Flags { get; set; }
 }
