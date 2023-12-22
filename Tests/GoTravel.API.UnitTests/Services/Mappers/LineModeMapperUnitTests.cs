@@ -12,7 +12,7 @@ public class LineModeMapperUnitTests
     [SetUp]
     public void SetUp()
     {
-        _sut = new LineModeMapper();
+        _sut = new LineModeMapper(new FlagsMapper());
 
         _modelGLLineMode = new GLLineMode
         {

@@ -6,6 +6,14 @@ namespace GoTravel.API.Services.Services.Mappers;
 
 public class LineModeMapper: IMapper<GLLineMode, LineModeDto>
 {
+    private IMapper<GLFlag, string> _flagMapper;
+
+    public LineModeMapper(IMapper<GLFlag, string> flagMap)
+    {
+        _flagMapper = flagMap;
+    }
+    
+    
     public LineModeDto Map(GLLineMode source)
     {
         var dest = new LineModeDto
@@ -36,6 +44,8 @@ public class LineModeMapper: IMapper<GLLineMode, LineModeDto>
         {
             dest.PrimaryAreaName = "UK";
         }
+
+        dest.Flags = source.Flags?.Select(f => _flagMapper.Map(f)).ToList() ?? new List<string>();
 
         return dest;
     }

@@ -19,6 +19,7 @@ public class LineModeRepository: ILineModeRepository
         return await _context.LineModes
             .Include(lm => lm.Lines)
             .Include(lm => lm.PrimaryArea)
+            .Include(lm => lm.Flags)
             .ToListAsync(ct);
     }
 }

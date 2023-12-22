@@ -1,4 +1,5 @@
 using GoTravel.API.Services.Services.Mappers;
+using Moq;
 using NetTopologySuite.Geometries;
 using Newtonsoft.Json;
 
@@ -7,6 +8,7 @@ namespace GoTravel.API.UnitTests.Services.Mappers;
 [TestFixture]
 public class StopPointMapperUnitTests
 {
+    private Mock<IMapper<GLLineMode, LineModeDto>> _mockLineModeMapper;
     private IMapper<GLStopPoint, StopPointBaseDto> _sut;
 
     private GLStopPoint _modelGLStopPoint;
@@ -14,7 +16,8 @@ public class StopPointMapperUnitTests
     [SetUp]
     public void SetUp()
     {
-        _sut = new StopPointMapper();
+        _mockLineModeMapper = new Mock<IMapper<GLLineMode, LineModeDto>>();
+        _sut = new StopPointMapper(_mockLineModeMapper.Object);
         _modelGLStopPoint = new GLStopPoint
         {
             StopPointId = "123",

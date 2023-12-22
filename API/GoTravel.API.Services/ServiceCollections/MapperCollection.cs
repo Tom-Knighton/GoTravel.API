@@ -12,7 +12,7 @@ public static class MapperCollection
     {
         services.AddTransient<IMapper<GLStopPoint, StopPointBaseDto>, StopPointMapper>();
         services.AddTransient<IMapper<GLLineMode, LineModeDto>, LineModeMapper>();
-        
+        services.AddTransient<IMapper<GLFlag, string>, FlagsMapper>();
         return services;
     }
 }
