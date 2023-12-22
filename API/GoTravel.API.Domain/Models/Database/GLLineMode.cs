@@ -14,4 +14,5 @@ public class GLLineMode
     
     public virtual ICollection<GLLine> Lines { get; set; }
     public virtual GTArea? PrimaryArea { get; set; }
+    public virtual ICollection<GLFlag> Flags { get; set; }
 }

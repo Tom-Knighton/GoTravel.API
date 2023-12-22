@@ -19,6 +19,13 @@ public class GoTravelContext: DbContext
     {
         base.OnModelCreating(modelBuilder);
 
+        modelBuilder.Entity<GLFlag>(e =>
+        {
+            e.ToTable("Flags");
+            e.Property(f => f.GLFlagId).ValueGeneratedOnAdd();
+            e.HasKey(f => f.GLFlagId);
+        });
+        
         modelBuilder.Entity<GLStopPoint>(e =>
         {
             e.ToTable("StopPoint");
@@ -60,6 +67,10 @@ public class GoTravelContext: DbContext
             e.HasOne(lm => lm.PrimaryArea)
                 .WithMany(a => a.LineModes)
                 .HasForeignKey(lm => lm.AreaId);
+
+            e.HasMany(lm => lm.Flags)
+                .WithMany()
+                .UsingEntity(join => join.ToTable("Flags_LineModes"));
         });
 
         modelBuilder.Entity<GTArea>(e =>
