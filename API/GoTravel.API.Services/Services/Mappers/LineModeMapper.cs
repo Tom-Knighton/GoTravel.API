@@ -23,7 +23,8 @@ public class LineModeMapper: IMapper<GLLineMode, LineModeDto>
 
         var lines = source.Lines?.Select(l => new LineDto
         {
-            LineName = l.LineName
+            LineName = l.LineName,
+            LinePrimaryColour = l.BrandingColour
         }) ?? new List<LineDto>();
 
         dest.Lines = lines.ToList();
