@@ -6,4 +6,5 @@ namespace GoTravel.API.Domain.Models.DTOs;
 public class LineDto
 {
     public string LineName { get; set; }
+    public string? LinePrimaryColour { get; set; }
 }
