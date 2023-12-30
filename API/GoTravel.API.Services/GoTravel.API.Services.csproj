@@ -8,6 +8,7 @@
 
 
     <ItemGroup>
+      <PackageReference Include="MassTransit.RabbitMQ" Version="8.1.3" />
       <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="7.0.0" />
       <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="7.0.0" />
       <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="7.0.11" />
@@ -19,6 +20,10 @@
 
     <ItemGroup>
       <ProjectReference Include="..\GoTravel.API.Domain\GoTravel.API.Domain.csproj" />
+
+
+
+
     </ItemGroup>
 
 
