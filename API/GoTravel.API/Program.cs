@@ -32,7 +32,8 @@ builder.Services
     .AddEFCore<GoTravelContext>(builder.Configuration.GetSection("Database"))
     .AddMapperCollection()
     .AddRepositories()
-    .AddGLServiceCollection();
+    .AddGLServiceCollection()
+    .AddRabbitMq(builder.Configuration.GetSection("Rabbit"));
 
 var app = builder.Build();
 
