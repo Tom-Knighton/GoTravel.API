@@ -8,6 +8,7 @@
 
 
     <ItemGroup>
+      <PackageReference Include="GoTravel.Standard" Version="2023.12.30.1127" />
       <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL.NetTopologySuite" Version="7.0.11" />
 
 
