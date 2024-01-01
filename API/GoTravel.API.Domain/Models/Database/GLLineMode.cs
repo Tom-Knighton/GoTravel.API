@@ -2,6 +2,7 @@ namespace GoTravel.API.Domain.Models.Database;
 
 public class GLLineMode
 {
+    public string LineModeId { get; set; }
     public string LineModeName { get; set; }
     public bool IsEnabled { get; set; }
     
@@ -11,8 +12,8 @@ public class GLLineMode
     public string? SecondaryColour { get; set; }
     
     public int? AreaId { get; set; }
-    
-    public virtual ICollection<GLLine> Lines { get; set; }
+
+    public virtual ICollection<GLLine> Lines { get; set; } = new List<GLLine>();
     public virtual GTArea? PrimaryArea { get; set; }
-    public virtual ICollection<GLFlag> Flags { get; set; }
+    public virtual ICollection<GLFlag> Flags { get; set; } = new List<GLFlag>();
 }

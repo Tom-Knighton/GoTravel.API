@@ -27,7 +27,7 @@ public class LineModeServiceUnitTests
     public async Task ListAsync_ReturnsLineModesInMappedOrder_WhenNoCriteria()
     {
         // Arrange
-        _repo.Setup(x => x.GetLineModes(It.IsAny<CancellationToken>()))
+        _repo.Setup(x => x.GetLineModes(It.IsAny<bool>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<GLLineMode>
             {
                 new()
@@ -72,7 +72,7 @@ public class LineModeServiceUnitTests
     public async Task ListAsync_ReturnsLineModesInPriorityOrder()
     {
         // Arrange
-        _repo.Setup(x => x.GetLineModes(It.IsAny<CancellationToken>()))
+        _repo.Setup(x => x.GetLineModes(It.IsAny<bool>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<GLLineMode>
             {
                 new()

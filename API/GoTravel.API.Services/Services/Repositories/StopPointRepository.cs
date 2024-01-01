@@ -56,11 +56,11 @@ public static class StopPointRepositoryExtensions
     public static IQueryable<GLStopPoint> IncludeLineHierarchy(this IQueryable<GLStopPoint> query)
     {
         return query
-            .Include(x => x.StopPointLines)
+            .Include(x => x.StopPointLines.Where(l => l.IsEnabled))
                 .ThenInclude(l => l.Line)
                     .ThenInclude(l => l.LineMode)
                         .ThenInclude(lm => lm.PrimaryArea)
-            .Include(x => x.StopPointLines)
+            .Include(x => x.StopPointLines.Where(l => l.IsEnabled))
                 .ThenInclude(l => l.Line)
                     .ThenInclude(l => l.LineMode)
                         .ThenInclude(lm => lm.Flags);

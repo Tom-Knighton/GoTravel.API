@@ -62,7 +62,7 @@ public class GoTravelContext: DbContext
         modelBuilder.Entity<GLLineMode>(e =>
         {
             e.ToTable("LineMode");
-            e.HasKey(lm => lm.LineModeName);
+            e.HasKey(lm => lm.LineModeId);
 
             e.HasOne(lm => lm.PrimaryArea)
                 .WithMany(a => a.LineModes)
