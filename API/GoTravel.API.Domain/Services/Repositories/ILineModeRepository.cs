@@ -4,5 +4,8 @@ namespace GoTravel.API.Domain.Services.Repositories;
 
 public interface ILineModeRepository
 {
-    Task<ICollection<GLLineMode>> GetLineModes(CancellationToken ct = default);
+    Task<ICollection<GLLineMode>> GetLineModes(bool includeDisabled = false, CancellationToken ct = default);
+    Task<GLLineMode?> GetLineMode(string id, bool includeDisabled = false, CancellationToken ct = default);
+
+    Task<GLLineMode> Update(GLLineMode mode, CancellationToken ct = default);
 }

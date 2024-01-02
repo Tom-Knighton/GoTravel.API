@@ -5,9 +5,10 @@ pipeline {
     stage("Clean") {
         steps {
             script {
-                withDotNet(sdk: '.NET 7') {
+                withDotNet(sdk: '.NET 8') {
+                    dotnetRestore sdk: '.NET 8'
                     echo "Cleaning project..."
-                    dotnetClean sdk: '.NET 7'
+                    dotnetClean sdk: '.NET 8'
                 }
             }
         }
@@ -16,7 +17,7 @@ pipeline {
     stage("Add source") {
         steps {
             script {
-                withDotNet(sdk: '.NET 7') {
+                withDotNet(sdk: '.NET 8') {
                     withCredentials([string(credentialsId: 'addSourceCmd', variable: 'addSourceCmd')]) {
                         try {
                             echo "Adding private sources"
@@ -33,9 +34,9 @@ pipeline {
     stage("Restore Project") {
         steps {
             script {
-                withDotNet(sdk: '.NET 7') {
+                withDotNet(sdk: '.NET 8') {
                     echo "Restoring Project"
-                    dotnetRestore sdk: '.NET 7'
+                    dotnetRestore sdk: '.NET 8'
                 }
             }
         }
@@ -44,9 +45,9 @@ pipeline {
     stage("Unit Tests") {
         steps {
             script {
-                withDotNet(sdk: '.NET 7') {
+                withDotNet(sdk: '.NET 8') {
                     echo "Running Unit Tests"
-                    dotnetTest sdk: '.NET 7'
+                    dotnetTest sdk: '.NET 8'
                 }
             }
         }
@@ -55,9 +56,9 @@ pipeline {
     stage ("Build") {
         steps {
             script {
-                withDotNet(sdk: '.NET 7') {
+                withDotNet(sdk: '.NET 8') {
                     echo "Building..."
-                    dotnetBuild configuration: 'Release', noRestore: true, sdk: '.NET 7'
+                    dotnetBuild configuration: 'Release', noRestore: true, sdk: '.NET 8'
                 }
             }
         }
