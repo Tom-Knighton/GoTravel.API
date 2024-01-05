@@ -38,11 +38,11 @@ public class LineModeRepository: ILineModeRepository
     {
         await _context.BulkInsertOrUpdateAsync(new List<GLLineMode> { mode }, b =>
         {
-            b.SetOutputIdentity = true;
             b.IncludeGraph = true;
+            b.PropertiesToExcludeOnUpdate = new List<string> { "IsEnabled" };
         }, cancellationToken: ct);
 
-        await _context.SaveChangesAsync(ct);
+        await _context.BulkSaveChangesAsync(cancellationToken: ct);
 
         return mode;
     }

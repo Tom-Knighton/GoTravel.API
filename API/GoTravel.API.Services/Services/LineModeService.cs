@@ -52,7 +52,7 @@ public class LineModeService: ILineModeService
 
     public async Task UpdateLineMode(LineModeUpdateDto update, CancellationToken ct = default)
     {
-        var existing = await _repo.GetLineMode(update.LineModeName, ct: ct);
+        var existing = await _repo.GetLineMode(update.LineModeName, true, ct: ct);
 
         // If mode is new, create a new GLLineMode
         if (existing is null)
@@ -69,7 +69,7 @@ public class LineModeService: ILineModeService
         }
 
         // Get all new lines, that exist in update but not in DB
-        var newLines = update.Lines?.Where(nl => existing.Lines.All(l => l.LineName != nl)) ?? new List<string>();
+        var newLines = update.Lines?.Where(nl => existing.Lines.All(l => l.LineId != nl)) ?? new List<string>();
 
         var lines = newLines.Select(l => new GLLine
         {
