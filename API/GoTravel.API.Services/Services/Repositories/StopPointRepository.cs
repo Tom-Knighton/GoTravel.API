@@ -1,4 +1,4 @@
-using System.Linq.Expressions;
+using EFCore.BulkExtensions;
 using GoTravel.API.Domain.Data;
 using GoTravel.API.Domain.Models.Database;
 using GoTravel.API.Domain.Services.Repositories;
@@ -48,6 +48,25 @@ public class StopPointRepository: IStopPointRepository
             .ToListAsync(cancellationToken: ct);
 
         return results;
+    }
+
+    public async Task<GLStopPoint?> GetStopPoint(string id, CancellationToken ct = default)
+    {
+        return await _context.StopPoints
+            .IncludeLineHierarchy()
+            .FirstOrDefaultAsync(s => s.StopPointId == id, cancellationToken: ct);
+    }
+
+    public async Task<GLStopPoint> Update(GLStopPoint stop, CancellationToken ct = default)
+    {
+        await _context.BulkInsertOrUpdateAsync(new List<GLStopPoint> { stop }, b =>
+        {
+            b.IncludeGraph = true;
+        }, cancellationToken: ct);
+
+        await _context.BulkSaveChangesAsync(cancellationToken: ct);
+
+        return stop;
     }
 }
 
