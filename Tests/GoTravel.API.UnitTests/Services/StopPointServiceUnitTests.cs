@@ -2,6 +2,7 @@ using GoTravel.API.Domain.Services;
 using GoTravel.API.Domain.Services.Repositories;
 using GoTravel.API.Services.Services;
 using GoTravel.API.Services.Services.Mappers;
+using GoTravel.Standard.Models.MessageModels;
 using Moq;
 using Is = NUnit.Framework.Is;
 
@@ -17,7 +18,7 @@ public class StopPointServiceUnitTests
     public void SetUp()
     {
         _mockRepo = new Mock<IStopPointRepository>();
-        _sut = new StopPointService(_mockRepo.Object, new StopPointMapper(new LineModeMapper(new FlagsMapper())));
+        _sut = new StopPointService(_mockRepo.Object, new StopPointMapper(new LineModeMapper(new FlagsMapper())), new StopPointUpdateMapper());
     }
 
     [Test]

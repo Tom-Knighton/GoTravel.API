@@ -3,6 +3,7 @@ using GoTravel.API.Domain.Models.DTOs;
 using GoTravel.API.Domain.Services;
 using GoTravel.API.Domain.Services.Mappers;
 using GoTravel.API.Domain.Services.Repositories;
+using GoTravel.Standard.Models.MessageModels;
 using NetTopologySuite.Geometries;
 
 namespace GoTravel.API.Services.Services;
@@ -11,11 +12,13 @@ public class StopPointService: IStopPointService
 {
     private readonly IStopPointRepository _repo;
     private readonly IMapper<GLStopPoint, StopPointBaseDto> _mapper;
+    private readonly IMapper<StopPointUpdateDto, GLStopPoint> _updateMapper;
 
-    public StopPointService(IStopPointRepository repo, IMapper<GLStopPoint, StopPointBaseDto> mapper)
+    public StopPointService(IStopPointRepository repo, IMapper<GLStopPoint, StopPointBaseDto> mapper, IMapper<StopPointUpdateDto, GLStopPoint> updateMap)
     {
         _repo = repo;
         _mapper = mapper;
+        _updateMapper = updateMap;
     }
     
     public async Task<ICollection<StopPointBaseDto>> GetStopPointsByNameAsync(string nameQuery, ICollection<string> hiddenLineModes, int maxResults = 25, CancellationToken ct = default)
@@ -66,6 +69,39 @@ public class StopPointService: IStopPointService
         }
         
         return mapped;
+    }
+
+    public async Task UpdateStopPoint(StopPointUpdateDto update, CancellationToken ct = default)
+    {
+
+        var stopPoint = await _repo.GetStopPoint(update.Id, ct) ?? _updateMapper.Map(update);
+
+        var updatedLines = update.Lines?
+            .Where(l => stopPoint.StopPointLines.Select(x => x.LineId).Contains(l)) ?? new List<string>();
+        
+        if (update.Latitude is not null && update.Longitude is not null)
+        {
+            stopPoint.StopPointCoordinate = new Point(update.Longitude ?? 0, update.Latitude ?? 0);
+        }
+
+        stopPoint.BusStopIndicator = update.Indicator ?? stopPoint.BusStopIndicator;
+        stopPoint.BusStopLetter = update.Letter ?? stopPoint.BusStopLetter;
+        stopPoint.StopPointHub = update.HubId ?? stopPoint.StopPointHub;
+        stopPoint.StopPointName = update.Name ?? stopPoint.StopPointName;
+        stopPoint.BusStopSMSCode = update.SMS ?? stopPoint.BusStopSMSCode;
+        stopPoint.StopPointParentId = update.ParentId ?? stopPoint.StopPointParentId;
+        
+        foreach (var lineToAdd in updatedLines)
+        {
+            stopPoint.StopPointLines.Add(new GLStopPointLine
+            {
+                LineId = lineToAdd,
+                IsEnabled = false,
+                StopPointId = stopPoint.StopPointId
+            });
+        }
+
+        await _repo.Update(stopPoint, ct);
     }
 
     /// <summary>
