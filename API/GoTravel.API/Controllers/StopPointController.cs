@@ -1,5 +1,4 @@
 using System.ComponentModel.DataAnnotations;
-using System.Net;
 using GoTravel.API.Domain.Models.DTOs;
 using GoTravel.API.Domain.Services;
 using Microsoft.AspNetCore.Mvc;
