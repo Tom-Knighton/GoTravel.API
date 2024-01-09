@@ -1,7 +1,6 @@
 using GoTravel.API.Services.Services.Mappers;
 using Moq;
 using NetTopologySuite.Geometries;
-using Newtonsoft.Json;
 
 namespace GoTravel.API.UnitTests.Services.Mappers;
 

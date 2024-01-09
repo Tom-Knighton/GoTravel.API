@@ -25,10 +25,10 @@ builder.Services.AddControllers().AddJsonOptions(o =>
     o.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
 });
 builder.Services.AddSingleton(NtsGeometryServices.Instance);
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
 
 builder.Services
+    .AddSwaggerServices(builder.Configuration.GetSection("Authentication"))
+    .AddAuthServices(builder.Configuration.GetSection("Authentication"))
     .AddEFCore<GoTravelContext>(builder.Configuration.GetSection("Database"))
     .AddMapperCollection()
     .AddRepositories()
@@ -40,10 +40,10 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.UseDeveloperExceptionPage();
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerServices(builder.Configuration.GetSection("Authentication"));
 }
 
+app.UseAuthServices();
 app.UseHttpsRedirection();
 app.MapControllers();
 
