@@ -1,5 +1,4 @@
 using System.ComponentModel.DataAnnotations;
-using System.Net;
 using GoTravel.API.Domain.Models.DTOs;
 using GoTravel.API.Domain.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -11,10 +10,12 @@ namespace GoTravel.API.Controllers;
 public class StopPointController: ControllerBase
 {
     private readonly IStopPointService _stopPointService;
+    private readonly IArrivalsService _arrivalsService;
 
-    public StopPointController(IStopPointService stopPointService)
+    public StopPointController(IStopPointService stopPointService, IArrivalsService arrivals)
     {
         _stopPointService = stopPointService;
+        _arrivalsService = arrivals;
     }
 
     [HttpGet]
@@ -51,6 +52,26 @@ public class StopPointController: ControllerBase
         try
         {
             var results = await _stopPointService.GetStopPointsAroundPointAsync(lat, lon, hiddenLineModes, radius, maxResults, ct);
+            return Ok(results);
+        }
+        catch (ArgumentException e)
+        {
+            return BadRequest(new { error = e.Message });
+        }
+        catch (Exception e)
+        {
+            return StatusCode(500, new { error = e.Message });
+        }
+    }
+
+    [HttpGet]
+    [Route("{stopId}/Arrivals")]
+    [Produces(typeof(StopPointArrivalsDto))]
+    public async Task<IActionResult> GetArrivalsForStop(string stopId, bool includeChildrenAndHubs = false, CancellationToken ct = default)
+    {
+        try
+        {
+            var results = await _arrivalsService.GetArrivalsForStopPointAsync(stopId, includeChildrenAndHubs, ct);
             return Ok(results);
         }
         catch (ArgumentException e)
