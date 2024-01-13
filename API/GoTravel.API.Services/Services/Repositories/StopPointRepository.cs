@@ -50,6 +50,26 @@ public class StopPointRepository: IStopPointRepository
         return results;
     }
 
+    public async Task<ICollection<string>> GetChildIdsOf(string stopPointId, CancellationToken ct = default)
+    {
+        var results = await _context.StopPoints
+            .Where(s => s.StopPointParentId == stopPointId)
+            .Select(s => s.StopPointId)
+            .ToListAsync(ct);
+
+        return results;
+    }
+
+    public async Task<ICollection<string>> GetIdsOfStopsAtHub(string hubId, CancellationToken ct = default)
+    {
+        var results = await _context.StopPoints
+            .Where(s => s.StopPointHub == hubId)
+            .Select(s => s.StopPointId)
+            .ToListAsync(ct);
+
+        return results;
+    }
+
     public async Task<GLStopPoint?> GetStopPoint(string id, CancellationToken ct = default)
     {
         return await _context.StopPoints

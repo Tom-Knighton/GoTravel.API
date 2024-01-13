@@ -104,6 +104,36 @@ public class StopPointService: IStopPointService
         await _repo.Update(stopPoint, ct);
     }
 
+    public async Task<ICollection<string>> GetChildIdsAsync(string stopId, CancellationToken ct = default)
+    {
+        var allIds = new List<string>();
+
+        var stop = await _repo.GetStopPoint(stopId, ct);
+        if (stop is null)
+            return allIds;
+
+        if (!string.IsNullOrWhiteSpace(stop.StopPointHub))
+        {
+            allIds.AddRange(await _repo.GetIdsOfStopsAtHub(stop.StopPointHub, ct));
+        }
+
+        await GetChildIdsRecursive(stopId, allIds);
+
+        return allIds.Distinct().ToList();
+    }
+
+    private async Task GetChildIdsRecursive(string id, ICollection<string> results)
+    {
+        results.Add(id);
+
+        var children = await _repo.GetChildIdsOf(id);
+
+        foreach (var child in children)
+        {
+            await GetChildIdsRecursive(child, results);
+        }
+    }
+
     /// <summary>
     /// Removes any line modes in the hiddenLineModes list.
     /// Removes any stop points that have no line modes left after filtering.
