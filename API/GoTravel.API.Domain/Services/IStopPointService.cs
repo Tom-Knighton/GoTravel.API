@@ -1,5 +1,6 @@
 using System.Collections;
 using GoTravel.API.Domain.Models.DTOs;
+using GoTravel.Standard.Models.Arrivals;
 using GoTravel.Standard.Models.MessageModels;
 
 namespace GoTravel.API.Domain.Services;
@@ -31,4 +32,9 @@ public interface IStopPointService
     /// Consumes an update message and performs an UPSERT on some basic stop point information
     /// </summary>
     public Task UpdateStopPoint(StopPointUpdateDto update, CancellationToken ct = default);
+
+    /// <summary>
+    /// Returns the ids of stop points that are children of the provided id, or it's HUB id
+    /// </summary>
+    public Task<ICollection<string>> GetChildIdsAsync(string stopId, CancellationToken ct = default);
 }

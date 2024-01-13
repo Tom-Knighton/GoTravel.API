@@ -33,7 +33,9 @@ builder.Services
     .AddMapperCollection()
     .AddRepositories()
     .AddGLServiceCollection()
-    .AddRabbitMq(builder.Configuration.GetSection("Rabbit"));
+    .AddRabbitMq(builder.Configuration.GetSection("Rabbit"))
+    .AddConnectorServices(builder.Configuration.GetSection("Connector"))
+    .AddRedis(builder.Configuration.GetSection("Redis"));
 
 var app = builder.Build();
 

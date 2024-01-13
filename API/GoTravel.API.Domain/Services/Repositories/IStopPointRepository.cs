@@ -1,3 +1,4 @@
+using System.Collections;
 using GoTravel.API.Domain.Models.Database;
 using NetTopologySuite.Geometries;
 
@@ -19,6 +20,16 @@ public interface IStopPointRepository
     /// Returns a list of StopPoints that are children of a given StopPoint.
     /// </summary>
     public Task<ICollection<GLStopPoint>> GetAllChildrenOf(string stopPointId, CancellationToken ct = default);
+
+    /// <summary>
+    /// Returns the ids of all child stop points of a given stop point.
+    /// </summary>
+    public Task<ICollection<string>> GetChildIdsOf(string stopPointId, CancellationToken ct = default);
+
+    /// <summary>
+    /// Returns the ids of a stop points under a given HUB id
+    /// </summary>
+    public Task<ICollection<string>> GetIdsOfStopsAtHub(string hubId, CancellationToken ct = default);
 
     /// <summary>
     /// Returns a specified stop point from the database, if it exists
