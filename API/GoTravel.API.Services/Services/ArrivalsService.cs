@@ -27,7 +27,7 @@ public class ArrivalsService: IArrivalsService
     
     public async Task<StopPointArrivalsDto> GetArrivalsForStopPointAsync(string stopId, bool includeChildrenAndHubs = false, CancellationToken ct = default)
     {
-        var cacheKey = $"cache_arrivals:{stopId}";
+        var cacheKey = $"cache_arrivals:{stopId}_{(includeChildrenAndHubs ? "_withChildren" : "")}";
         if (await _cache.KeyExistsAsync(cacheKey))
         {
             var cached = await _cache.JSON().GetAsync<StopPointArrivalsDto>(cacheKey);
