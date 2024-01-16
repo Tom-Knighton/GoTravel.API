@@ -1,6 +1,9 @@
 using System.Reflection;
 using GoTravel.API.Domain.Models.Database;
+using GoTravel.Standard.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using Newtonsoft.Json.Converters;
 
 namespace GoTravel.API.Domain.Data;
 
@@ -14,6 +17,8 @@ public class GoTravelContext: DbContext
     public virtual DbSet<GLLineMode> LineModes { get; set; }
     public virtual DbSet<GLStopPointLine> StopPointLines { get; set; }
     public virtual DbSet<GTArea> Areas { get; set; }
+    public virtual DbSet<GTStopPointInfoKey> StopPointInfoKeys { get; set; }
+    public virtual DbSet<GTStopPointInfoValue> StopPointInfoValues { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -78,6 +83,25 @@ public class GoTravelContext: DbContext
             e.ToTable("Area");
             e.Property(a => a.AreaId).ValueGeneratedOnAdd();
             e.HasKey(a => a.AreaId);
+        });
+
+        modelBuilder.Entity<GTStopPointInfoKey>(e =>
+        {
+            e.ToTable("StopPointInfoKeys");
+            e.HasKey(k => k.InfoKey);
+            e.Property(k => k.InfoKey).HasConversion<EnumToStringConverter<StopPointInfoKey>>();
+        });
+
+        modelBuilder.Entity<GTStopPointInfoValue>(e =>
+        {
+            e.ToTable("StopPointInfo");
+            e.HasKey(i => new { i.StopPointId, i.KeyId });
+            e.HasOne(i => i.Key)
+                .WithMany()
+                .HasForeignKey(i => i.KeyId);
+            e.HasOne(i => i.StopPoint)
+                .WithMany()
+                .HasForeignKey(i => i.StopPointId);
         });
     }
 }

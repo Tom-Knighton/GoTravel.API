@@ -4,6 +4,7 @@ using GoTravel.API.Services.Services;
 using GoTravel.API.Services.Services.Mappers;
 using GoTravel.Standard.Models.MessageModels;
 using Moq;
+using StackExchange.Redis;
 using Is = NUnit.Framework.Is;
 
 namespace GoTravel.API.UnitTests.Services;
@@ -12,13 +13,15 @@ namespace GoTravel.API.UnitTests.Services;
 public class StopPointServiceUnitTests
 {
     private Mock<IStopPointRepository> _mockRepo;
+    private Mock<IDatabase> _mockDb;
     private IStopPointService _sut;
 
     [SetUp]
     public void SetUp()
     {
         _mockRepo = new Mock<IStopPointRepository>();
-        _sut = new StopPointService(_mockRepo.Object, new StopPointMapper(new LineModeMapper(new FlagsMapper())), new StopPointUpdateMapper());
+        _mockDb = new Mock<IDatabase>();
+        _sut = new StopPointService(_mockRepo.Object, new StopPointMapper(new LineModeMapper(new FlagsMapper())), new StopPointUpdateMapper(), new StopPointInfoMapper(), _mockDb.Object);
     }
 
     [Test]

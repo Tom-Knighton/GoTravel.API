@@ -1,11 +1,18 @@
 using System.Collections;
 using GoTravel.API.Domain.Models.Database;
+using GoTravel.Standard.Models;
 using NetTopologySuite.Geometries;
 
 namespace GoTravel.API.Domain.Services.Repositories;
 
 public interface IStopPointRepository
 {
+
+    /// <summary>
+    /// Whether or not a stop point exists with the specified id
+    /// </summary>
+    public Task<bool> StopPointExists(string stopPointId, CancellationToken ct = default);
+    
     /// <summary>
     /// Returns a list of StopPoints, their lines and line modes, that match a search query.
     /// </summary>
@@ -40,5 +47,20 @@ public interface IStopPointRepository
     /// Performs an UPSERT on a StopPoint
     /// </summary>
     Task<GLStopPoint> Update(GLStopPoint stop, CancellationToken ct = default);
+
+    /// <summary>
+    /// Removes/deletes all StopPointInfo values for a specific stop from the database
+    /// </summary>
+    Task RemoveInfoValues(string stopPointId, CancellationToken ct = default);
+    
+    /// <summary>
+    /// Inserts a collection of new GTStopPointInfoValue objects
+    /// </summary>
+    Task InsertInfoValues(IEnumerable<GTStopPointInfoValue> values, CancellationToken ct = default);
+
+    /// <summary>
+    /// Returns a list of all GTStopPointInfoValue results for a stop point
+    /// </summary>
+    public Task<ICollection<GTStopPointInfoValue>> GetInfoForStop(string id, CancellationToken ct = default);
 
 }

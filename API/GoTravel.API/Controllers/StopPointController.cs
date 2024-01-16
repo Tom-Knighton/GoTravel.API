@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using GoTravel.API.Domain.Exceptions;
 using GoTravel.API.Domain.Models.DTOs;
 using GoTravel.API.Domain.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -81,6 +82,26 @@ public class StopPointController: ControllerBase
         catch (Exception e)
         {
             return StatusCode(500, new { error = e.Message });
+        }
+    }
+
+    [HttpGet]
+    [Route("{stopId}/Info")]
+    [Produces(typeof(StopPointInformationDto))]
+    public async Task<IActionResult> GetInformationForStop(string stopId, bool useParentOrHub = false, CancellationToken ct = default)
+    {
+        try
+        {
+            var result = await _stopPointService.GetStopPointInformation(stopId, useParentOrHub, ct);
+            return Ok(result);
+        }
+        catch (NoStopPointException ex)
+        {
+            return NotFound(new { error = ex.Message });
+        }
+        catch (Exception e)
+        {
+            return StatusCode(500);
         }
     }
 }

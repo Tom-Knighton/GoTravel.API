@@ -45,8 +45,12 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerServices(builder.Configuration.GetSection("Authentication"));
 }
 
+
 app.UseAuthServices();
 app.UseHttpsRedirection();
 app.MapControllers();
 
+app.UseEfCore();
+
 app.Run();
+

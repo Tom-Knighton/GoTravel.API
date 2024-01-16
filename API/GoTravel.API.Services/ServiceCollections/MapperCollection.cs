@@ -1,3 +1,4 @@
+using System.Collections;
 using GoTravel.API.Domain.Models.Database;
 using GoTravel.API.Domain.Models.DTOs;
 using GoTravel.API.Domain.Services.Mappers;
@@ -17,6 +18,7 @@ public static class MapperCollection
         services.AddTransient<IMapper<GLFlag, string>, FlagsMapper>();
         services.AddTransient<IMapper<StopPointUpdateDto, GLStopPoint>, StopPointUpdateMapper>();
         services.AddTransient<IMapper<IEnumerable<ArrivalDeparture>, ICollection<LineArrivals>>, ArrivalGroupMapper>();
+        services.AddTransient<IMapper<ICollection<GTStopPointInfoValue>, StopPointInformationDto>, StopPointInfoMapper>();
         return services;
     }
 }
