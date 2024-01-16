@@ -15,7 +15,12 @@ public class StopPointRepository: IStopPointRepository
     {
         _context = context;
     }
-    
+
+    public async Task<bool> StopPointExists(string stopPointId, CancellationToken ct = default)
+    {
+        return await _context.StopPoints.AnyAsync(s => s.StopPointId == stopPointId, ct);
+    }
+
     public async Task<ICollection<GLStopPoint>> GetStopPoints(string searchQuery, int maxResults, CancellationToken ct = default)
     {
         var results = await _context.StopPoints
@@ -87,6 +92,33 @@ public class StopPointRepository: IStopPointRepository
         await _context.BulkSaveChangesAsync(cancellationToken: ct);
 
         return stop;
+    }
+
+    public async Task RemoveInfoValues(string stopPointId, CancellationToken ct = default)
+    {
+        var toDelete = await _context.StopPointInfoValues
+            .Where(i => i.StopPointId == stopPointId)
+            .ToListAsync(ct);
+        await _context.BulkDeleteAsync(toDelete, cancellationToken: ct);
+        await _context.BulkSaveChangesAsync(cancellationToken: ct);
+    }
+
+    public async Task InsertInfoValues(IEnumerable<GTStopPointInfoValue> values, CancellationToken ct = default)
+    {
+        var entities = values.ToList();
+        await _context.BulkInsertOrUpdateAsync(entities, b =>
+        {
+            b.IncludeGraph = false;
+        }, cancellationToken: ct);
+
+        await _context.BulkSaveChangesAsync(cancellationToken: ct);
+    }
+
+    public async Task<ICollection<GTStopPointInfoValue>> GetInfoForStop(string id, CancellationToken ct = default)
+    {
+        return await _context.StopPointInfoValues
+            .Where(i => i.StopPointId == id)
+            .ToListAsync(ct);
     }
 }
 

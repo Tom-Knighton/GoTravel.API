@@ -1,3 +1,5 @@
+using GoTravel.API.Domain.Data;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -32,6 +34,19 @@ public static class EFCoreCollection
             });
         });
 
+        services.AddTransient<GoTravelSeeder>();
+        
         return services;
+    }
+
+    public static IApplicationBuilder UseEfCore(this IApplicationBuilder app)
+    {
+        var scopeFactory = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>();
+
+        using var scope = scopeFactory.CreateScope();
+        var service = scope.ServiceProvider.GetRequiredService<GoTravelSeeder>();
+        service.Seed();
+        
+        return app;
     }
 }
