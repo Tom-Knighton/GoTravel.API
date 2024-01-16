@@ -9,6 +9,13 @@ namespace GoTravel.API.Domain.Services;
 public interface IStopPointService
 {
     /// <summary>
+    /// Returns a stop point from a given id, optionally returning the whole HUB.
+    /// </summary>
+    /// <param name="stopId">The id of the stop point to get details for</param>
+    /// <param name="getHub">Whether or not to return the entire HUB rather than the stop itself</param>
+    public Task<StopPointBaseDto?> GetStopPoint(string stopId, bool getHub = false, CancellationToken ct = default);
+    
+    /// <summary>
     /// Returns a list of stop points with a similar name to a search query.
     /// </summary>
     /// <param name="nameQuery">The search query</param>

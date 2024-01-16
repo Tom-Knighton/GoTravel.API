@@ -66,6 +66,31 @@ public class StopPointController: ControllerBase
     }
 
     [HttpGet]
+    [Route("{stopId}")]
+    [Produces(typeof(StopPointBaseDto))]
+    public async Task<IActionResult> GetStopPointById(string stopId, bool getHub = false, CancellationToken ct = default)
+    {
+        try
+        {
+            var stopPoint = await _stopPointService.GetStopPoint(stopId, getHub, ct);
+            if (stopPoint is null)
+            {
+                return StatusCode(500);
+            }
+
+            return Ok(stopPoint);
+        }
+        catch (NoStopPointException ex)
+        {
+            return NotFound("No stop point");
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500);
+        }
+    }
+
+    [HttpGet]
     [Route("{stopId}/Arrivals")]
     [Produces(typeof(StopPointArrivalsDto))]
     public async Task<IActionResult> GetArrivalsForStop(string stopId, bool includeChildrenAndHubs = false, CancellationToken ct = default)
