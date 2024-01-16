@@ -1,8 +1,11 @@
+using System.Collections;
+using GoTravel.API.Domain.Exceptions;
 using GoTravel.API.Domain.Models.Database;
 using GoTravel.API.Domain.Models.DTOs;
 using GoTravel.API.Domain.Services;
 using GoTravel.API.Domain.Services.Mappers;
 using GoTravel.API.Domain.Services.Repositories;
+using GoTravel.Standard.Models;
 using GoTravel.Standard.Models.MessageModels;
 using NetTopologySuite.Geometries;
 
@@ -13,12 +16,15 @@ public class StopPointService: IStopPointService
     private readonly IStopPointRepository _repo;
     private readonly IMapper<GLStopPoint, StopPointBaseDto> _mapper;
     private readonly IMapper<StopPointUpdateDto, GLStopPoint> _updateMapper;
+    private readonly IMapper<ICollection<GTStopPointInfoValue>, StopPointInformationDto> _infoMapper;
 
-    public StopPointService(IStopPointRepository repo, IMapper<GLStopPoint, StopPointBaseDto> mapper, IMapper<StopPointUpdateDto, GLStopPoint> updateMap)
+    public StopPointService(IStopPointRepository repo, IMapper<GLStopPoint, StopPointBaseDto> mapper, IMapper<StopPointUpdateDto, GLStopPoint> updateMap,
+        IMapper<ICollection<GTStopPointInfoValue>, StopPointInformationDto> infoMapper)
     {
         _repo = repo;
         _mapper = mapper;
         _updateMapper = updateMap;
+        _infoMapper = infoMapper;
     }
     
     public async Task<ICollection<StopPointBaseDto>> GetStopPointsByNameAsync(string nameQuery, ICollection<string> hiddenLineModes, int maxResults = 25, CancellationToken ct = default)
@@ -120,6 +126,47 @@ public class StopPointService: IStopPointService
         await GetChildIdsRecursive(stopId, allIds);
 
         return allIds.Distinct().ToList();
+    }
+
+    public async Task ClearAndUpdateStopPointInfo(string stopId, ICollection<KeyValuePair<StopPointInfoKey, string>> infoKvps, CancellationToken ct = default)
+    {
+        if (await _repo.StopPointExists(stopId, ct) == false)
+        {
+            //TODO: Log
+            Console.WriteLine("TRIED TO WRITE INFO FOR STOP POINT WHICH DOESNT EXIST");
+            return;
+        }
+        
+        
+        await _repo.RemoveInfoValues(stopId, ct);
+
+        var newValues = new List<GTStopPointInfoValue>();
+        foreach (var kvp in infoKvps)
+        {
+            newValues.Add(new GTStopPointInfoValue
+            {
+                KeyId = kvp.Key,
+                StopPointId = stopId,
+                Value = kvp.Value
+            });
+        }
+
+        await _repo.InsertInfoValues(newValues, ct);
+    }
+
+    public async Task<StopPointInformationDto> GetStopPointInformation(string stopId, bool useHub = false, CancellationToken ct = default)
+    {
+        var stopPoint = await _repo.GetStopPoint(stopId, ct) ?? throw new NoStopPointException(stopId);
+
+        if (useHub && !string.IsNullOrWhiteSpace(stopPoint.StopPointHub))
+        {
+            stopPoint = await _repo.GetStopPoint(stopPoint.StopPointHub, ct) ?? throw new NoStopPointException(stopPoint.StopPointHub);
+        }
+
+        var info = await _repo.GetInfoForStop(stopPoint.StopPointId, ct);
+        var dto = _infoMapper.Map(info);
+
+        return dto;
     }
 
     private async Task GetChildIdsRecursive(string id, ICollection<string> results)
