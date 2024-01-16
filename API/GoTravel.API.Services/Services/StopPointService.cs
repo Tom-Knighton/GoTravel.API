@@ -30,7 +30,26 @@ public class StopPointService: IStopPointService
         _infoMapper = infoMapper;
         _cache = db;
     }
-    
+
+    public async Task<StopPointBaseDto?> GetStopPoint(string stopId, bool getHub = false, CancellationToken ct = default)
+    {
+        var result = await _repo.GetStopPoint(stopId, ct);
+
+        if (result is null)
+        {
+            throw new NoStopPointException(stopId);
+        }
+
+        if (!string.IsNullOrWhiteSpace(result.StopPointHub) && getHub)
+        {
+            result = await _repo.GetStopPoint(result.StopPointHub, ct) ?? result;
+        }
+
+        var dto = _mapper.Map(result);
+
+        return dto;
+    }
+
     public async Task<ICollection<StopPointBaseDto>> GetStopPointsByNameAsync(string nameQuery, ICollection<string> hiddenLineModes, int maxResults = 25, CancellationToken ct = default)
     {
         var results = await _repo.GetStopPoints(nameQuery, maxResults, ct);
