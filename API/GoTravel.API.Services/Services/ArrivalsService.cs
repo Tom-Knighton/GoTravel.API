@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Text.Json;
 using GoTravel.API.Domain.Models.DTOs;
 using GoTravel.API.Domain.Services;

@@ -8,6 +8,8 @@ using GoTravel.API.Domain.Services.Repositories;
 using GoTravel.Standard.Models;
 using GoTravel.Standard.Models.MessageModels;
 using NetTopologySuite.Geometries;
+using NRedisStack.RedisStackCommands;
+using StackExchange.Redis;
 
 namespace GoTravel.API.Services.Services;
 
@@ -17,14 +19,16 @@ public class StopPointService: IStopPointService
     private readonly IMapper<GLStopPoint, StopPointBaseDto> _mapper;
     private readonly IMapper<StopPointUpdateDto, GLStopPoint> _updateMapper;
     private readonly IMapper<ICollection<GTStopPointInfoValue>, StopPointInformationDto> _infoMapper;
+    private readonly IDatabase _cache;
 
     public StopPointService(IStopPointRepository repo, IMapper<GLStopPoint, StopPointBaseDto> mapper, IMapper<StopPointUpdateDto, GLStopPoint> updateMap,
-        IMapper<ICollection<GTStopPointInfoValue>, StopPointInformationDto> infoMapper)
+        IMapper<ICollection<GTStopPointInfoValue>, StopPointInformationDto> infoMapper, IDatabase db)
     {
         _repo = repo;
         _mapper = mapper;
         _updateMapper = updateMap;
         _infoMapper = infoMapper;
+        _cache = db;
     }
     
     public async Task<ICollection<StopPointBaseDto>> GetStopPointsByNameAsync(string nameQuery, ICollection<string> hiddenLineModes, int maxResults = 25, CancellationToken ct = default)
@@ -156,6 +160,16 @@ public class StopPointService: IStopPointService
 
     public async Task<StopPointInformationDto> GetStopPointInformation(string stopId, bool useHub = false, CancellationToken ct = default)
     {
+        var cacheKey = $"cache_info:{stopId}_{(useHub ? "hub" : "self")}_information";
+        if (await _cache.KeyExistsAsync(cacheKey))
+        {
+            var cached = await _cache.JSON().GetAsync<StopPointInformationDto>(cacheKey);
+            if (cached is not null)
+            {
+                return cached;
+            }
+        }
+        
         var stopPoint = await _repo.GetStopPoint(stopId, ct) ?? throw new NoStopPointException(stopId);
 
         if (useHub && !string.IsNullOrWhiteSpace(stopPoint.StopPointHub))
@@ -165,6 +179,12 @@ public class StopPointService: IStopPointService
 
         var info = await _repo.GetInfoForStop(stopPoint.StopPointId, ct);
         var dto = _infoMapper.Map(info);
+
+        if (dto is not null)
+        {
+            await _cache.JSON().SetAsync(cacheKey, "$", dto);
+            await _cache.KeyExpireAsync(cacheKey, new TimeSpan(1, 0, 0, 0));
+        }
 
         return dto;
     }
