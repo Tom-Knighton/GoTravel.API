@@ -44,7 +44,7 @@ public class StopPointMapper: IMapper<GLStopPoint, StopPointBaseDto>
         var newLineModes = new List<LineModeDto>();
         foreach (var mode in modes)
         {
-            mode.Lines = lines.Where(l => l.LineModeId == mode.LineModeName).ToList();
+            mode.Lines = lines.Where(l => l.LineModeId == mode.LineModeId).ToList();
             var newMode = _lineModeMapper.Map(mode);
             newLineModes.Add(newMode);
         }
