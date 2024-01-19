@@ -34,7 +34,7 @@ public class ArrivalGroupMapper: IMapper<IEnumerable<ArrivalDeparture>, ICollect
 
             var lineGroup = new LineArrivals
             {
-                Line = line,
+                LineId = line,
                 LineMode = arrivalsForLine.FirstOrDefault()?.LineMode ?? "",
                 Platforms = platformGroups.ToList()
             };
