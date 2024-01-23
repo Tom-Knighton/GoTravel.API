@@ -48,7 +48,7 @@ public class ArrivalsService: IArrivalsService
             stopIds.AddRange(await _stopPointService.GetChildIdsAsync(stopId, ct));
         }
 
-        var arrivalTasks = stopIds.Select(id => _connector.GetStreamAsync($"Arrivals/{id}", ct)).ToList();
+        var arrivalTasks = stopIds.Distinct().Select(id => _connector.GetStreamAsync($"Arrivals/{id}", ct)).ToList();
         var getAllArrivalTasks = Task.WhenAll(arrivalTasks);
         try
         {
