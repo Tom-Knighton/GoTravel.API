@@ -1,6 +1,7 @@
 using EFCore.BulkExtensions;
 using GoTravel.API.Domain.Data;
 using GoTravel.API.Domain.Models.Database;
+using GoTravel.API.Domain.Models.DTOs;
 using GoTravel.API.Domain.Services.Repositories;
 using Microsoft.EntityFrameworkCore;
 
@@ -32,6 +33,16 @@ public class LineModeRepository: ILineModeRepository
             .Include(lm => lm.PrimaryArea)
             .Include(lm => lm.Flags)
             .FirstOrDefaultAsync(l => l.LineModeId == id, ct);
+    }
+
+    public async Task<ICollection<GLLineMode>> GetLineModesByLineIds(ICollection<string> lineIds, bool includeDisabled = false, CancellationToken ct = default)
+    {
+        return await _context.LineModes
+            .Include(lm => lm.Lines.Where(l => lineIds.Contains(l.LineId) && (includeDisabled || l.IsEnabled)))
+            .Include(lm => lm.PrimaryArea)
+            .Include(lm => lm.Flags)
+            .Where(lm => lm.Lines.Any(l => lineIds.Contains(l.LineId)))
+            .ToListAsync(ct);
     }
 
     public async Task<GLLineMode> Update(GLLineMode mode, CancellationToken ct = default)
