@@ -32,10 +32,14 @@ builder.Services
     .AddEFCore<GoTravelContext>(builder.Configuration.GetSection("Database"))
     .AddMapperCollection()
     .AddRepositories()
-    .AddGLServiceCollection()
+    .AddGTServiceCollection()
     .AddRabbitMq(builder.Configuration.GetSection("Rabbit"))
     .AddConnectorServices(builder.Configuration.GetSection("Connector"))
-    .AddRedis(builder.Configuration.GetSection("Redis"));
+    .AddRedis(builder.Configuration.GetSection("Redis"))
+    .ConfigureHttpJsonOptions(o =>
+    {
+        o.SerializerOptions.PropertyNameCaseInsensitive = true;
+    });;
 
 var app = builder.Build();
 
