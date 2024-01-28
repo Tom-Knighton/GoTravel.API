@@ -43,6 +43,13 @@ public class LineModeService: ILineModeService
         return dtos;
     }
 
+    public async Task<IEnumerable<LineModeDto>> ListFromLineIdsAsync(ICollection<string> lineIds, CancellationToken ct = default)
+    {
+        var results = await _repo.GetLineModesByLineIds(lineIds, false, ct);
+        var dtos = results.Select(r => _mapper.Map(r)).ToList();
+        return dtos;
+    }
+
     public async Task<string> GetAreaNameFromCoordinates(float latitude, float longitude, CancellationToken ct = default)
     {
         var area = await _areaRepo.GetAreaFromPoint(new Point(longitude, latitude) { SRID = 4326 }, ct);
