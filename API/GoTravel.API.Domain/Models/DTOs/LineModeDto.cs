@@ -5,8 +5,14 @@ namespace GoTravel.API.Domain.Models.DTOs;
 /// </summary>
 public class LineModeDto
 {
+    
     /// <summary>
-    /// The id and displayable name of the line i.e. Tube, Elizabeth Line etc.
+    /// The unique id of the line mode, will be referenced in related data i.e. journeys
+    /// </summary>
+    public string LineModeId { get; set; }
+    
+    /// <summary>
+    /// The displayable name of the line i.e. Tube, Elizabeth Line etc.
     /// </summary>
     public string LineModeName { get; set; }
     
