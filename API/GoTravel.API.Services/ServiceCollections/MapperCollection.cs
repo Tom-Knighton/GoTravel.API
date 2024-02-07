@@ -1,9 +1,9 @@
-using System.Collections;
 using GoTravel.API.Domain.Models.Database;
 using GoTravel.API.Domain.Models.DTOs;
 using GoTravel.API.Domain.Services.Mappers;
 using GoTravel.API.Services.Services.Mappers;
 using GoTravel.Standard.Models.Arrivals;
+using GoTravel.Standard.Models.Journeys;
 using GoTravel.Standard.Models.MessageModels;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -13,12 +13,14 @@ public static class MapperCollection
 {
     public static IServiceCollection AddMapperCollection(this IServiceCollection services)
     {
-        services.AddTransient<IMapper<GLStopPoint, StopPointBaseDto>, StopPointMapper>();
+        services.AddTransient<IMapper<GTStopPoint, StopPointBaseDto>, StopPointMapper>();
         services.AddTransient<IMapper<GLLineMode, LineModeDto>, LineModeMapper>();
         services.AddTransient<IMapper<GLFlag, string>, FlagsMapper>();
-        services.AddTransient<IMapper<StopPointUpdateDto, GLStopPoint>, StopPointUpdateMapper>();
+        services.AddTransient<IMapper<StopPointUpdateDto, GTStopPoint>, StopPointUpdateMapper>();
         services.AddTransient<IMapper<IEnumerable<ArrivalDeparture>, ICollection<LineArrivals>>, ArrivalGroupMapper>();
         services.AddTransient<IMapper<ICollection<GTStopPointInfoValue>, StopPointInformationDto>, StopPointInfoMapper>();
+
+        services.AddTransient<IAsyncMapper<Journey, JourneyDto>, JourneyAsyncMapper>();
         return services;
     }
 }

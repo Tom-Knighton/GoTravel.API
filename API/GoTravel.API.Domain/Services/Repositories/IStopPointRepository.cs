@@ -16,17 +16,17 @@ public interface IStopPointRepository
     /// <summary>
     /// Returns a list of StopPoints, their lines and line modes, that match a search query.
     /// </summary>
-    public Task<ICollection<GLStopPoint>> GetStopPoints(string searchQuery, int maxResults, CancellationToken ct = default);
+    public Task<ICollection<GTStopPoint>> GetStopPoints(string searchQuery, int maxResults, CancellationToken ct = default);
     
     /// <summary>
     /// Returns a list of StopPoints, their lines and line modes, around a specific point.
     /// </summary>
-    public Task<ICollection<GLStopPoint>> GetStopPoints(Point searchPoint, int searchRadius, int maxResults, CancellationToken ct = default);
+    public Task<ICollection<GTStopPoint>> GetStopPoints(Point searchPoint, int searchRadius, int maxResults, CancellationToken ct = default);
 
     /// <summary>
     /// Returns a list of StopPoints that are children of a given StopPoint.
     /// </summary>
-    public Task<ICollection<GLStopPoint>> GetAllChildrenOf(string stopPointId, CancellationToken ct = default);
+    public Task<ICollection<GTStopPoint>> GetAllChildrenOf(string stopPointId, CancellationToken ct = default);
 
     /// <summary>
     /// Returns the ids of all child stop points of a given stop point.
@@ -41,12 +41,12 @@ public interface IStopPointRepository
     /// <summary>
     /// Returns a specified stop point from the database, if it exists
     /// </summary>
-    public Task<GLStopPoint?> GetStopPoint(string id, CancellationToken ct = default);
+    public Task<GTStopPoint?> GetStopPoint(string id, CancellationToken ct = default);
     
     /// <summary>
     /// Performs an UPSERT on a StopPoint
     /// </summary>
-    Task<GLStopPoint> Update(GLStopPoint stop, CancellationToken ct = default);
+    Task<GTStopPoint> Update(GTStopPoint stop, CancellationToken ct = default);
 
     /// <summary>
     /// Removes/deletes all StopPointInfo values for a specific stop from the database
@@ -62,5 +62,10 @@ public interface IStopPointRepository
     /// Returns a list of all GTStopPointInfoValue results for a stop point
     /// </summary>
     public Task<ICollection<GTStopPointInfoValue>> GetInfoForStop(string id, CancellationToken ct = default);
+
+    /// <summary>
+    /// Returns the minimum information, i.e. id and name, for requested stops
+    /// </summary>
+    public Task<ICollection<GTStopPoint>> GetMinimumInfoFor(ICollection<string> ids, CancellationToken ct = default);
 
 }

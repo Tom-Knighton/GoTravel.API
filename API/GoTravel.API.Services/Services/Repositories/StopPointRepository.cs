@@ -21,7 +21,7 @@ public class StopPointRepository: IStopPointRepository
         return await _context.StopPoints.AnyAsync(s => s.StopPointId == stopPointId, ct);
     }
 
-    public async Task<ICollection<GLStopPoint>> GetStopPoints(string searchQuery, int maxResults, CancellationToken ct = default)
+    public async Task<ICollection<GTStopPoint>> GetStopPoints(string searchQuery, int maxResults, CancellationToken ct = default)
     {
         var results = await _context.StopPoints
             .IncludeLineHierarchy()
@@ -32,7 +32,7 @@ public class StopPointRepository: IStopPointRepository
         return results;
     }
 
-    public async Task<ICollection<GLStopPoint>> GetStopPoints(Point searchPoint, int searchRadius, int maxResults, CancellationToken ct = default)
+    public async Task<ICollection<GTStopPoint>> GetStopPoints(Point searchPoint, int searchRadius, int maxResults, CancellationToken ct = default)
     {
         var results = await _context.StopPoints
             .IncludeLineHierarchy()
@@ -44,7 +44,7 @@ public class StopPointRepository: IStopPointRepository
         return results;
     }
 
-    public async Task<ICollection<GLStopPoint>> GetAllChildrenOf(string stopPointId, CancellationToken ct = default)
+    public async Task<ICollection<GTStopPoint>> GetAllChildrenOf(string stopPointId, CancellationToken ct = default)
     {
         var results = await _context.StopPoints
             .IncludeLineHierarchy()
@@ -75,16 +75,16 @@ public class StopPointRepository: IStopPointRepository
         return results;
     }
 
-    public async Task<GLStopPoint?> GetStopPoint(string id, CancellationToken ct = default)
+    public async Task<GTStopPoint?> GetStopPoint(string id, CancellationToken ct = default)
     {
         return await _context.StopPoints
             .IncludeLineHierarchy()
             .FirstOrDefaultAsync(s => s.StopPointId == id, cancellationToken: ct);
     }
 
-    public async Task<GLStopPoint> Update(GLStopPoint stop, CancellationToken ct = default)
+    public async Task<GTStopPoint> Update(GTStopPoint stop, CancellationToken ct = default)
     {
-        await _context.BulkInsertOrUpdateAsync(new List<GLStopPoint> { stop }, b =>
+        await _context.BulkInsertOrUpdateAsync(new List<GTStopPoint> { stop }, b =>
         {
             b.IncludeGraph = true;
         }, cancellationToken: ct);
@@ -120,11 +120,26 @@ public class StopPointRepository: IStopPointRepository
             .Where(i => i.StopPointId == id)
             .ToListAsync(ct);
     }
+
+    public async Task<ICollection<GTStopPoint>> GetMinimumInfoFor(ICollection<string> ids, CancellationToken ct = default)
+    {
+        return await _context.StopPoints
+            .Select(s => new { s.StopPointId, s.StopPointName, s.BusStopIndicator, s.BusStopLetter })
+            .Where(s => ids.Contains(s.StopPointId))
+            .Select(s => new GTStopPoint
+            {
+                StopPointName = s.StopPointName,
+                StopPointId = s.StopPointId,
+                BusStopIndicator = s.BusStopIndicator,
+                BusStopLetter = s.BusStopLetter
+            })
+            .ToListAsync(ct);
+    }
 }
 
 public static class StopPointRepositoryExtensions
 {
-    public static IQueryable<GLStopPoint> IncludeLineHierarchy(this IQueryable<GLStopPoint> query)
+    public static IQueryable<GTStopPoint> IncludeLineHierarchy(this IQueryable<GTStopPoint> query)
     {
         return query
             .Include(x => x.StopPointLines.Where(l => l.IsEnabled))

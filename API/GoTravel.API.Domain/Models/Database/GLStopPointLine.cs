@@ -6,6 +6,6 @@ public class GLStopPointLine
     public string LineId { get; set; }
     public bool IsEnabled { get; set; }
 
-    public virtual GLStopPoint StopPoint { get; set; }
+    public virtual GTStopPoint StopPoint { get; set; }
     public virtual GLLine Line { get; set; }
 }
