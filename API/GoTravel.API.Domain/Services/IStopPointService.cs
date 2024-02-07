@@ -57,4 +57,10 @@ public interface IStopPointService
     /// <param name="stopId">The id of the stop to request information for</param>
     /// <param name="useHubOrParent">Whether or not to use the Hub or parent's info instead of the specific stop</param>
     public Task<StopPointInformationDto> GetStopPointInformation(string stopId, bool useHubOrParent = false, CancellationToken ct = default);
+
+    /// <summary>
+    /// Returns super basic information about stops (i.e. names) from a list of ids, mainly used for journeys
+    /// </summary>
+    /// <param name="stopIds">The stop ids to request</param>
+    public Task<ICollection<JourneyLegStopPointDto>> GetBasicLegStopPointDtos(ICollection<string> stopIds, CancellationToken ct = default);
 }

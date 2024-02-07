@@ -8,21 +8,21 @@ namespace GoTravel.API.UnitTests.Services.Mappers;
 public class StopPointMapperUnitTests
 {
     private Mock<IMapper<GLLineMode, LineModeDto>> _mockLineModeMapper;
-    private IMapper<GLStopPoint, StopPointBaseDto> _sut;
+    private IMapper<GTStopPoint, StopPointBaseDto> _sut;
 
-    private GLStopPoint _modelGLStopPoint;
+    private GTStopPoint _modelGtStopPoint;
     
     [SetUp]
     public void SetUp()
     {
         _mockLineModeMapper = new Mock<IMapper<GLLineMode, LineModeDto>>();
         _sut = new StopPointMapper(_mockLineModeMapper.Object);
-        _modelGLStopPoint = new GLStopPoint
+        _modelGtStopPoint = new GTStopPoint
         {
             StopPointId = "123",
             StopPointName = "Test Stop",
             StopPointCoordinate = new Point(255, 555),
-            StopPointType = GLStopPointType.TrainStopPoint,
+            StopPointType = GTStopPointType.TrainStopPoint,
             StopPointLines = new List<GLStopPointLine>
             {
                 new()
@@ -41,13 +41,13 @@ public class StopPointMapperUnitTests
         };
     }
     
-    [TestCase(GLStopPointType.TrainStopPoint, typeof(TrainStopPointDto))]
-    [TestCase(GLStopPointType.BusStopPoint, typeof(BusStopPointDto))]
-    [TestCase(GLStopPointType.BikeStopPoint, typeof(BikeStopPointDto))]
-    public void Map_MapsToCorrectType(GLStopPointType dbType, Type expectedType)
+    [TestCase(GTStopPointType.TrainStopPoint, typeof(TrainStopPointDto))]
+    [TestCase(GTStopPointType.BusStopPoint, typeof(BusStopPointDto))]
+    [TestCase(GTStopPointType.BikeStopPoint, typeof(BikeStopPointDto))]
+    public void Map_MapsToCorrectType(GTStopPointType dbType, Type expectedType)
     {
         // Arrange
-        var stopPoint = new GLStopPoint
+        var stopPoint = new GTStopPoint
         {
             StopPointType = dbType
         };
@@ -63,7 +63,7 @@ public class StopPointMapperUnitTests
     public void Map_MapsDefaultExpectedProperties()
     {
         // Arrange
-        var stopPoint = _modelGLStopPoint;
+        var stopPoint = _modelGtStopPoint;
 
         // Act
         var result = _sut.Map(stopPoint);
@@ -82,8 +82,8 @@ public class StopPointMapperUnitTests
     public void Map_MapsBusProperties()
     {
         // Arrange
-        var stopPoint = _modelGLStopPoint;
-        stopPoint.StopPointType = GLStopPointType.BusStopPoint;
+        var stopPoint = _modelGtStopPoint;
+        stopPoint.StopPointType = GTStopPointType.BusStopPoint;
         stopPoint.BusStopIndicator = "X";
         stopPoint.BusStopLetter = "Y";
         stopPoint.BusStopSMSCode = "XYXYXY";
@@ -106,8 +106,8 @@ public class StopPointMapperUnitTests
     public void Map_MapsBikeProperties()
     {
         // Arrange
-        var stopPoint = _modelGLStopPoint;
-        stopPoint.StopPointType = GLStopPointType.BikeStopPoint;
+        var stopPoint = _modelGtStopPoint;
+        stopPoint.StopPointType = GTStopPointType.BikeStopPoint;
         stopPoint.BikesAvailable = 10;
         stopPoint.EBikesAvailable = 20;
         

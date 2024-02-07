@@ -1,3 +1,5 @@
+using System.Collections;
+using GoTravel.API.Domain.Models.DTOs;
 using GoTravel.API.Domain.Services;
 using GoTravel.Standard.Models.Journeys;
 using Microsoft.AspNetCore.Mvc;
@@ -18,6 +20,7 @@ public class JourneyController: ControllerBase
     
     [HttpPost]
     [Route("")]
+    [Produces(typeof(JourneyOptionsResultDto))]
     public async Task<IActionResult> GetJourneyOptions([FromBody] JourneyRequest request, CancellationToken ct = default)
     {
         try

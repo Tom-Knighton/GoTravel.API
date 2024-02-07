@@ -28,12 +28,12 @@ public class StopPointServiceUnitTests
     public async Task GetStopPointChildren_ReturnsDeepChildrenCorrectly()
     {
         // Arrange
-        var allStopPoints = new List<GLStopPoint>
+        var allStopPoints = new List<GTStopPoint>
         {
             new()
             {
                 StopPointId = "2",
-                StopPointType = GLStopPointType.TrainStopPoint,
+                StopPointType = GTStopPointType.TrainStopPoint,
                 StopPointParentId = "1",
                 StopPointName = "Child 1",
                 StopPointLines = new List<GLStopPointLine>() { }
@@ -41,7 +41,7 @@ public class StopPointServiceUnitTests
             new()
             {
                 StopPointId = "3",
-                StopPointType = GLStopPointType.TrainStopPoint,
+                StopPointType = GTStopPointType.TrainStopPoint,
                 StopPointParentId = "2",
                 StopPointName = "Child 1-1",
                 StopPointLines = new List<GLStopPointLine>() { }
@@ -49,7 +49,7 @@ public class StopPointServiceUnitTests
             new()
             {
                 StopPointId = "4",
-                StopPointType = GLStopPointType.TrainStopPoint,
+                StopPointType = GTStopPointType.TrainStopPoint,
                 StopPointParentId = "1",
                 StopPointName = "Child 2",
                 StopPointLines = new List<GLStopPointLine>() { }
@@ -84,12 +84,12 @@ public class StopPointServiceUnitTests
         // Arrange
         var hiddenLineModes = new List<string> { "LINE MODE 3" };
         _mockRepo.Setup(x => x.GetStopPoints(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new List<GLStopPoint>()
+            .ReturnsAsync(new List<GTStopPoint>()
             {
                 new()
                 {
                     StopPointId = "1",
-                    StopPointType = GLStopPointType.TrainStopPoint,
+                    StopPointType = GTStopPointType.TrainStopPoint,
                     StopPointName = "Stop 001",
                     StopPointLines = new List<GLStopPointLine>
                     {
@@ -130,7 +130,7 @@ public class StopPointServiceUnitTests
             });
 
         _mockRepo.Setup(x => x.GetAllChildrenOf(It.IsAny<string>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new List<GLStopPoint>());
+            .ReturnsAsync(new List<GTStopPoint>());
         
         // Act
         var result = await _sut.GetStopPointsByNameAsync("Stop", hiddenLineModes);
