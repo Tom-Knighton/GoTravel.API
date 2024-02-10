@@ -42,6 +42,7 @@ public class LineModeRepository: ILineModeRepository
             .Include(lm => lm.PrimaryArea)
             .Include(lm => lm.Flags)
             .Where(lm => lm.Lines.Any(l => lineIds.Contains(l.LineId)))
+            .AsNoTracking()
             .ToListAsync(ct);
     }
 

@@ -16,11 +16,11 @@ public class JourneyLegDto
     public DateTime BeginLegAt { get; set; }
     public DateTime EndLegAt { get; set; }
     public int LegDuration { get; set; }
-    
-    public string? StartAtStopId { get; set; }
     public string? StartAtName { get; set; }
-    public string? EndAtStopId { get; set; }
     public string? EndAtName { get; set; }
+    
+    public JourneyLegStopPointDto? StartAtStop { get; set; }
+    public JourneyLegStopPointDto? EndAtStop { get; set; }
     
     public JourneyLegDetailsDto LegDetails { get; set; }
 }
@@ -50,4 +50,5 @@ public class JourneyLegStopPointDto
 {
     public string StopPointId { get; set; }
     public string StopPointName { get; set; }
+    public Point StopCoordinate { get; set; }
 }

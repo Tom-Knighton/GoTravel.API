@@ -34,8 +34,8 @@ public class JourneyAsyncMapper: IAsyncMapper<Journey, JourneyDto>
         {
             var lineMode = leg.LegDetails.ModeId switch
             {
-                WalkModeId => new LineModeDto { LineModeId = "walking", LineModeName = "Walk" },
-                CycleModeId => new LineModeDto { LineModeId = "cycle", LineModeName = "Cycle" },
+                WalkModeId => new LineModeDto { LineModeId = "walking", LineModeName = "Walk", PrimaryAreaName = string.Empty, Lines = new List<LineDto>(), Branding = new LineModeBrandingDto { LineModeBackgroundColour = "", LineModePrimaryColour = "", LineModeLogoUrl = ""}},
+                CycleModeId => new LineModeDto { LineModeId = "cycle", LineModeName = "Cycle", PrimaryAreaName = string.Empty, Lines = new List<LineDto>(), Branding = new LineModeBrandingDto { LineModeBackgroundColour = "", LineModePrimaryColour = "", LineModeLogoUrl = ""}},
                 _ => (await _lineModes.ListFromLineIdsAsync(leg.LegDetails.LineIds)).FirstOrDefault()
             };
 
@@ -65,10 +65,18 @@ public class JourneyAsyncMapper: IAsyncMapper<Journey, JourneyDto>
                 LegDuration = leg.LegDuration,
                 StartAtName = leg.StartAtStopName,
                 EndAtName = leg.EndAtStopName,
-                StartAtStopId = leg.StartAtStopId,
-                EndAtStopId = leg.EndAtStopId,
                 LegDetails = details
             };
+
+            if (!string.IsNullOrWhiteSpace(leg.StartAtStopId))
+            {
+                legDto.StartAtStop = (await _stopPoints.GetBasicLegStopPointDtos(new List<string> { leg.StartAtStopId })).FirstOrDefault();
+            }
+            if (!string.IsNullOrWhiteSpace(leg.EndAtStopId))
+            {
+                legDto.EndAtStop = (await _stopPoints.GetBasicLegStopPointDtos(new List<string> { leg.EndAtStopId })).FirstOrDefault();
+            }
+            
             legs.Add(legDto);
         }
 

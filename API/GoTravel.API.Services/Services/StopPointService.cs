@@ -226,11 +226,17 @@ public class StopPointService: IStopPointService
             return new JourneyLegStopPointDto
             {
                 StopPointId = s.StopPointId,
-                StopPointName = s.StopPointName + suffix
+                StopPointName = s.StopPointName + suffix,
+                StopCoordinate = s.StopPointCoordinate
             };
         });
 
-        return dtos.ToList();
+        var ordered = stopIds
+            .Select(id => dtos.FirstOrDefault(s => s.StopPointId == id))
+            .Where(s => s is not null)
+            .ToList();
+
+        return ordered;
     }
 
     private async Task GetChildIdsRecursive(string id, ICollection<string> results)

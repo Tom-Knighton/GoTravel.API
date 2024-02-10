@@ -124,14 +124,15 @@ public class StopPointRepository: IStopPointRepository
     public async Task<ICollection<GTStopPoint>> GetMinimumInfoFor(ICollection<string> ids, CancellationToken ct = default)
     {
         return await _context.StopPoints
-            .Select(s => new { s.StopPointId, s.StopPointName, s.BusStopIndicator, s.BusStopLetter })
+            .Select(s => new { s.StopPointId, s.StopPointName, s.BusStopIndicator, s.BusStopLetter, s.StopPointCoordinate })
             .Where(s => ids.Contains(s.StopPointId))
             .Select(s => new GTStopPoint
             {
                 StopPointName = s.StopPointName,
                 StopPointId = s.StopPointId,
                 BusStopIndicator = s.BusStopIndicator,
-                BusStopLetter = s.BusStopLetter
+                BusStopLetter = s.BusStopLetter,
+                StopPointCoordinate = s.StopPointCoordinate
             })
             .ToListAsync(ct);
     }
