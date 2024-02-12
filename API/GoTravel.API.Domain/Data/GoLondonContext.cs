@@ -110,6 +110,7 @@ public class GoTravelContext: DbContext
         {
             e.ToTable("User");
             e.HasKey(u => u.UserId);
+            e.HasIndex(u => u.UserName).IsUnique();
         });
     }
 }
