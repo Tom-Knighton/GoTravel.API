@@ -19,6 +19,8 @@ public class GoTravelContext: DbContext
     public virtual DbSet<GTArea> Areas { get; set; }
     public virtual DbSet<GTStopPointInfoKey> StopPointInfoKeys { get; set; }
     public virtual DbSet<GTStopPointInfoValue> StopPointInfoValues { get; set; }
+    
+    public virtual DbSet<GTUserDetails> Users { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -102,6 +104,13 @@ public class GoTravelContext: DbContext
             e.HasOne(i => i.StopPoint)
                 .WithMany()
                 .HasForeignKey(i => i.StopPointId);
+        });
+
+        modelBuilder.Entity<GTUserDetails>(e =>
+        {
+            e.ToTable("User");
+            e.HasKey(u => u.UserId);
+            e.HasIndex(u => u.UserName).IsUnique();
         });
     }
 }

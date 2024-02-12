@@ -27,6 +27,7 @@ builder.Services.AddControllers().AddJsonOptions(o =>
 builder.Services.AddSingleton(NtsGeometryServices.Instance);
 
 builder.Services
+    .AddHttpContextAccessor()
     .AddSwaggerServices(builder.Configuration.GetSection("Authentication"))
     .AddAuthServices(builder.Configuration.GetSection("Authentication"))
     .AddEFCore<GoTravelContext>(builder.Configuration.GetSection("Database"))
