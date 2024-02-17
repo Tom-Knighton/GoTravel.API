@@ -44,6 +44,7 @@ public static class AuthCollection
             c.DefaultRequestHeaders.Add("User-Agent", "GoTravel.API");
         });
 
+        services.AddSingleton<IM2MService, M2MService>();
         services.AddTransient<IUserRepository, UserRepository>();
         services.AddTransient<IAuthService, AuthService>();
         services.AddTransient<IUserService, UserService>();

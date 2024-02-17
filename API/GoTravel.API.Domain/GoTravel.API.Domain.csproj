@@ -11,8 +11,7 @@
     <ItemGroup>
       <PackageReference Include="GoTravel.Standard" Version="2024.2.7.1035" />
       <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL.NetTopologySuite" Version="8.0.0" />
-
-
+        <FrameworkReference Include="Microsoft.AspNetCore.App" />
     </ItemGroup>
 
 
