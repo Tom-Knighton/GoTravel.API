@@ -37,6 +37,7 @@ builder.Services
     .AddRabbitMq(builder.Configuration.GetSection("Rabbit"))
     .AddConnectorServices(builder.Configuration.GetSection("Connector"))
     .AddRedis(builder.Configuration.GetSection("Redis"))
+    .AddMinioCollection(builder.Configuration.GetSection("CDN"))
     .ConfigureHttpJsonOptions(o =>
     {
         o.SerializerOptions.PropertyNameCaseInsensitive = true;
