@@ -36,5 +36,5 @@ public interface IUserService
     /// <summary>
     /// Uploads a profile picture to a CDN and updates the user's details to point to the uploaded url
     /// </summary>
-    public Task<bool> UpdateProfilePictureUrl(string id, IFormFile picture, CancellationToken ct = default);
+    public Task<bool> UpdateProfilePictureUrl(string username, IFormFile picture, CancellationToken ct = default);
 }

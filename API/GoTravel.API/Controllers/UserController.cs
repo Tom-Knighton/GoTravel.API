@@ -99,6 +99,7 @@ public class UserController : ControllerBase
 
     [HttpPut]
     [Route("{username}/updateDetails")]
+    [Produces(typeof(bool))]
     public async Task<IActionResult> UpdateUserDetails(string username, [FromBody] UpdateUserDetailsDto dto, CancellationToken ct = default)
     {
         try
@@ -106,7 +107,7 @@ public class UserController : ControllerBase
             await _userService.ThrowIfUserOperatingOnOtherUser(username, ct);
             if (await _userService.UpdateUserDetails(username, dto, ct))
             {
-                return Ok(await _userService.GetUserInfoByIdOrUsername(dto.username ?? username, ct));
+                return Ok(true);
             }
 
             return BadRequest("Username is already taken");
@@ -129,13 +130,14 @@ public class UserController : ControllerBase
     
     [HttpPut]
     [Route("{username}/updateProfilePicture")]
+    [Produces(typeof(bool))]
     public async Task<IActionResult> UpdateUserProfilePicture(string username, [Required] IFormFile picture, CancellationToken ct = default)
     {
         try
         {
-            // await _userService.ThrowIfUserOperatingOnOtherUser(username, ct);
-            await _userService.UpdateProfilePictureUrl(username, picture, ct);
-            return Ok();
+            await _userService.ThrowIfUserOperatingOnOtherUser(username, ct);
+            var success = await _userService.UpdateProfilePictureUrl(username, picture, ct);
+            return Ok(success);
         }
         catch (WrongUserException)
         {
