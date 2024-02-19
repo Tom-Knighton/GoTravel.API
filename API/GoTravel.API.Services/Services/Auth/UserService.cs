@@ -7,9 +7,9 @@ using GoTravel.API.Domain.Services.Auth;
 using GoTravel.API.Domain.Services.Repositories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.StaticFiles;
+using Microsoft.Extensions.Configuration;
 using Minio;
 using Minio.DataModel.Args;
-using Minio.DataModel.Response;
 
 namespace GoTravel.API.Services.Services.Auth;
 
@@ -22,13 +22,15 @@ public class UserService: IUserService
     
     private const string DbConnectionPrefix = "auth0|";
     private const string ProfilePicBucket = "gotravel";
+    private readonly string UserProfilePicSlug;
     
-    public UserService(IAuthService authService, IUserRepository repo, IHttpContextAccessor context, IMinioClient minio)
+    public UserService(IAuthService authService, IUserRepository repo, IHttpContextAccessor context, IMinioClient minio, IConfiguration config)
     {
         _authService = authService;
         _userRepo = repo;
         _context = context;
         _minio = minio;
+        UserProfilePicSlug = config.GetSection("CDN").GetValue<string>("UserSlug");
     }
 
 
@@ -143,7 +145,7 @@ public class UserService: IUserService
         var guid = Guid.NewGuid().ToString("N");
         var args = new PutObjectArgs()
             .WithBucket(ProfilePicBucket)
-            .WithObject($"Users/{user.UserId}/{guid}{Path.GetExtension(picture.FileName)}")
+            .WithObject($"{UserProfilePicSlug}/{user.UserId}/{guid}{Path.GetExtension(picture.FileName)}")
             .WithStreamData(stream)
             .WithObjectSize(stream.Length)
             .WithContentType(GetMimeType(picture.FileName));
@@ -153,7 +155,7 @@ public class UserService: IUserService
             var oldUrl = user.UserProfilePicUrl;
             await _minio.PutObjectAsync(args, ct);
 
-            var url = $"https://{_minio.Config.BaseUrl}/{ProfilePicBucket}/Users/{user.UserId}/{guid}{Path.GetExtension(picture.FileName)}";
+            var url = $"https://{_minio.Config.BaseUrl}/{ProfilePicBucket}/{UserProfilePicSlug}/{user.UserId}/{guid}{Path.GetExtension(picture.FileName)}";
 
             user.UserProfilePicUrl = url;
             await _userRepo.SaveUser(user, ct);
