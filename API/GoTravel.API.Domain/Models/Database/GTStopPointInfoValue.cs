@@ -8,6 +8,6 @@ public class GTStopPointInfoValue
     public StopPointInfoKey KeyId { get; set; }
     public string Value { get; set; }
     
-    public virtual GLStopPoint StopPoint { get; set; }
+    public virtual GTStopPoint StopPoint { get; set; }
     public virtual GTStopPointInfoKey Key { get; set; }
 }

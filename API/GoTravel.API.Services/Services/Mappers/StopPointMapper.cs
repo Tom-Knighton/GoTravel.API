@@ -4,7 +4,7 @@ using GoTravel.API.Domain.Services.Mappers;
 
 namespace GoTravel.API.Services.Services.Mappers;
 
-public class StopPointMapper: IMapper<GLStopPoint, StopPointBaseDto>
+public class StopPointMapper: IMapper<GTStopPoint, StopPointBaseDto>
 {
 
     private IMapper<GLLineMode, LineModeDto> _lineModeMapper;
@@ -14,7 +14,7 @@ public class StopPointMapper: IMapper<GLStopPoint, StopPointBaseDto>
         _lineModeMapper = lineModeMapper;
     }
     
-    public StopPointBaseDto Map(GLStopPoint src)
+    public StopPointBaseDto Map(GTStopPoint src)
     {
         var dest = CreateBaseTypeDto(src);
         dest.StopPointId = src.StopPointId;
@@ -26,9 +26,9 @@ public class StopPointMapper: IMapper<GLStopPoint, StopPointBaseDto>
 
         dest = src.StopPointType switch
         {
-            GLStopPointType.TrainStopPoint => MapAsTrainStop(src, dest),
-            GLStopPointType.BusStopPoint => MapAsBusStop(src, dest),
-            GLStopPointType.BikeStopPoint => MapAsBikeStop(src, dest),
+            GTStopPointType.TrainStopPoint => MapAsTrainStop(src, dest),
+            GTStopPointType.BusStopPoint => MapAsBusStop(src, dest),
+            GTStopPointType.BikeStopPoint => MapAsBikeStop(src, dest),
             _ => throw new ArgumentOutOfRangeException()
         };
         
@@ -54,17 +54,17 @@ public class StopPointMapper: IMapper<GLStopPoint, StopPointBaseDto>
         return dest;
     }
 
-    private StopPointBaseDto CreateBaseTypeDto(GLStopPoint src)
+    private StopPointBaseDto CreateBaseTypeDto(GTStopPoint src)
     {
         return src.StopPointType switch {
-            GLStopPointType.TrainStopPoint => new TrainStopPointDto(),
-            GLStopPointType.BusStopPoint => new BusStopPointDto(),
-            GLStopPointType.BikeStopPoint => new BikeStopPointDto(),
+            GTStopPointType.TrainStopPoint => new TrainStopPointDto(),
+            GTStopPointType.BusStopPoint => new BusStopPointDto(),
+            GTStopPointType.BikeStopPoint => new BikeStopPointDto(),
             _ => throw new ArgumentOutOfRangeException()
         };
     }
     
-    private BusStopPointDto MapAsBusStop(GLStopPoint src, StopPointBaseDto dest)
+    private BusStopPointDto MapAsBusStop(GTStopPoint src, StopPointBaseDto dest)
     {
         var busStop = (BusStopPointDto)dest;
 
@@ -75,14 +75,14 @@ public class StopPointMapper: IMapper<GLStopPoint, StopPointBaseDto>
         return busStop;
     }
 
-    private TrainStopPointDto MapAsTrainStop(GLStopPoint src, StopPointBaseDto dest)
+    private TrainStopPointDto MapAsTrainStop(GTStopPoint src, StopPointBaseDto dest)
     {
         var trainStop = (TrainStopPointDto)dest;
 
         return trainStop;
     }
 
-    private BikeStopPointDto MapAsBikeStop(GLStopPoint src, StopPointBaseDto dest)
+    private BikeStopPointDto MapAsBikeStop(GTStopPoint src, StopPointBaseDto dest)
     {
         var bikeStop = (BikeStopPointDto)dest;
 
@@ -92,14 +92,14 @@ public class StopPointMapper: IMapper<GLStopPoint, StopPointBaseDto>
         return bikeStop;
     }
 
-    private StopPointType MapType(GLStopPointType glType)
+    private StopPointType MapType(GTStopPointType gtType)
     {
-        return glType switch
+        return gtType switch
         {
-            GLStopPointType.TrainStopPoint => StopPointType.Train,
-            GLStopPointType.BusStopPoint => StopPointType.Bus,
-            GLStopPointType.BikeStopPoint => StopPointType.Bike,
-            _ => throw new ArgumentOutOfRangeException(nameof(glType))
+            GTStopPointType.TrainStopPoint => StopPointType.Train,
+            GTStopPointType.BusStopPoint => StopPointType.Bus,
+            GTStopPointType.BikeStopPoint => StopPointType.Bike,
+            _ => throw new ArgumentOutOfRangeException(nameof(gtType))
         };
     }
 }

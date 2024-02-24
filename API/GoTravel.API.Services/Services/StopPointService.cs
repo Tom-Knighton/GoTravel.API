@@ -1,4 +1,4 @@
-using System.Collections;
+using System.Text;
 using GoTravel.API.Domain.Exceptions;
 using GoTravel.API.Domain.Models.Database;
 using GoTravel.API.Domain.Models.DTOs;
@@ -16,12 +16,12 @@ namespace GoTravel.API.Services.Services;
 public class StopPointService: IStopPointService
 {
     private readonly IStopPointRepository _repo;
-    private readonly IMapper<GLStopPoint, StopPointBaseDto> _mapper;
-    private readonly IMapper<StopPointUpdateDto, GLStopPoint> _updateMapper;
+    private readonly IMapper<GTStopPoint, StopPointBaseDto> _mapper;
+    private readonly IMapper<StopPointUpdateDto, GTStopPoint> _updateMapper;
     private readonly IMapper<ICollection<GTStopPointInfoValue>, StopPointInformationDto> _infoMapper;
     private readonly IDatabase _cache;
 
-    public StopPointService(IStopPointRepository repo, IMapper<GLStopPoint, StopPointBaseDto> mapper, IMapper<StopPointUpdateDto, GLStopPoint> updateMap,
+    public StopPointService(IStopPointRepository repo, IMapper<GTStopPoint, StopPointBaseDto> mapper, IMapper<StopPointUpdateDto, GTStopPoint> updateMap,
         IMapper<ICollection<GTStopPointInfoValue>, StopPointInformationDto> infoMapper, IDatabase db)
     {
         _repo = repo;
@@ -206,6 +206,37 @@ public class StopPointService: IStopPointService
         }
 
         return dto;
+    }
+
+    public async Task<ICollection<JourneyLegStopPointDto>> GetBasicLegStopPointDtos(ICollection<string> stopIds, CancellationToken ct = default)
+    {
+        var stops = await _repo.GetMinimumInfoFor(stopIds, ct);
+        var dtos = stops.Select(s =>
+        {
+            var suffix = new StringBuilder();
+            if (!string.IsNullOrWhiteSpace(s.BusStopLetter))
+            {
+                suffix.Append($" (Stop {s.BusStopLetter})");
+            }
+            else if (!string.IsNullOrWhiteSpace(s.BusStopIndicator))
+            {
+                suffix.Append($" ({s.BusStopIndicator})");
+            }
+
+            return new JourneyLegStopPointDto
+            {
+                StopPointId = s.StopPointId,
+                StopPointName = s.StopPointName + suffix,
+                StopCoordinate = s.StopPointCoordinate
+            };
+        });
+
+        var ordered = stopIds
+            .Select(id => dtos.FirstOrDefault(s => s.StopPointId == id))
+            .Where(s => s is not null)
+            .ToList();
+
+        return ordered;
     }
 
     private async Task GetChildIdsRecursive(string id, ICollection<string> results)

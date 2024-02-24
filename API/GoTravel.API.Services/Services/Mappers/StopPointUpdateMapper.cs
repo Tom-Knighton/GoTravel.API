@@ -5,17 +5,17 @@ using NetTopologySuite.Geometries;
 
 namespace GoTravel.API.Services.Services.Mappers;
 
-public class StopPointUpdateMapper: IMapper<StopPointUpdateDto, GLStopPoint>
+public class StopPointUpdateMapper: IMapper<StopPointUpdateDto, GTStopPoint>
 {
-    public GLStopPoint Map(StopPointUpdateDto source)
+    public GTStopPoint Map(StopPointUpdateDto source)
     {
         var isBus = source.Indicator is not null || source.Letter is not null;
-        var stopPoint = new GLStopPoint
+        var stopPoint = new GTStopPoint
         {
             StopPointId = source.Id,
             StopPointName = source.Name ?? "",
             StopPointParentId = source.ParentId,
-            StopPointType = isBus ? GLStopPointType.BusStopPoint : GLStopPointType.TrainStopPoint,
+            StopPointType = isBus ? GTStopPointType.BusStopPoint : GTStopPointType.TrainStopPoint,
             BusStopIndicator = source.Indicator,
             BusStopLetter = source.Letter,
             StopPointCoordinate = new Point(source.Longitude ?? 0, source.Latitude ?? 0),

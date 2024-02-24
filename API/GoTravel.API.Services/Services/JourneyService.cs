@@ -2,6 +2,7 @@ using System.Text;
 using System.Text.Json;
 using GoTravel.API.Domain.Models.DTOs;
 using GoTravel.API.Domain.Services;
+using GoTravel.API.Domain.Services.Mappers;
 using GoTravel.API.Domain.Singletons;
 using GoTravel.Standard.Models.Journeys;
 
@@ -9,12 +10,12 @@ namespace GoTravel.API.Services.Services;
 
 public class JourneyService: IJourneyService
 {
-    private ILineModeService _lineModeService;
+    private IAsyncMapper<Journey, JourneyDto> _mapper;
     private HttpClient _api;
 
-    public JourneyService(ILineModeService lineModeService, IHttpClientFactory httpFactory)
+    public JourneyService(IAsyncMapper<Journey, JourneyDto> mapper, IHttpClientFactory httpFactory)
     {
-        _lineModeService = lineModeService;
+        _mapper = mapper;
         _api = httpFactory.CreateClient("GTCON");
     }
     
@@ -37,18 +38,17 @@ public class JourneyService: IJourneyService
             var stream = await response.Content.ReadAsStreamAsync(ct);
             var journeys = await JsonSerializer.DeserializeAsync<ICollection<Journey>>(stream, JsonSingleton.Options, cancellationToken: ct) ?? new List<Journey>();
 
-            var lineIds = journeys
-                .SelectMany(j => j.JourneyLegs?.SelectMany(l => l.LegDetails.LineIds) ?? Array.Empty<string>())
-                .ToList();
+            var journeyDtos = new List<JourneyDto>();
+            foreach (var journey in journeys)
+            {
+                journeyDtos.Add(await _mapper.MapAsync(journey));
+            }
 
-            var lineModes = await _lineModeService.ListFromLineIdsAsync(lineIds, ct);
-            
             var dto = new JourneyOptionsResultDto
             {
-                JourneyOptions = journeys,
-                LineModes = lineModes.ToList()
+                JourneyOptions = journeyDtos
             };
-
+            
             return dto;
         }
         catch (Exception ex)

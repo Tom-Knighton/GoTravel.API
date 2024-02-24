@@ -27,6 +27,7 @@ builder.Services.AddControllers().AddJsonOptions(o =>
 builder.Services.AddSingleton(NtsGeometryServices.Instance);
 
 builder.Services
+    .AddHttpContextAccessor()
     .AddSwaggerServices(builder.Configuration.GetSection("Authentication"))
     .AddAuthServices(builder.Configuration.GetSection("Authentication"))
     .AddEFCore<GoTravelContext>(builder.Configuration.GetSection("Database"))
@@ -36,6 +37,7 @@ builder.Services
     .AddRabbitMq(builder.Configuration.GetSection("Rabbit"))
     .AddConnectorServices(builder.Configuration.GetSection("Connector"))
     .AddRedis(builder.Configuration.GetSection("Redis"))
+    .AddMinioCollection(builder.Configuration.GetSection("CDN"))
     .ConfigureHttpJsonOptions(o =>
     {
         o.SerializerOptions.PropertyNameCaseInsensitive = true;

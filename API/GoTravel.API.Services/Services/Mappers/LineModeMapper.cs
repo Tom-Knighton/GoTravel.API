@@ -18,6 +18,7 @@ public class LineModeMapper: IMapper<GLLineMode, LineModeDto>
     {
         var dest = new LineModeDto
         {
+            LineModeId = source.LineModeId,
             LineModeName = source.LineModeName,
         };
 

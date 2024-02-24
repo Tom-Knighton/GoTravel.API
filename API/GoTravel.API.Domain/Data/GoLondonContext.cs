@@ -12,13 +12,15 @@ public class GoTravelContext: DbContext
     public GoTravelContext() {}
     public GoTravelContext(DbContextOptions<GoTravelContext> options): base(options) {}
     
-    public virtual DbSet<GLStopPoint> StopPoints { get; set; }
+    public virtual DbSet<GTStopPoint> StopPoints { get; set; }
     public virtual DbSet<GLLine> Lines { get; set; }
     public virtual DbSet<GLLineMode> LineModes { get; set; }
     public virtual DbSet<GLStopPointLine> StopPointLines { get; set; }
     public virtual DbSet<GTArea> Areas { get; set; }
     public virtual DbSet<GTStopPointInfoKey> StopPointInfoKeys { get; set; }
     public virtual DbSet<GTStopPointInfoValue> StopPointInfoValues { get; set; }
+    
+    public virtual DbSet<GTUserDetails> Users { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -31,7 +33,7 @@ public class GoTravelContext: DbContext
             e.HasKey(f => f.GLFlagId);
         });
         
-        modelBuilder.Entity<GLStopPoint>(e =>
+        modelBuilder.Entity<GTStopPoint>(e =>
         {
             e.ToTable("StopPoint");
             e.HasKey(s => s.StopPointId);
@@ -102,6 +104,13 @@ public class GoTravelContext: DbContext
             e.HasOne(i => i.StopPoint)
                 .WithMany()
                 .HasForeignKey(i => i.StopPointId);
+        });
+
+        modelBuilder.Entity<GTUserDetails>(e =>
+        {
+            e.ToTable("User");
+            e.HasKey(u => u.UserId);
+            e.HasIndex(u => u.UserName).IsUnique();
         });
     }
 }

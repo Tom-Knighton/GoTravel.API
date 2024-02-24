@@ -51,9 +51,29 @@ public class SecurityRequirementsOperationFilter : IOperationFilter
 {
     public void Apply(OpenApiOperation operation, OperationFilterContext context)
     {
-        var requiredScopes = context.MethodInfo
+        var hasAllowAnonymous = context.MethodInfo
             .GetCustomAttributes(true)
-            .OfType<AuthorizeAttribute>()
+            .OfType<AllowAnonymousAttribute>()
+            .Any();
+
+        if (hasAllowAnonymous)
+        {
+            return;
+        }
+        
+        var methodAuthorizeAttributes = context.MethodInfo
+            .GetCustomAttributes(true)
+            .OfType<AuthorizeAttribute>();
+
+        var controllerAuthorizeAttributes = context.MethodInfo.DeclaringType
+            .GetCustomAttributes(true)
+            .OfType<AuthorizeAttribute>();
+
+        var allAuthorizeAttributes = methodAuthorizeAttributes.Concat(controllerAuthorizeAttributes)
+            .Distinct()
+            .ToList();
+
+        var requiredScopes = allAuthorizeAttributes
             .Select(attr => attr.Policy)
             .Distinct()
             .ToList();
