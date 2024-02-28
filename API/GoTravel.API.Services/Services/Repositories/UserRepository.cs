@@ -18,14 +18,19 @@ public class UserRepository: IUserRepository
     {
         return await _context
             .Users
+            .IncludeFollowers(includeNotYetAccepted: true)
+            .IncludeFollowing(includeNotYetAccepted: true)
             .FirstOrDefaultAsync(u => u.UserId == id, cancellationToken: ct);
     }
 
     public async Task<GTUserDetails?> GetUserByAnIdentifierAsync(string identifier, CancellationToken ct = default)
     {
-        return await _context
+        var user = await _context
             .Users
+            .IncludeFollowers()
             .FirstOrDefaultAsync(u => u.UserName == identifier || u.UserId == identifier, cancellationToken: ct);
+
+        return user;
     }
 
     public async Task SaveUser(GTUserDetails userDetails, CancellationToken ct = default)
@@ -40,5 +45,81 @@ public class UserRepository: IUserRepository
         }
 
         await _context.SaveChangesAsync(ct);
+    }
+
+    public async Task<GTUserFollowerAcceptLevel> GetFollowAcceptTypeForUser(string id, CancellationToken ct = default)
+    {
+        var type = await _context.Users
+            .Where(u => u.UserId == id)
+            .Select(u => u.FollowerAcceptType)
+            .FirstOrDefaultAsync(ct);
+
+        return type;
+    }
+
+    public async Task<ICollection<GTUserFollowings>> GetFollowersOfId(string id, bool includeNotYetAccepted = false, CancellationToken ct = default)
+    {
+        var followers = await _context.UserFollowings
+            .Where(f => f.FollowsId == id && f.DoesFollow && (includeNotYetAccepted || f.IsAccepted))
+            .ToListAsync(ct);
+
+        return followers;
+    }
+
+    public async Task<int> GetFollowerCountOfId(string id, bool includeNotYetAccepted = false, CancellationToken ct = default)
+    {
+        var followerCount = await _context.UserFollowings
+            .Where(f => f.FollowsId == id && f.DoesFollow && (includeNotYetAccepted || f.IsAccepted))
+            .CountAsync(ct);
+
+        return followerCount;
+    }
+
+    public async Task<ICollection<GTUserFollowings>> GetFollowingForUser(string id, bool includeNotYetAccepted = false, CancellationToken ct = default)
+    {
+        var following = await _context.UserFollowings
+            .Where(f => f.RequesterId == id && f.DoesFollow && (includeNotYetAccepted || f.IsAccepted))
+            .ToListAsync(ct);
+
+        return following;
+    }
+
+    public async Task<GTUserFollowings?> GetFollowing(string requesterId, string followingId, CancellationToken ct = default)
+    {
+        var following = await _context.UserFollowings
+            .FirstOrDefaultAsync(f => f.RequesterId == requesterId && f.FollowsId == followingId, cancellationToken: ct);
+
+        return following;
+    }
+
+    public async Task<bool> SaveRelationship(GTUserFollowings following, CancellationToken ct = default)
+    {
+        if (_context.UserFollowings.Any(f => f.RequesterId == following.RequesterId && f.FollowsId == following.FollowsId))
+        {
+            _context.UserFollowings.Update(following);
+        }
+        else
+        {
+            _context.UserFollowings.Add(following);
+        }
+
+        return await _context.SaveChangesAsync(ct) > 0;
+    }
+}
+
+public static class UserRepositoryExtensions
+{
+    public static IQueryable<GTUserDetails> IncludeFollowers(this IQueryable<GTUserDetails> query, bool includeNotYetAccepted = false)
+    {
+        return query
+            .Include(x => x.Followers.Where(f => f.DoesFollow && (includeNotYetAccepted || f.IsAccepted )))
+            .ThenInclude(f => f.Requester);
+    }
+    
+    public static IQueryable<GTUserDetails> IncludeFollowing(this IQueryable<GTUserDetails> query, bool includeNotYetAccepted = false)
+    {
+        return query
+            .Include(x => x.FollowingUsers.Where(f => f.DoesFollow && (includeNotYetAccepted || f.IsAccepted )))
+            .ThenInclude(f => f.Follows);
     }
 }

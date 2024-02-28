@@ -38,10 +38,11 @@ builder.Services
     .AddConnectorServices(builder.Configuration.GetSection("Connector"))
     .AddRedis(builder.Configuration.GetSection("Redis"))
     .AddMinioCollection(builder.Configuration.GetSection("CDN"))
+    .AddLogs()
     .ConfigureHttpJsonOptions(o =>
     {
         o.SerializerOptions.PropertyNameCaseInsensitive = true;
-    });;
+    });
 
 var app = builder.Build();
 

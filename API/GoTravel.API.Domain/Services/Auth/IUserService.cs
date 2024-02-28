@@ -31,7 +31,7 @@ public interface IUserService
     /// <summary>
     /// Updates a user's basic details with the ones provided
     /// </summary>
-    public Task<bool> UpdateUserDetails(string username, UpdateUserDetailsDto dto, CancellationToken ct = default);
+    public Task<bool> UpdateUserDetails(string username, UpdateUserDetailsCommand command, CancellationToken ct = default);
 
     /// <summary>
     /// Uploads a profile picture to a CDN and updates the user's details to point to the uploaded url
