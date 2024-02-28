@@ -6,4 +6,15 @@ public class GTUserDetails
     public string UserName { get; set; }
     public string UserProfilePicUrl { get; set; }
     public DateTime DateCreated { get; set; }
+    public GTUserFollowerAcceptLevel FollowerAcceptType { get; set; }
+    
+    public virtual ICollection<GTUserFollowings> FollowingUsers { get; set; }
+    public virtual ICollection<GTUserFollowings> Followers { get; set; }
+}
+
+public enum GTUserFollowerAcceptLevel
+{
+    AcceptAll,
+    RequiresApproval,
+    NoFollowers
 }

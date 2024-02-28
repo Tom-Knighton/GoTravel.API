@@ -100,12 +100,12 @@ public class UserController : ControllerBase
     [HttpPut]
     [Route("{username}/updateDetails")]
     [Produces(typeof(bool))]
-    public async Task<IActionResult> UpdateUserDetails(string username, [FromBody] UpdateUserDetailsDto dto, CancellationToken ct = default)
+    public async Task<IActionResult> UpdateUserDetails(string username, [FromBody] UpdateUserDetailsCommand command, CancellationToken ct = default)
     {
         try
         {
             await _userService.ThrowIfUserOperatingOnOtherUser(username, ct);
-            if (await _userService.UpdateUserDetails(username, dto, ct))
+            if (await _userService.UpdateUserDetails(username, command, ct))
             {
                 return Ok(true);
             }

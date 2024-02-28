@@ -47,7 +47,6 @@ public static class AuthCollection
         services.AddSingleton<IM2MService, M2MService>();
         services.AddTransient<IUserRepository, UserRepository>();
         services.AddTransient<IAuthService, AuthService>();
-        services.AddTransient<IUserService, UserService>();
         
         return services;
     }

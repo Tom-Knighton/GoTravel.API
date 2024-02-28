@@ -21,6 +21,7 @@ public class GoTravelContext: DbContext
     public virtual DbSet<GTStopPointInfoValue> StopPointInfoValues { get; set; }
     
     public virtual DbSet<GTUserDetails> Users { get; set; }
+    public virtual DbSet<GTUserFollowings> UserFollowings { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -111,6 +112,20 @@ public class GoTravelContext: DbContext
             e.ToTable("User");
             e.HasKey(u => u.UserId);
             e.HasIndex(u => u.UserName).IsUnique();
+
+            e.HasMany(u => u.FollowingUsers)
+                .WithOne(f => f.Requester)
+                .HasForeignKey(f => f.RequesterId);
+            e.HasMany(u => u.Followers)
+                .WithOne(f => f.Follows)
+                .HasForeignKey(f => f.FollowsId);
+        });
+
+        modelBuilder.Entity<GTUserFollowings>(e =>
+        {
+            e.ToTable("UserFollowing");
+            e.HasKey(u => new { u.RequesterId, u.FollowsId });
+            e.HasIndex(u => u.FollowsId);
         });
     }
 }

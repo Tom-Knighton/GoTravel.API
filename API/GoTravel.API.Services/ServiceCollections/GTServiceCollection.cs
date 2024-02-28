@@ -1,5 +1,7 @@
 using GoTravel.API.Domain.Services;
+using GoTravel.API.Domain.Services.Auth;
 using GoTravel.API.Services.Services;
+using GoTravel.API.Services.Services.Auth;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace GoTravel.API.Services.ServiceCollections;
@@ -12,6 +14,8 @@ public static class GTServiceCollection
         services.AddTransient<ILineModeService, LineModeService>();
         services.AddTransient<IArrivalsService, ArrivalsService>();
         services.AddTransient<IJourneyService, JourneyService>();
+        services.AddTransient<IUserService, UserService>();
+        services.AddTransient<IFriendshipsService, FriendshipService>();
         
         return services;
     }
