@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using GoTravel.API.Domain.Exceptions;
+using GoTravel.API.Domain.Extensions;
 using GoTravel.API.Domain.Models.Database;
 using GoTravel.API.Domain.Models.DTOs;
 using GoTravel.API.Domain.Models.Lib;
@@ -155,43 +156,44 @@ public class UserService: IUserService
             .WithObjectSize(stream.Length)
             .WithContentType(GetMimeType(picture.FileName));
 
-        try
-        {
-            var oldUrl = user.UserProfilePicUrl;
-            await _minio.PutObjectAsync(args, ct);
+        var oldUrl = user.UserProfilePicUrl;
+        await _minio.PutObjectAsync(args, ct);
 
-            var url = $"https://{_minio.Config.BaseUrl}/{ProfilePicBucket}/{UserProfilePicSlug}/{user.UserId}/{guid}{Path.GetExtension(picture.FileName)}";
+        var url = $"https://{_minio.Config.BaseUrl}/{ProfilePicBucket}/{UserProfilePicSlug}/{user.UserId}/{guid}{Path.GetExtension(picture.FileName)}";
 
-            user.UserProfilePicUrl = url;
-            await _userRepo.SaveUser(user, ct);
+        user.UserProfilePicUrl = url;
+        await _userRepo.SaveUser(user, ct);
 
-            var success = true;
+        var success = true;
             
-            if (user.UserId.StartsWith(DbConnectionPrefix))
-            {
-               success = await _authService.UpdateProfilePictureUrl(url, user.UserId, ct);
-            }
-
-            if (success)
-            {
-                try
-                {
-                    var removeArgs = new RemoveObjectArgs()
-                        .WithBucket(ProfilePicBucket)
-                        .WithObject(oldUrl.Replace("https://cdn.tomk.online/gotravel/", ""));
-                    await _minio.RemoveObjectAsync(removeArgs, ct);
-                } catch {}
-            }
-
-            return success;
-        }
-        catch
+        if (user.UserId.StartsWith(DbConnectionPrefix))
         {
-            //TODO: Log
-            return false;
+            success = await _authService.UpdateProfilePictureUrl(url, user.UserId, ct);
         }
+
+        if (success)
+        {
+            try
+            {
+                var removeArgs = new RemoveObjectArgs()
+                    .WithBucket(ProfilePicBucket)
+                    .WithObject(oldUrl.Replace("https://cdn.tomk.online/gotravel/", ""));
+                await _minio.RemoveObjectAsync(removeArgs, ct);
+            } catch {}
+        }
+
+        return success;
     }
-    
+
+    public async Task<ICollection<UserDto>> SearchUsers(string query, int maxResults, CancellationToken ct = default)
+    {
+        var usersId = _context.HttpContext?.User.CurrentUserId();
+        var results = await _userRepo.Search(query, maxResults, usersId, ct);
+
+        var mapped = results.Select(u => _basicMap.Map(u));
+        return mapped.ToList();
+    }
+
     private string GetMimeType(string fileName)
     {
         var provider = new FileExtensionContentTypeProvider();
