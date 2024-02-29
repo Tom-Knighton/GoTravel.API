@@ -47,6 +47,15 @@ public class UserRepository: IUserRepository
         await _context.SaveChangesAsync(ct);
     }
 
+    public async Task<ICollection<GTUserDetails>> Search(string query, int maxResults, string? ignoreId, CancellationToken ct = default)
+    {
+        var results = await _context.Users
+            .Where(u => EF.Functions.ILike(u.UserName, $"%{query}%") && u.UserId != ignoreId)
+            .ToListAsync(ct);
+
+        return results;
+    }
+
     public async Task<GTUserFollowerAcceptLevel> GetFollowAcceptTypeForUser(string id, CancellationToken ct = default)
     {
         var type = await _context.Users

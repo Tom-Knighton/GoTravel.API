@@ -37,4 +37,9 @@ public interface IUserService
     /// Uploads a profile picture to a CDN and updates the user's details to point to the uploaded url
     /// </summary>
     public Task<bool> UpdateProfilePictureUrl(string username, IFormFile picture, CancellationToken ct = default);
+
+    /// <summary>
+    /// Returns a list of UserDtos IGNORING the current user, based on a case-insensitive query
+    /// </summary>
+    Task<ICollection<UserDto>> SearchUsers(string query, int maxResults, CancellationToken ct = default);
 }
