@@ -20,6 +20,7 @@ public class UserRepository: IUserRepository
             .Users
             .IncludeFollowers(includeNotYetAccepted: true)
             .IncludeFollowing(includeNotYetAccepted: true)
+            .AsNoTrackingWithIdentityResolution()
             .FirstOrDefaultAsync(u => u.UserId == id, cancellationToken: ct);
     }
 
@@ -28,6 +29,7 @@ public class UserRepository: IUserRepository
         var user = await _context
             .Users
             .IncludeFollowers()
+            .AsNoTrackingWithIdentityResolution()
             .FirstOrDefaultAsync(u => u.UserName == identifier || u.UserId == identifier, cancellationToken: ct);
 
         return user;
@@ -69,6 +71,7 @@ public class UserRepository: IUserRepository
     public async Task<ICollection<GTUserFollowings>> GetFollowersOfId(string id, bool includeNotYetAccepted = false, CancellationToken ct = default)
     {
         var followers = await _context.UserFollowings
+            .AsNoTrackingWithIdentityResolution()
             .Where(f => f.FollowsId == id && f.DoesFollow && (includeNotYetAccepted || f.IsAccepted))
             .ToListAsync(ct);
 
@@ -78,6 +81,7 @@ public class UserRepository: IUserRepository
     public async Task<int> GetFollowerCountOfId(string id, bool includeNotYetAccepted = false, CancellationToken ct = default)
     {
         var followerCount = await _context.UserFollowings
+            .AsNoTrackingWithIdentityResolution()
             .Where(f => f.FollowsId == id && f.DoesFollow && (includeNotYetAccepted || f.IsAccepted))
             .CountAsync(ct);
 
@@ -87,6 +91,7 @@ public class UserRepository: IUserRepository
     public async Task<ICollection<GTUserFollowings>> GetFollowingForUser(string id, bool includeNotYetAccepted = false, CancellationToken ct = default)
     {
         var following = await _context.UserFollowings
+            .AsNoTrackingWithIdentityResolution()
             .Where(f => f.RequesterId == id && f.DoesFollow && (includeNotYetAccepted || f.IsAccepted))
             .ToListAsync(ct);
 
@@ -96,6 +101,7 @@ public class UserRepository: IUserRepository
     public async Task<GTUserFollowings?> GetFollowing(string requesterId, string followingId, CancellationToken ct = default)
     {
         var following = await _context.UserFollowings
+            .AsNoTrackingWithIdentityResolution()
             .FirstOrDefaultAsync(f => f.RequesterId == requesterId && f.FollowsId == followingId, cancellationToken: ct);
 
         return following;
@@ -103,7 +109,7 @@ public class UserRepository: IUserRepository
 
     public async Task<bool> SaveRelationship(GTUserFollowings following, CancellationToken ct = default)
     {
-        if (_context.UserFollowings.Any(f => f.RequesterId == following.RequesterId && f.FollowsId == following.FollowsId))
+        if (_context.UserFollowings.AsNoTrackingWithIdentityResolution().Any(f => f.RequesterId == following.RequesterId && f.FollowsId == following.FollowsId))
         {
             _context.UserFollowings.Update(following);
         }

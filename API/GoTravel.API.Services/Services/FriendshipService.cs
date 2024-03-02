@@ -41,19 +41,25 @@ public class FriendshipService(IUserRepository repo, IMapper<GTUserDetails, User
 
     public async Task<bool> UpdateRelationship(string userId, SetRelationshipCommand command,  CancellationToken ct = default)
     {
-        var following = await repo.GetFollowing(userId, command.FollowingId, ct);
+        var user = await repo.GetUserByAnIdentifierAsync(command.FollowingId, ct);
+        if (user is null)
+        {
+            throw new UserNotFoundException(userId);
+        }
+        
+        var following = await repo.GetFollowing(user.UserId, command.FollowingId, ct);
         if (following is null)
         {
             following = new GTUserFollowings
             {
                 RequesterId = userId,
-                FollowsId = command.FollowingId,
+                FollowsId = user.UserId,
                 Created = time.GetUtcNow().UtcDateTime
             };
         }
 
         following.DoesFollow = command.Follow;
-        following.IsAccepted = await repo.GetFollowAcceptTypeForUser(command.FollowingId, ct) switch
+        following.IsAccepted = await repo.GetFollowAcceptTypeForUser(user.UserId, ct) switch
         {
             GTUserFollowerAcceptLevel.AcceptAll => true,
             GTUserFollowerAcceptLevel.RequiresApproval => false,
@@ -66,10 +72,15 @@ public class FriendshipService(IUserRepository repo, IMapper<GTUserDetails, User
 
     public async Task<bool> ApproveRejectRelationship(string userId, ApproveRejectFollowCommand command, CancellationToken ct = default)
     {
-        var following = await repo.GetFollowing(command.UserId, userId, ct);
+        var user = await repo.GetUserByAnIdentifierAsync(command.UserId, ct);
+        if (user is null)
+        {
+            throw new UserNotFoundException(userId);
+        }
+        var following = await repo.GetFollowing(user.UserId, userId, ct);
         if (following is null)
         {
-            throw new NoRelationshipException(command.UserId, userId);
+            throw new NoRelationshipException(user.UserId, userId);
         }
 
         if (following.FollowsId != userId)
