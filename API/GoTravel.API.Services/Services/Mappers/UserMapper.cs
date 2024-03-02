@@ -35,12 +35,23 @@ public class CurrentUserMapper(IMapper<GTUserDetails, UserDto> basicMapper): IMa
                 .Where(f => f is { DoesFollow: true, IsAccepted: true })
                 .Select(f => basicMapper.Map(f.Requester))
                 .ToList() ?? new(),
-            Following = source.Item1.FollowingUsers?
-                .Where(f => f is { DoesFollow: true, IsAccepted: true })
-                .Select(f => basicMapper.Map(f.Follows))
-                .ToList() ?? new()
+            Following = MapFollowing(source.Item1.FollowingUsers).ToList()
         };
 
         return dto;
+    }
+
+    private IEnumerable<UserFollowingDto> MapFollowing(IEnumerable<GTUserFollowings>? followings)
+    {
+        var following = followings?
+            .Where(f => f.DoesFollow)
+            .Select(f => new UserFollowingDto
+            {
+                FollowingType = f.IsAccepted ? FollowingType.Following : FollowingType.Requested,
+                User = basicMapper.Map(f.Follows)
+            }
+        );
+
+        return following ?? new List<UserFollowingDto>();
     }
 }

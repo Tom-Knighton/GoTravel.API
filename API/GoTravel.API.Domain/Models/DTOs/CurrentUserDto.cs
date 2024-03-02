@@ -10,5 +10,5 @@ public class CurrentUserDto
     public string UserPictureUrl { get; set; }
     public DateTime DateCreated { get; set; }
     public ICollection<UserDto> Followers { get; set; }
-    public ICollection<UserDto> Following { get; set; }
+    public ICollection<UserFollowingDto> Following { get; set; }
 }
