@@ -31,24 +31,21 @@ public class CurrentUserMapper(IMapper<GTUserDetails, UserDto> basicMapper): IMa
             UserEmail = source.Item2.name,
             DateCreated = source.Item1.DateCreated,
             UserPictureUrl = source.Item1.UserProfilePicUrl,
-            Followers = source.Item1.Followers?
-                .Where(f => f is { DoesFollow: true, IsAccepted: true })
-                .Select(f => basicMapper.Map(f.Requester))
-                .ToList() ?? new(),
-            Following = MapFollowing(source.Item1.FollowingUsers).ToList()
+            Followers = MapFollowing(source.Item1.Followers, mapFollower: false),
+            Following = MapFollowing(source.Item1.FollowingUsers)
         };
 
         return dto;
     }
-
-    private IEnumerable<UserFollowingDto> MapFollowing(IEnumerable<GTUserFollowings>? followings)
+    
+    private IEnumerable<UserFollowingDto> MapFollowing(IEnumerable<GTUserFollowings>? followings, bool mapFollower = true)
     {
         var following = followings?
             .Where(f => f.DoesFollow)
             .Select(f => new UserFollowingDto
             {
                 FollowingType = f.IsAccepted ? FollowingType.Following : FollowingType.Requested,
-                User = basicMapper.Map(f.Follows)
+                User = basicMapper.Map(mapFollower ? f.Follows : f.Requester)
             }
         );
 
