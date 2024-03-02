@@ -77,4 +77,35 @@ public class UserFriendshipsController: ControllerBase
             return StatusCode(StatusCodes.Status500InternalServerError);
         }
     }
+
+    [HttpDelete]
+    [Route("RemoveFollower")]
+    public async Task<IActionResult> RemoveFollower(string followerId, CancellationToken ct = default)
+    {
+        try
+        {
+            var success = await _friendships.RemoveFollower(HttpContext.User.CurrentUserId(), followerId, ct);
+            if (success)
+            {
+                return Ok();
+            }
+
+            return BadRequest();
+        }
+        catch (UserNotFoundException)
+        {
+            _log.LogWarning("Failed to find a user involved in a friendship removal");
+            return BadRequest("Ensure the user is following this user");
+        }
+        catch (NoRelationshipException ex)
+        {
+            _log.LogWarning(ex, "A user tried to remove a relationship that didn't exist");
+            return NotFound("No relationship between these users was found");
+        }
+        catch (Exception ex)
+        {
+            _log.LogError(ex, "An error occurred removing a friendship");
+            return StatusCode(StatusCodes.Status500InternalServerError);
+        }
+    }
 }
