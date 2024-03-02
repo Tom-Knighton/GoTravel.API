@@ -12,4 +12,5 @@ public interface IFriendshipsService
 
     public Task<bool> UpdateRelationship(string userId, SetRelationshipCommand command, CancellationToken ct = default);
     public Task<bool> ApproveRejectRelationship(string userId, ApproveRejectFollowCommand command, CancellationToken ct = default);
+    public Task<bool> RemoveFollower(string userId, string followerId, CancellationToken ct = default);
 }

@@ -96,4 +96,28 @@ public class FriendshipService(IUserRepository repo, IMapper<GTUserDetails, User
 
         return await repo.SaveRelationship(following, ct);
     }
+
+    public async Task<bool> RemoveFollower(string userId, string followerId, CancellationToken ct = default)
+    {
+        var user = await repo.GetUserByAnIdentifierAsync(followerId, ct);
+        if (user is null)
+        {
+            throw new UserNotFoundException(userId);
+        }
+        var following = await repo.GetFollowing(user.UserId, userId, ct);
+        if (following is null)
+        {
+            throw new NoRelationshipException(user.UserId, userId);
+        }
+
+        if (following.FollowsId != userId)
+        {
+            throw new WrongUserException(following.FollowsId);
+        }
+
+        following.IsAccepted = false;
+        following.DoesFollow = false;
+
+        return await repo.SaveRelationship(following, ct);
+    }
 }
