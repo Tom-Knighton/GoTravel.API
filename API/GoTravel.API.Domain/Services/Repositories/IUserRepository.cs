@@ -20,4 +20,6 @@ public interface IUserRepository
     Task<GTUserFollowings?> GetFollowing(string requesterId, string followingId, CancellationToken ct = default);
     Task<bool> SaveRelationship(GTUserFollowings following, CancellationToken ct = default);
 
+    Task AddUserAudit(GTUserPointsAudit audit, CancellationToken ct = default);
+
 }

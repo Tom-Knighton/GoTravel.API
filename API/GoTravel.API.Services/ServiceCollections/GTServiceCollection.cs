@@ -16,6 +16,7 @@ public static class GTServiceCollection
         services.AddTransient<IJourneyService, JourneyService>();
         services.AddTransient<IUserService, UserService>();
         services.AddTransient<IFriendshipsService, FriendshipService>();
+        services.AddTransient<IPointsService, PointsService>();
         
         return services;
     }

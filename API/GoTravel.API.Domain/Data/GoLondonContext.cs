@@ -22,6 +22,7 @@ public class GoTravelContext: DbContext
     
     public virtual DbSet<GTUserDetails> Users { get; set; }
     public virtual DbSet<GTUserFollowings> UserFollowings { get; set; }
+    public virtual DbSet<GTUserPointsAudit> UserPointsAudit { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -126,6 +127,15 @@ public class GoTravelContext: DbContext
             e.ToTable("UserFollowing");
             e.HasKey(u => new { u.RequesterId, u.FollowsId });
             e.HasIndex(u => u.FollowsId);
+        });
+
+        modelBuilder.Entity<GTUserPointsAudit>(e =>
+        {
+            e.ToTable("UserPointsAudit");
+            e.HasKey(ua => new { ua.UserId, ua.UpdatedAt });
+            e.HasOne(ua => ua.User)
+                .WithMany()
+                .HasForeignKey(ua => ua.UserId);
         });
     }
 }

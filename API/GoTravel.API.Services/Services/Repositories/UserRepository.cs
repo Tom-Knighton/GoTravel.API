@@ -120,6 +120,12 @@ public class UserRepository: IUserRepository
 
         return await _context.SaveChangesAsync(ct) > 0;
     }
+
+    public async Task AddUserAudit(GTUserPointsAudit audit, CancellationToken ct = default)
+    {
+        _context.UserPointsAudit.Add(audit);
+        await _context.SaveChangesAsync(ct);
+    }
 }
 
 public static class UserRepositoryExtensions
