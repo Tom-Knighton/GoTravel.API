@@ -11,4 +11,6 @@ public class CurrentUserDto
     public DateTime DateCreated { get; set; }
     public IEnumerable<UserFollowingDto> Followers { get; set; }
     public IEnumerable<UserFollowingDto> Following { get; set; }
+    
+    public int UserPoints { get; set; }
 }

@@ -6,4 +6,6 @@ public class UserDto
     public string UserPictureUrl { get; set; }
     
     public int FollowerCount { get; set; }
+    
+    public int UserPoints { get; set; }
 }
