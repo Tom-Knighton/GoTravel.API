@@ -13,7 +13,8 @@ public class UserMapper : IMapper<GTUserDetails, UserDto>
         {
             UserName = source.UserName,
             UserPictureUrl = source.UserProfilePicUrl,
-            FollowerCount = source.Followers?.Count ?? 0
+            FollowerCount = source.Followers?.Count ?? 0,
+            UserPoints = source.UserPoints
         };
 
         return dto;
@@ -32,7 +33,8 @@ public class CurrentUserMapper(IMapper<GTUserDetails, UserDto> basicMapper): IMa
             DateCreated = source.Item1.DateCreated,
             UserPictureUrl = source.Item1.UserProfilePicUrl,
             Followers = MapFollowing(source.Item1.Followers, mapFollower: false),
-            Following = MapFollowing(source.Item1.FollowingUsers)
+            Following = MapFollowing(source.Item1.FollowingUsers),
+            UserPoints = source.Item1.UserPoints
         };
 
         return dto;
