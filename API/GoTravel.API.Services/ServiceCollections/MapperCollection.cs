@@ -22,6 +22,7 @@ public static class MapperCollection
         services.AddTransient<IMapper<ICollection<GTStopPointInfoValue>, StopPointInformationDto>, StopPointInfoMapper>();
         services.AddTransient<IMapper<Tuple<GTUserDetails, AuthUserInfoResponse>, CurrentUserDto>, CurrentUserMapper>();
         services.AddTransient<IMapper<GTUserDetails, UserDto>, UserMapper>();
+        services.AddTransient<IMapper<GTCrowdsourceInfo, CrowdsourceInfoDto>>();
         
         services.AddTransient<IAsyncMapper<Journey, JourneyDto>, JourneyAsyncMapper>();
         return services;

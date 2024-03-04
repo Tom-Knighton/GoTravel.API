@@ -157,7 +157,7 @@ public class GoTravelContext: DbContext
             e.ToTable("CrowdsourceVotes");
             e.HasKey(c => new { c.CrowdsourceId, c.UserId });
             e.HasOne(c => c.Crowdsource)
-                .WithMany()
+                .WithMany(ci => ci.Votes)
                 .HasForeignKey(c => c.CrowdsourceId);
         });
     }

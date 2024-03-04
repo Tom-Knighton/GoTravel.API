@@ -13,4 +13,5 @@ public class GTCrowdsourceInfo
     public bool NeedsReview { get; set; }
     
     public virtual GTUserDetails SubmittedBy { get; set; }
+    public virtual ICollection<GTCrowdsourceVotes> Votes { get; set; }
 }
