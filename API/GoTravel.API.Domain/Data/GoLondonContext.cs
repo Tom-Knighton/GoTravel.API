@@ -23,7 +23,10 @@ public class GoTravelContext: DbContext
     public virtual DbSet<GTUserDetails> Users { get; set; }
     public virtual DbSet<GTUserFollowings> UserFollowings { get; set; }
     public virtual DbSet<GTUserPointsAudit> UserPointsAudit { get; set; }
-
+    
+    public virtual DbSet<GTCrowdsourceInfo> CrowdsourceInfo { get; set; }
+    public virtual DbSet<GTCrowdsourceVotes> CrowdsourceVotes { get; set; }
+    
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -136,6 +139,26 @@ public class GoTravelContext: DbContext
             e.HasOne(ua => ua.User)
                 .WithMany()
                 .HasForeignKey(ua => ua.UserId);
+        });
+
+        modelBuilder.Entity<GTCrowdsourceInfo>(e =>
+        {
+            e.ToTable("Crowdsource");
+            e.HasKey(c => c.UUID);
+            e.HasIndex(c => c.EntityId);
+
+            e.HasOne(c => c.SubmittedBy)
+                .WithMany()
+                .HasForeignKey(c => c.SubmittedById);
+        });
+
+        modelBuilder.Entity<GTCrowdsourceVotes>(e =>
+        {
+            e.ToTable("CrowdsourceVotes");
+            e.HasKey(c => new { c.CrowdsourceId, c.UserId });
+            e.HasOne(c => c.Crowdsource)
+                .WithMany()
+                .HasForeignKey(c => c.CrowdsourceId);
         });
     }
 }
