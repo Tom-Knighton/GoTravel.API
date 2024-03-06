@@ -12,6 +12,8 @@ public class GTCrowdsourceInfo
     public string SubmittedById { get; set; }
     public bool NeedsReview { get; set; }
     
+    public float[] Embeddings { get; set; }
+    
     public virtual GTUserDetails SubmittedBy { get; set; }
     public virtual ICollection<GTCrowdsourceVotes> Votes { get; set; }
 }
