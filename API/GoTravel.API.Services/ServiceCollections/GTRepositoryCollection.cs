@@ -4,13 +4,14 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace GoTravel.API.Services.ServiceCollections;
 
-public static class GLRepositoryCollection
+public static class GTRepositoryCollection
 {
     public static IServiceCollection AddRepositories(this IServiceCollection services)
     {
         services.AddTransient<IStopPointRepository, StopPointRepository>();
         services.AddTransient<IAreaRepository, AreaRepository>();
         services.AddTransient<ILineModeRepository, LineModeRepository>();
+        services.AddTransient<ICrowdsourceRepository, CrowdsourceRepository>();
         
         return services;
     }
