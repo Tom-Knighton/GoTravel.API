@@ -1,5 +1,7 @@
+using System.Collections;
 using GoTravel.API.Domain.Exceptions;
 using GoTravel.API.Domain.Extensions;
+using GoTravel.API.Domain.Models.DTOs;
 using GoTravel.API.Domain.Models.DTOs.Commands;
 using GoTravel.API.Domain.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -24,6 +26,7 @@ public class CrowdsourceController: ControllerBase
     [HttpGet]
     [Route("Entity/{entityId}")]
     [AllowAnonymous]
+    [Produces(typeof(ICollection<CrowdsourceInfoDto>))]
     public async Task<IActionResult> GetCrowdsourceResultsForEntity(string entityId, CancellationToken ct = default)
     {
         try
