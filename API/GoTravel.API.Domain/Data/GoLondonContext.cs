@@ -150,8 +150,6 @@ public class GoTravelContext: DbContext
             e.HasOne(c => c.SubmittedBy)
                 .WithMany()
                 .HasForeignKey(c => c.SubmittedById);
-
-            e.Ignore(c => c.Embeddings);
         });
 
         modelBuilder.Entity<GTCrowdsourceVotes>(e =>

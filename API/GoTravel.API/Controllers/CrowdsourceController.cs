@@ -1,6 +1,7 @@
+using GoTravel.API.Domain.Exceptions;
+using GoTravel.API.Domain.Extensions;
+using GoTravel.API.Domain.Models.DTOs.Commands;
 using GoTravel.API.Domain.Services;
-using GoTravel.API.Domain.Services.Repositories;
-using GoTravel.API.Services.ML;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -11,18 +12,51 @@ namespace GoTravel.API.Controllers;
 public class CrowdsourceController: ControllerBase
 {
 
-    // private readonly ICrowdsourceService _crowdsource;
+    private readonly ICrowdsourceService _crowdsource;
+    private readonly ILogger<CrowdsourceController> _log;
 
-    // public CrowdsourceController(ICrowdsourceService service)
-    // {
-    //     _crowdsource = service;
-    // }
+    public CrowdsourceController(ICrowdsourceService service, ILogger<CrowdsourceController> log)
+    {
+        _crowdsource = service;
+        _log = log;
+    }
 
     [HttpGet]
+    [Route("Entity/{entityId}")]
     [AllowAnonymous]
-    public async Task<IActionResult> Test(CancellationToken ct = default)
+    public async Task<IActionResult> GetCrowdsourceResultsForEntity(string entityId, CancellationToken ct = default)
     {
-        var list = CrowdsourceSimilarity.GroupEmbeddings(0.6);
-        return Ok();
+        try
+        {
+            var dtos = await _crowdsource.GetCrowdsourceInfoForEntities(entityId, ct);
+            return Ok(dtos);
+        }
+        catch (Exception ex)
+        {
+            _log.LogError(ex, "Failed to retrieve crowdsource info for entity: {Entity}", entityId);
+            return StatusCode(StatusCodes.Status500InternalServerError);
+        }
+    }
+
+    [HttpPost]
+    [Route("Entity/{entityId}")]
+    [Authorize]
+    public async Task<IActionResult> SubmitCrowdsourceForEntity(string entityId, [FromBody] AddCrowdsourceCommand command, CancellationToken ct = default)
+    {
+        try
+        {
+            await _crowdsource.SubmitCrowdsourceInfo(HttpContext.User.CurrentUserId(), entityId, command, ct);
+            return Ok();
+        }
+        catch (BadModerationException ex)
+        {
+            _log.LogWarning(ex, "Bad moderation result for crowdsource request");
+            return BadRequest("This message did not pass moderation, please try again and remember information must be concise and relevant.");
+        }
+        catch (Exception ex)
+        {
+            _log.LogError(ex, "Error submitting crowdsource info");
+            return StatusCode(StatusCodes.Status500InternalServerError);
+        }
     }
 }

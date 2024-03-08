@@ -5,6 +5,6 @@ namespace GoTravel.API.Domain.Services;
 
 public interface ICrowdsourceService
 {
-    Task SubmitCrowdsourceInfo(string userId, AddCrowdsourceCommand command, CancellationToken ct = default);
+    Task SubmitCrowdsourceInfo(string userId, string entityId, AddCrowdsourceCommand command, CancellationToken ct = default);
     Task<IEnumerable<CrowdsourceInfoDto>> GetCrowdsourceInfoForEntities(string entityId, CancellationToken ct = default);
 }
