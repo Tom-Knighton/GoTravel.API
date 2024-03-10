@@ -94,6 +94,35 @@ public class CrowdsourceService: ICrowdsourceService
         return dtos;
     }
 
+    public async Task<bool> VoteOnCrowdsource(string crowdsourceId, string userId, CrowdsourceVoteStatus voteType, CancellationToken ct = default)
+    {
+        var crowdsource = await _repo.GetCrowdsource(crowdsourceId, ct);
+        if (crowdsource is null)
+        {
+            throw new NoCrowdsourceException(crowdsourceId);
+        }
+
+        var vote = await _repo.GetVote(crowdsourceId, userId, ct) ?? new GTCrowdsourceVotes
+        {
+            CrowdsourceId = crowdsourceId,
+            UserId = userId,
+        };
+
+        if (voteType == CrowdsourceVoteStatus.NoVote)
+        {
+            return await _repo.DeleteVote(crowdsourceId, userId, ct);
+        }
+        
+        vote.VoteType = voteType switch
+        {
+            CrowdsourceVoteStatus.Upvoted => GTCrowdsourceVoteType.upvote,
+            CrowdsourceVoteStatus.Downvoted => GTCrowdsourceVoteType.downvote,
+            _ => throw new ArgumentOutOfRangeException(nameof(voteType), "Vote was noVote but not handled properly")
+        };
+
+        return await _repo.SaveVote(vote, ct);
+    }
+
 
     private IEnumerable<IEnumerable<GTCrowdsourceInfo>> GroupBySemanticSimilarity(IEnumerable<GTCrowdsourceInfo> crowdsourceInfos)
     {

@@ -41,4 +41,46 @@ public class CrowdsourceRepository: ICrowdsourceRepository
 
         await _context.SaveChangesAsync(ct);
     }
+
+    public async Task<GTCrowdsourceInfo?> GetCrowdsource(string id, CancellationToken ct = default)
+    {
+        return await _context.CrowdsourceInfo
+            .AsNoTrackingWithIdentityResolution()
+            .Include(c => c.Votes)
+            .Include(c => c.SubmittedBy)
+            .FirstOrDefaultAsync(c => c.UUID == id, ct);
+    }
+
+    public async Task<GTCrowdsourceVotes?> GetVote(string crowdsourceId, string userId, CancellationToken ct = default)
+    {
+        return await _context.CrowdsourceVotes
+            .AsNoTrackingWithIdentityResolution()
+            .FirstOrDefaultAsync(v => v.CrowdsourceId == crowdsourceId && v.UserId == userId, ct);
+    }
+
+    public async Task<bool> DeleteVote(string crowdsourceId, string userId, CancellationToken ct = default)
+    {
+        var vote = await _context.CrowdsourceVotes
+            .FirstOrDefaultAsync(v => v.CrowdsourceId == crowdsourceId && v.UserId == userId, ct);
+        if (vote is not null)
+        {
+            _context.CrowdsourceVotes.Remove(vote);
+        }
+
+        return await _context.SaveChangesAsync(ct) > 0;
+    }
+
+    public async Task<bool> SaveVote(GTCrowdsourceVotes vote, CancellationToken ct = default)
+    {
+        if (_context.CrowdsourceVotes.AsNoTrackingWithIdentityResolution().Any(v => v.CrowdsourceId == vote.CrowdsourceId && v.UserId == vote.UserId))
+        {
+            _context.CrowdsourceVotes.Update(vote);
+        }
+        else
+        {
+            _context.CrowdsourceVotes.Add(vote);
+        }
+
+        return await _context.SaveChangesAsync(ct) > 0;
+    }
 }
