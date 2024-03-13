@@ -29,7 +29,7 @@ public class CrowdsourceMapper: IMapper<GTCrowdsourceInfo, CrowdsourceInfoDto>
             Started = source.SubmittedAt,
             Text = source.FreeText,
             IsFlagged = source.NeedsReview,
-            Score = source.Votes.Count(v => v.VoteType == GTCrowdsourceVoteType.upvote) - source.Votes.Count(v => v.VoteType == GTCrowdsourceVoteType.downvote),
+            Score = 1 + (source.Votes.Count(v => v.VoteType == GTCrowdsourceVoteType.upvote) - source.Votes.Count(v => v.VoteType == GTCrowdsourceVoteType.downvote)),
             CurrentUserVoteStatus = CrowdsourceVoteStatus.NoVote,
         };
 

@@ -1,4 +1,3 @@
-using System.Collections;
 using GoTravel.API.Domain.Exceptions;
 using GoTravel.API.Domain.Extensions;
 using GoTravel.API.Domain.Models.DTOs;
@@ -59,6 +58,51 @@ public class CrowdsourceController: ControllerBase
         catch (Exception ex)
         {
             _log.LogError(ex, "Error submitting crowdsource info");
+            return StatusCode(StatusCodes.Status500InternalServerError);
+        }
+    }
+
+    [HttpPost]
+    [Route("{crowdsourceId}/vote")]
+    [Authorize]
+    public async Task<IActionResult> VoteOnCrowdsource(string crowdsourceId, [FromBody] CrowdsourceVoteCommand command, CancellationToken ct = default)
+    {
+        try
+        {
+            await _crowdsource.VoteOnCrowdsource(crowdsourceId, HttpContext.User.CurrentUserId(), command.voteType, ct);
+            return Ok();
+        }
+        catch (NoCrowdsourceException ex)
+        {
+            _log.LogWarning(ex, "User tried to vote on non-existent crowdsource: {Crowdsource}, User: {User}", crowdsourceId, HttpContext.User.CurrentUserId());
+            return NotFound();
+        }
+        catch (Exception ex)
+        {
+            _log.LogError(ex, "Error voting on crowdsource");
+            return StatusCode(StatusCodes.Status500InternalServerError);
+        }
+    }
+
+    [HttpPost]
+    [Route("{crowdsourceId}/report")]
+    [Authorize]
+    public async Task<IActionResult> ReportCrowdsource(string crowdsourceId, ReportCrowdsourceCommand command, CancellationToken ct = default)
+    {
+        try
+        {
+            await _crowdsource.ReportCrowdsource(crowdsourceId, HttpContext.User.CurrentUserId(), command, ct);
+            _log.LogInformation("Crowdsource report made, crowdsource: {Id}, report: {@Command}", crowdsourceId, command);
+            return Ok();
+        }
+        catch (NoCrowdsourceException ex)
+        {
+            _log.LogWarning(ex, "User tried to report non-existent crowdsource: {Crowdsource}, User: {User}", crowdsourceId, HttpContext.User.CurrentUserId());
+            return NotFound();
+        }
+        catch (Exception ex)
+        {
+            _log.LogError(ex, "Error reporting crowdsource");
             return StatusCode(StatusCodes.Status500InternalServerError);
         }
     }
