@@ -11,4 +11,5 @@ public interface ICrowdsourceRepository
     Task<GTCrowdsourceVotes?> GetVote(string crowdsourceId, string userId, CancellationToken ct = default);
     Task<bool> DeleteVote(string crowdsourceId, string userId, CancellationToken ct = default);
     Task<bool> SaveVote(GTCrowdsourceVotes vote, CancellationToken ct = default);
+    Task<bool> SaveReport(GTCrowdsourceReport report, CancellationToken ct = default);
 }

@@ -83,4 +83,27 @@ public class CrowdsourceController: ControllerBase
             return StatusCode(StatusCodes.Status500InternalServerError);
         }
     }
+
+    [HttpPost]
+    [Route("{crowdsourceId}/report")]
+    [Authorize]
+    public async Task<IActionResult> ReportCrowdsource(string crowdsourceId, ReportCrowdsourceCommand command, CancellationToken ct = default)
+    {
+        try
+        {
+            await _crowdsource.ReportCrowdsource(crowdsourceId, HttpContext.User.CurrentUserId(), command, ct);
+            _log.LogInformation("Crowdsource report made, crowdsource: {Id}, report: {@Command}", crowdsourceId, command);
+            return Ok();
+        }
+        catch (NoCrowdsourceException ex)
+        {
+            _log.LogWarning(ex, "User tried to report non-existent crowdsource: {Crowdsource}, User: {User}", crowdsourceId, HttpContext.User.CurrentUserId());
+            return NotFound();
+        }
+        catch (Exception ex)
+        {
+            _log.LogError(ex, "Error reporting crowdsource");
+            return StatusCode(StatusCodes.Status500InternalServerError);
+        }
+    }
 }

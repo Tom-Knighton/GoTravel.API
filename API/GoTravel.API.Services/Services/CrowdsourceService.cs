@@ -6,7 +6,6 @@ using GoTravel.API.Domain.Models.DTOs.Commands;
 using GoTravel.API.Domain.Services;
 using GoTravel.API.Domain.Services.Mappers;
 using GoTravel.API.Domain.Services.Repositories;
-using MassTransit.Configuration;
 using Microsoft.Extensions.Configuration;
 using OpenAI;
 using OpenAI.Chat;
@@ -17,6 +16,7 @@ public class CrowdsourceService: ICrowdsourceService
 {
     private readonly ICrowdsourceRepository _repo;
     private readonly IMapper<GTCrowdsourceInfo, CrowdsourceInfoDto> _mapper;
+    private readonly TimeProvider _time;
     private const double SemanticSimilarityThreshold = 0.6;
     private readonly OpenAIClient _ai;
     private const string ChatModel = "gpt-3.5-turbo";
@@ -24,10 +24,11 @@ public class CrowdsourceService: ICrowdsourceService
 
     private const string ModerationSystem = "You are a moderation system. You are only capable of responding 'y' or 'n'. Respond 'y' if the submitted text is relevant, useful and not harmful in the context of crowdsourced info for a public transport app. It should pass if the text is useful and helpful for other users. Respond 'n' if it's not relevant, or harmful, or contains swear words/violence. It can pass even if there's personal language like 'my'.";
 
-    public CrowdsourceService(ICrowdsourceRepository repo, IMapper<GTCrowdsourceInfo, CrowdsourceInfoDto> mapper, IConfiguration config)
+    public CrowdsourceService(ICrowdsourceRepository repo, IMapper<GTCrowdsourceInfo, CrowdsourceInfoDto> mapper, TimeProvider time, IConfiguration config)
     {
         _repo = repo;
         _mapper = mapper;
+        _time = time;
 
         _ai = new OpenAIClient(new OpenAIAuthentication(config.GetSection("OpenAI").GetValue<string>("Key")));
     }
@@ -121,6 +122,27 @@ public class CrowdsourceService: ICrowdsourceService
         };
 
         return await _repo.SaveVote(vote, ct);
+    }
+
+    public async Task<bool> ReportCrowdsource(string crowdsourceId, string userId, ReportCrowdsourceCommand command, CancellationToken ct = default)
+    {
+        var crowdsource = await _repo.GetCrowdsource(crowdsourceId, ct);
+        if (crowdsource is null)
+        {
+            throw new NoCrowdsourceException(crowdsourceId);
+        }
+
+        var report = new GTCrowdsourceReport
+        {
+            UUID = Guid.NewGuid().ToString("N"),
+            CrowdsourceId = crowdsource.UUID,
+            ReportedAt = _time.GetUtcNow().UtcDateTime,
+            ReporterId = userId,
+            Handled = false,
+            ReportText = command.ReportReason
+        };
+
+        return await _repo.SaveReport(report, ct);
     }
 
 

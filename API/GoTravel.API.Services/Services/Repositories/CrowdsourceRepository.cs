@@ -83,4 +83,18 @@ public class CrowdsourceRepository: ICrowdsourceRepository
 
         return await _context.SaveChangesAsync(ct) > 0;
     }
+
+    public async Task<bool> SaveReport(GTCrowdsourceReport report, CancellationToken ct = default)
+    {
+        if (_context.CrowdsourceReports.AsNoTrackingWithIdentityResolution().Any(r => r.UUID == report.UUID))
+        {
+            _context.CrowdsourceReports.Update(report);
+        }
+        else
+        {
+            _context.CrowdsourceReports.Add(report);
+        }
+
+        return await _context.SaveChangesAsync(ct) > 0;
+    }
 }
