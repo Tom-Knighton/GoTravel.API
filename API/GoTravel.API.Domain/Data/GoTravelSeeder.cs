@@ -16,6 +16,7 @@ public class GoTravelSeeder
     public void Seed()
     {
         SeedInfoKeys();
+        SeedScoreboard();
     }
 
     private void SeedInfoKeys()
@@ -33,5 +34,22 @@ public class GoTravelSeeder
         }
 
         _context.SaveChanges();
+    }
+
+    private void SeedScoreboard()
+    {
+        var existingGS = _context.Scoreboards.FirstOrDefault(s => s.ScoreboardName == "Most Travel");
+        if (existingGS is null)
+        {
+            _context.Scoreboards.Add(new GTScoreboard
+            {
+                UUID = Guid.NewGuid().ToString("N"),
+                ScoreboardName = "Most Travel",
+                ActiveFrom = DateTime.UtcNow,
+                ScoreboardDescription = "Compete against friends to use the most public transport!",
+                JoinType = GTScoreboadJoinType.AllEnrolled,
+            });
+            _context.SaveChanges();
+        }
     }
 }
