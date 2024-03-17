@@ -8,10 +8,10 @@ public class GTUserDetails
     public DateTime DateCreated { get; set; }
     public GTUserFollowerAcceptLevel FollowerAcceptType { get; set; }
     public int UserPoints { get; set; }
-    
-    public virtual ICollection<GTUserFollowings> FollowingUsers { get; set; }
-    public virtual ICollection<GTUserFollowings> Followers { get; set; }
-    
+
+    public virtual ICollection<GTUserFollowings> FollowingUsers { get; set; } = new List<GTUserFollowings>();
+    public virtual ICollection<GTUserFollowings> Followers { get; set; } = new List<GTUserFollowings>();
+
 }
 
 public enum GTUserFollowerAcceptLevel

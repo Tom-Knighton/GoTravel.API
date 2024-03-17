@@ -13,14 +13,21 @@ public class ScoreboardMapper(IMapper<GTUserDetails, UserDto> userMapper): IMapp
             ScoreboardName = source.ScoreboardName,
             ScoreboardDescription = source.ScoreboardDescription,
             ScoreboardLogoUrl = source.ScoreboardIconUrl,
-            ScoreboardUsers = source.Users?.Select(u => new ScoreboardUserDto
-            {
-                Points = u.Points,
-                User = userMapper.Map(u.User)
-
-            }).ToList() ?? new()
+            ScoreboardUsers = new List<ScoreboardUserDto>()
         };
 
+        var ordered = source.Users.OrderByDescending(u => u.Points).ToList();
+        for (var i = 1; i <= ordered.Count; i++)
+        {
+            var user = ordered.ElementAt(i - 1);
+            dto.ScoreboardUsers.Add(new ScoreboardUserDto
+            {
+                Points = user.Points,
+                User = userMapper.Map(user.User),
+                Rank = i
+            });
+        }
+        
         return dto;
     }
 }
