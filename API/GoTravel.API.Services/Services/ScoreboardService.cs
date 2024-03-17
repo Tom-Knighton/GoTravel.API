@@ -1,3 +1,4 @@
+using GoTravel.API.Domain.Exceptions;
 using GoTravel.API.Domain.Models.Database;
 using GoTravel.API.Domain.Models.DTOs;
 using GoTravel.API.Domain.Services;
@@ -52,7 +53,16 @@ public class ScoreboardService: IScoreboardService
 
     public async Task<ScoreboardDto?> GetScoreboard(string scoreboardId, CancellationToken ct = default)
     {
-        throw new NotImplementedException();
+        var scoreboard = await _repo.GetScoreboard(scoreboardId, ct);
+
+        if (scoreboard is null)
+        {
+            throw new ScoreboardNotFoundException(scoreboardId);
+        }
+
+        var dto = _map.Map(scoreboard);
+
+        return dto;
     }
 
     public async Task<ICollection<ScoreboardUserDto>> GetScoreboardUsers(string scoreboardId, int fromPosition, int results, CancellationToken ct = default)

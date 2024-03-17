@@ -1,5 +1,6 @@
 using System.Collections;
 using System.ComponentModel.DataAnnotations;
+using GoTravel.API.Domain.Exceptions;
 using GoTravel.API.Domain.Models.DTOs;
 using GoTravel.API.Domain.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -43,7 +44,21 @@ public class ScoreboardController: ControllerBase
     [Produces(typeof(ScoreboardDto))]
     public async Task<IActionResult> GetScoreboard(string scoreboardId, CancellationToken ct = default)
     {
-        return Ok();
+        try
+        {
+            var scoreboard = await _scoreboardService.GetScoreboard(scoreboardId, ct);
+            return Ok(scoreboard);
+        }
+        catch (ScoreboardNotFoundException ex)
+        {
+            _log.LogWarning(ex, "Could not find scoreboard");
+            return NotFound();
+        }
+        catch (Exception ex)
+        {
+            _log.LogError(ex, "Failed to retrieve scoreboard information for scoreboard: {Id}", scoreboardId);
+            return StatusCode(StatusCodes.Status500InternalServerError);
+        }
     }
 
     [HttpGet]

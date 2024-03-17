@@ -1,11 +1,8 @@
-using EFCore.BulkExtensions;
 using GoTravel.API.Domain.Data;
 using GoTravel.API.Domain.Models.Database;
 using GoTravel.API.Domain.Services.Repositories;
-using MassTransit.Internals;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using Npgsql;
 using Zomp.EFCore.WindowFunctions;
 
 namespace GoTravel.API.Services.Services.Repositories;
@@ -14,6 +11,8 @@ public class ScoreboardRepository: IScoreboardRepository
 {
     private readonly GoTravelContext _context;
     private readonly ILogger<ScoreboardRepository> _log;
+
+    private const int InitialUsersToTake = 10;
 
     public ScoreboardRepository(GoTravelContext context, ILogger<ScoreboardRepository> log)
     {
@@ -24,7 +23,7 @@ public class ScoreboardRepository: IScoreboardRepository
     public async Task<ICollection<GTScoreboard>> GetScoreboardsForUser(string userId, CancellationToken ct = default)
     {
         var results = await _context.Scoreboards
-            .Include(s => s.Users.OrderByDescending(u => u.Points).Take(1))
+            .Include(s => s.Users.OrderByDescending(u => u.Points).Take(InitialUsersToTake))
             .ThenInclude(u => u.User)
             .Where(s => s.Users.Any(u => u.UserId == userId))
             .ToListAsync(ct);
@@ -54,5 +53,13 @@ public class ScoreboardRepository: IScoreboardRepository
             .FirstOrDefaultAsync(u => u.ScoreboardUUID == scoreboardId && u.UserId == userId, ct);        
         
         return new Tuple<int, GTScoreboardUser>(rank.Rank, user);
+    }
+
+    public async Task<GTScoreboard?> GetScoreboard(string scoreboardId, CancellationToken ct = default)
+    {
+        return await _context.Scoreboards
+            .Include(s => s.Users.OrderByDescending(u => u.Points).Take(InitialUsersToTake))
+            .ThenInclude(u => u.User)
+            .FirstOrDefaultAsync(s => s.UUID == scoreboardId, ct);
     }
 }

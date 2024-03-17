@@ -10,6 +10,7 @@ public class ScoreboardMapper(IMapper<GTUserDetails, UserDto> userMapper): IMapp
     {
         var dto = new ScoreboardDto
         {
+            ScoreboardId = source.UUID,
             ScoreboardName = source.ScoreboardName,
             ScoreboardDescription = source.ScoreboardDescription,
             ScoreboardLogoUrl = source.ScoreboardIconUrl,
