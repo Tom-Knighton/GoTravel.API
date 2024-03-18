@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Npgsql;
+using Zomp.EFCore.WindowFunctions.Npgsql;
 
 namespace GoTravel.API.Services.ServiceCollections;
 
@@ -31,6 +32,7 @@ public static class EFCoreCollection
             {
                 b.MigrationsAssembly("GoTravel.API");
                 b.UseNetTopologySuite();
+                b.UseWindowFunctions();
             });
         });
 

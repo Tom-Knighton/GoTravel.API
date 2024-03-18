@@ -158,6 +158,149 @@ namespace GoTravel.API.Migrations
                     b.ToTable("Area", (string)null);
                 });
 
+            modelBuilder.Entity("GoTravel.API.Domain.Models.Database.GTCrowdsourceInfo", b =>
+                {
+                    b.Property<string>("UUID")
+                        .HasColumnType("text");
+
+                    b.Property<float[]>("Embeddings")
+                        .IsRequired()
+                        .HasColumnType("real[]");
+
+                    b.Property<string>("EntityId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("ExpectedEnd")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("FreeText")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsClosed")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsDelayed")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("NeedsReview")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime>("SubmittedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("SubmittedById")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("UUID");
+
+                    b.HasIndex("EntityId");
+
+                    b.HasIndex("SubmittedById");
+
+                    b.ToTable("Crowdsource", (string)null);
+                });
+
+            modelBuilder.Entity("GoTravel.API.Domain.Models.Database.GTCrowdsourceReport", b =>
+                {
+                    b.Property<string>("UUID")
+                        .HasColumnType("text");
+
+                    b.Property<string>("CrowdsourceId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<bool>("Handled")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("ReportText")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("ReportedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ReporterId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("UUID");
+
+                    b.HasIndex("CrowdsourceId");
+
+                    b.HasIndex("ReporterId");
+
+                    b.ToTable("CrowdsourceReports", (string)null);
+                });
+
+            modelBuilder.Entity("GoTravel.API.Domain.Models.Database.GTCrowdsourceVotes", b =>
+                {
+                    b.Property<string>("CrowdsourceId")
+                        .HasColumnType("text");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("text");
+
+                    b.Property<int>("VoteType")
+                        .HasColumnType("integer");
+
+                    b.HasKey("CrowdsourceId", "UserId");
+
+                    b.ToTable("CrowdsourceVotes", (string)null);
+                });
+
+            modelBuilder.Entity("GoTravel.API.Domain.Models.Database.GTScoreboard", b =>
+                {
+                    b.Property<string>("UUID")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("ActiveFrom")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("EndsAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("JoinType")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("ScoreboardDescription")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("ScoreboardIconUrl")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ScoreboardName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("UUID");
+
+                    b.ToTable("Scoreboards", (string)null);
+                });
+
+            modelBuilder.Entity("GoTravel.API.Domain.Models.Database.GTScoreboardUser", b =>
+                {
+                    b.Property<string>("ScoreboardUUID")
+                        .HasColumnType("text");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("JoinedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("Points")
+                        .HasColumnType("integer");
+
+                    b.HasKey("ScoreboardUUID", "UserId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("ScoreboardUsers", (string)null);
+                });
+
             modelBuilder.Entity("GoTravel.API.Domain.Models.Database.GTStopPoint", b =>
                 {
                     b.Property<string>("StopPointId")
@@ -240,9 +383,15 @@ namespace GoTravel.API.Migrations
                     b.Property<DateTime>("DateCreated")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<int>("FollowerAcceptType")
+                        .HasColumnType("integer");
+
                     b.Property<string>("UserName")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<int>("UserPoints")
+                        .HasColumnType("integer");
 
                     b.Property<string>("UserProfilePicUrl")
                         .IsRequired()
@@ -254,6 +403,53 @@ namespace GoTravel.API.Migrations
                         .IsUnique();
 
                     b.ToTable("User", (string)null);
+                });
+
+            modelBuilder.Entity("GoTravel.API.Domain.Models.Database.GTUserFollowings", b =>
+                {
+                    b.Property<string>("RequesterId")
+                        .HasColumnType("text");
+
+                    b.Property<string>("FollowsId")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("DoesFollow")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsAccepted")
+                        .HasColumnType("boolean");
+
+                    b.HasKey("RequesterId", "FollowsId");
+
+                    b.HasIndex("FollowsId");
+
+                    b.ToTable("UserFollowing", (string)null);
+                });
+
+            modelBuilder.Entity("GoTravel.API.Domain.Models.Database.GTUserPointsAudit", b =>
+                {
+                    b.Property<string>("UserId")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("PointsAdded")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("PointsAtAdd")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Reason")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("UserId", "UpdatedAt");
+
+                    b.ToTable("UserPointsAudit", (string)null);
                 });
 
             modelBuilder.Entity("GLFlagGLLineMode", b =>
@@ -310,6 +506,58 @@ namespace GoTravel.API.Migrations
                     b.Navigation("StopPoint");
                 });
 
+            modelBuilder.Entity("GoTravel.API.Domain.Models.Database.GTCrowdsourceInfo", b =>
+                {
+                    b.HasOne("GoTravel.API.Domain.Models.Database.GTUserDetails", "SubmittedBy")
+                        .WithMany()
+                        .HasForeignKey("SubmittedById")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("SubmittedBy");
+                });
+
+            modelBuilder.Entity("GoTravel.API.Domain.Models.Database.GTCrowdsourceReport", b =>
+                {
+                    b.HasOne("GoTravel.API.Domain.Models.Database.GTUserDetails", "Reporter")
+                        .WithMany()
+                        .HasForeignKey("ReporterId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Reporter");
+                });
+
+            modelBuilder.Entity("GoTravel.API.Domain.Models.Database.GTCrowdsourceVotes", b =>
+                {
+                    b.HasOne("GoTravel.API.Domain.Models.Database.GTCrowdsourceInfo", "Crowdsource")
+                        .WithMany("Votes")
+                        .HasForeignKey("CrowdsourceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Crowdsource");
+                });
+
+            modelBuilder.Entity("GoTravel.API.Domain.Models.Database.GTScoreboardUser", b =>
+                {
+                    b.HasOne("GoTravel.API.Domain.Models.Database.GTScoreboard", "Scoreboard")
+                        .WithMany("Users")
+                        .HasForeignKey("ScoreboardUUID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("GoTravel.API.Domain.Models.Database.GTUserDetails", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Scoreboard");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("GoTravel.API.Domain.Models.Database.GTStopPoint", b =>
                 {
                     b.HasOne("GoTravel.API.Domain.Models.Database.GTStopPoint", "Parent")
@@ -338,6 +586,36 @@ namespace GoTravel.API.Migrations
                     b.Navigation("StopPoint");
                 });
 
+            modelBuilder.Entity("GoTravel.API.Domain.Models.Database.GTUserFollowings", b =>
+                {
+                    b.HasOne("GoTravel.API.Domain.Models.Database.GTUserDetails", "Follows")
+                        .WithMany("Followers")
+                        .HasForeignKey("FollowsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("GoTravel.API.Domain.Models.Database.GTUserDetails", "Requester")
+                        .WithMany("FollowingUsers")
+                        .HasForeignKey("RequesterId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Follows");
+
+                    b.Navigation("Requester");
+                });
+
+            modelBuilder.Entity("GoTravel.API.Domain.Models.Database.GTUserPointsAudit", b =>
+                {
+                    b.HasOne("GoTravel.API.Domain.Models.Database.GTUserDetails", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("GoTravel.API.Domain.Models.Database.GLLine", b =>
                 {
                     b.Navigation("StopPointLines");
@@ -353,11 +631,28 @@ namespace GoTravel.API.Migrations
                     b.Navigation("LineModes");
                 });
 
+            modelBuilder.Entity("GoTravel.API.Domain.Models.Database.GTCrowdsourceInfo", b =>
+                {
+                    b.Navigation("Votes");
+                });
+
+            modelBuilder.Entity("GoTravel.API.Domain.Models.Database.GTScoreboard", b =>
+                {
+                    b.Navigation("Users");
+                });
+
             modelBuilder.Entity("GoTravel.API.Domain.Models.Database.GTStopPoint", b =>
                 {
                     b.Navigation("Children");
 
                     b.Navigation("StopPointLines");
+                });
+
+            modelBuilder.Entity("GoTravel.API.Domain.Models.Database.GTUserDetails", b =>
+                {
+                    b.Navigation("Followers");
+
+                    b.Navigation("FollowingUsers");
                 });
 #pragma warning restore 612, 618
         }

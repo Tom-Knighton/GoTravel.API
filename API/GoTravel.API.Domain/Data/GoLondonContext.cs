@@ -21,7 +21,16 @@ public class GoTravelContext: DbContext
     public virtual DbSet<GTStopPointInfoValue> StopPointInfoValues { get; set; }
     
     public virtual DbSet<GTUserDetails> Users { get; set; }
-
+    public virtual DbSet<GTUserFollowings> UserFollowings { get; set; }
+    public virtual DbSet<GTUserPointsAudit> UserPointsAudit { get; set; }
+    
+    public virtual DbSet<GTCrowdsourceInfo> CrowdsourceInfo { get; set; }
+    public virtual DbSet<GTCrowdsourceVotes> CrowdsourceVotes { get; set; }
+    public virtual DbSet<GTCrowdsourceReport> CrowdsourceReports { get; set; }
+    
+    public virtual DbSet<GTScoreboard> Scoreboards { get; set; }
+    public virtual DbSet<GTScoreboardUser> ScoreboardUsers { get; set; }
+    
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -111,6 +120,82 @@ public class GoTravelContext: DbContext
             e.ToTable("User");
             e.HasKey(u => u.UserId);
             e.HasIndex(u => u.UserName).IsUnique();
+
+            e.HasMany(u => u.FollowingUsers)
+                .WithOne(f => f.Requester)
+                .HasForeignKey(f => f.RequesterId);
+            e.HasMany(u => u.Followers)
+                .WithOne(f => f.Follows)
+                .HasForeignKey(f => f.FollowsId);
+        });
+
+        modelBuilder.Entity<GTUserFollowings>(e =>
+        {
+            e.ToTable("UserFollowing");
+            e.HasKey(u => new { u.RequesterId, u.FollowsId });
+            e.HasIndex(u => u.FollowsId);
+        });
+
+        modelBuilder.Entity<GTUserPointsAudit>(e =>
+        {
+            e.ToTable("UserPointsAudit");
+            e.HasKey(ua => new { ua.UserId, ua.UpdatedAt });
+            e.HasOne(ua => ua.User)
+                .WithMany()
+                .HasForeignKey(ua => ua.UserId);
+        });
+
+        modelBuilder.Entity<GTCrowdsourceInfo>(e =>
+        {
+            e.ToTable("Crowdsource");
+            e.HasKey(c => c.UUID);
+            e.HasIndex(c => c.EntityId);
+
+            e.HasOne(c => c.SubmittedBy)
+                .WithMany()
+                .HasForeignKey(c => c.SubmittedById);
+        });
+
+        modelBuilder.Entity<GTCrowdsourceVotes>(e =>
+        {
+            e.ToTable("CrowdsourceVotes");
+            e.HasKey(c => new { c.CrowdsourceId, c.UserId });
+            e.HasOne(c => c.Crowdsource)
+                .WithMany(ci => ci.Votes)
+                .HasForeignKey(c => c.CrowdsourceId);
+        });
+
+        modelBuilder.Entity<GTCrowdsourceReport>(e =>
+        {
+            e.ToTable("CrowdsourceReports");
+            e.HasKey(c => c.UUID);
+            e.HasOne(c => c.Reporter)
+                .WithMany()
+                .HasForeignKey(c => c.ReporterId);
+
+            e.HasIndex(c => c.CrowdsourceId);
+        });
+
+        modelBuilder.Entity<GTScoreboard>(e =>
+        {
+            e.ToTable("Scoreboards");
+            e.HasKey(s => s.UUID);
+
+            e.HasMany(s => s.Users)
+                .WithOne(u => u.Scoreboard)
+                .HasForeignKey(u => u.ScoreboardUUID);
+        });
+
+        modelBuilder.Entity<GTScoreboardUser>(e =>
+        {
+            e.ToTable("ScoreboardUsers");
+            e.HasKey(u => new { u.ScoreboardUUID, u.UserId });
+
+            e.HasIndex(u => u.UserId);
+
+            e.HasOne(u => u.User)
+                .WithMany()
+                .HasForeignKey(u => u.UserId);
         });
     }
 }

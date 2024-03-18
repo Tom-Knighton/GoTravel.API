@@ -1,5 +1,6 @@
 using GoTravel.API.Domain.Models.Database;
 using GoTravel.API.Domain.Models.DTOs;
+using GoTravel.API.Domain.Models.Lib;
 using GoTravel.API.Domain.Services.Mappers;
 using GoTravel.API.Services.Services.Mappers;
 using GoTravel.Standard.Models.Arrivals;
@@ -19,7 +20,11 @@ public static class MapperCollection
         services.AddTransient<IMapper<StopPointUpdateDto, GTStopPoint>, StopPointUpdateMapper>();
         services.AddTransient<IMapper<IEnumerable<ArrivalDeparture>, ICollection<LineArrivals>>, ArrivalGroupMapper>();
         services.AddTransient<IMapper<ICollection<GTStopPointInfoValue>, StopPointInformationDto>, StopPointInfoMapper>();
-
+        services.AddTransient<IMapper<Tuple<GTUserDetails, AuthUserInfoResponse>, CurrentUserDto>, CurrentUserMapper>();
+        services.AddTransient<IMapper<GTUserDetails, UserDto>, UserMapper>();
+        services.AddTransient<IMapper<GTCrowdsourceInfo, CrowdsourceInfoDto>, CrowdsourceMapper>();
+        services.AddTransient<IMapper<GTScoreboard, ScoreboardDto>, ScoreboardMapper>();
+        
         services.AddTransient<IAsyncMapper<Journey, JourneyDto>, JourneyAsyncMapper>();
         return services;
     }

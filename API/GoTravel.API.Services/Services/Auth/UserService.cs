@@ -1,9 +1,11 @@
 using System.Security.Claims;
 using GoTravel.API.Domain.Exceptions;
+using GoTravel.API.Domain.Extensions;
 using GoTravel.API.Domain.Models.Database;
 using GoTravel.API.Domain.Models.DTOs;
 using GoTravel.API.Domain.Models.Lib;
 using GoTravel.API.Domain.Services.Auth;
+using GoTravel.API.Domain.Services.Mappers;
 using GoTravel.API.Domain.Services.Repositories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.StaticFiles;
@@ -18,18 +20,22 @@ public class UserService: IUserService
     private readonly IAuthService _authService;
     private readonly IUserRepository _userRepo;
     private readonly IHttpContextAccessor _context;
+    private readonly IMapper<GTUserDetails, UserDto> _basicMap;
+    private readonly IMapper<Tuple<GTUserDetails, AuthUserInfoResponse>, CurrentUserDto> _currentMapper;
     private readonly IMinioClient _minio;
     
     private const string DbConnectionPrefix = "auth0|";
     private const string ProfilePicBucket = "gotravel";
     private readonly string UserProfilePicSlug;
     
-    public UserService(IAuthService authService, IUserRepository repo, IHttpContextAccessor context, IMinioClient minio, IConfiguration config)
+    public UserService(IAuthService authService, IUserRepository repo, IMapper<Tuple<GTUserDetails, AuthUserInfoResponse>, CurrentUserDto> curMap, IMapper<GTUserDetails, UserDto> map, IHttpContextAccessor context, IMinioClient minio, IConfiguration config)
     {
         _authService = authService;
         _userRepo = repo;
         _context = context;
         _minio = minio;
+        _basicMap = map;
+        _currentMapper = curMap;
         UserProfilePicSlug = config.GetSection("CDN").GetValue<string>("UserSlug");
     }
 
@@ -56,12 +62,9 @@ public class UserService: IUserService
         {
             throw new UserNotFoundException(identifier);
         }
-        
-        return new UserDto
-        { 
-            UserName = details.UserName,
-            UserPictureUrl = details.UserProfilePicUrl
-        };
+
+        var dto = _basicMap.Map(details);
+        return dto;
     }
 
     public async Task<CurrentUserDto> GetCurrentUserInfo(CancellationToken ct = default)
@@ -78,15 +81,9 @@ public class UserService: IUserService
         {
             throw new UserNotFoundException(userInfo.sub);
         }
-        
-        return new CurrentUserDto
-        {
-            UserId = details.UserId,
-            UserName = details.UserName,
-            UserEmail = userInfo.name,
-            UserPictureUrl = details.UserProfilePicUrl,
-            DateCreated = details.DateCreated
-        };
+
+        var dto = _currentMapper.Map(new Tuple<GTUserDetails, AuthUserInfoResponse>(details, userInfo));
+        return dto;
     }
 
     public async Task CreateUser(AuthUserSignup dto, CancellationToken ct = default)
@@ -102,7 +99,7 @@ public class UserService: IUserService
         await _userRepo.SaveUser(userDetails, ct);
     }
 
-    public async Task<bool> UpdateUserDetails(string username, UpdateUserDetailsDto dto, CancellationToken ct = default)
+    public async Task<bool> UpdateUserDetails(string username, UpdateUserDetailsCommand command, CancellationToken ct = default)
     {
         var user = await _userRepo.GetUserByAnIdentifierAsync(username, ct);
         if (user is null)
@@ -110,19 +107,28 @@ public class UserService: IUserService
             throw new UserNotFoundException(username);
         }
 
-        if (user.UserId.StartsWith(DbConnectionPrefix))
+        if (!string.IsNullOrWhiteSpace(command.Username))
         {
-            var authSuccess = await _authService.UpdateUsername(dto.username, user.UserId, ct);
-
-            if (!authSuccess)
+            if (user.UserId.StartsWith(DbConnectionPrefix))
             {
-                return false;
+                var authSuccess = await _authService.UpdateUsername(command.Username, user.UserId, ct);
+
+                if (!authSuccess)
+                {
+                    return false;
+                }
             }
+
+            user.UserName = command.Username;
+        }
+
+        if (command.FollowAcceptType != null)
+        {
+            user.FollowerAcceptType = command.FollowAcceptType ?? GTUserFollowerAcceptLevel.RequiresApproval;
         }
 
         try
         {
-            user.UserName = dto.username;
             await _userRepo.SaveUser(user, ct);
             return true;
         }
@@ -150,43 +156,44 @@ public class UserService: IUserService
             .WithObjectSize(stream.Length)
             .WithContentType(GetMimeType(picture.FileName));
 
-        try
-        {
-            var oldUrl = user.UserProfilePicUrl;
-            await _minio.PutObjectAsync(args, ct);
+        var oldUrl = user.UserProfilePicUrl;
+        await _minio.PutObjectAsync(args, ct);
 
-            var url = $"https://{_minio.Config.BaseUrl}/{ProfilePicBucket}/{UserProfilePicSlug}/{user.UserId}/{guid}{Path.GetExtension(picture.FileName)}";
+        var url = $"https://{_minio.Config.BaseUrl}/{ProfilePicBucket}/{UserProfilePicSlug}/{user.UserId}/{guid}{Path.GetExtension(picture.FileName)}";
 
-            user.UserProfilePicUrl = url;
-            await _userRepo.SaveUser(user, ct);
+        user.UserProfilePicUrl = url;
+        await _userRepo.SaveUser(user, ct);
 
-            var success = true;
+        var success = true;
             
-            if (user.UserId.StartsWith(DbConnectionPrefix))
-            {
-               success = await _authService.UpdateProfilePictureUrl(url, user.UserId, ct);
-            }
-
-            if (success)
-            {
-                try
-                {
-                    var removeArgs = new RemoveObjectArgs()
-                        .WithBucket(ProfilePicBucket)
-                        .WithObject(oldUrl.Replace("https://cdn.tomk.online/gotravel/", ""));
-                    await _minio.RemoveObjectAsync(removeArgs, ct);
-                } catch {}
-            }
-
-            return success;
-        }
-        catch
+        if (user.UserId.StartsWith(DbConnectionPrefix))
         {
-            //TODO: Log
-            return false;
+            success = await _authService.UpdateProfilePictureUrl(url, user.UserId, ct);
         }
+
+        if (success)
+        {
+            try
+            {
+                var removeArgs = new RemoveObjectArgs()
+                    .WithBucket(ProfilePicBucket)
+                    .WithObject(oldUrl.Replace("https://cdn.tomk.online/gotravel/", ""));
+                await _minio.RemoveObjectAsync(removeArgs, ct);
+            } catch {}
+        }
+
+        return success;
     }
-    
+
+    public async Task<ICollection<UserDto>> SearchUsers(string query, int maxResults, CancellationToken ct = default)
+    {
+        var usersId = _context.HttpContext?.User.CurrentUserId();
+        var results = await _userRepo.Search(query, maxResults, usersId, ct);
+
+        var mapped = results.Select(u => _basicMap.Map(u));
+        return mapped.ToList();
+    }
+
     private string GetMimeType(string fileName)
     {
         var provider = new FileExtensionContentTypeProvider();

@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
-using System.Security.Claims;
 using GoTravel.API.Domain.Exceptions;
+using GoTravel.API.Domain.Extensions;
 using GoTravel.API.Domain.Models.DTOs;
 using GoTravel.API.Domain.Models.Lib;
 using GoTravel.API.Domain.Services.Auth;
@@ -15,10 +15,12 @@ namespace GoTravel.API.Controllers;
 public class UserController : ControllerBase
 {
     private readonly IUserService _userService;
-
-    public UserController(IUserService users)
+    private readonly ILogger<UserController> _log;
+    
+    public UserController(IUserService users, ILogger<UserController> log)
     {
         _userService = users;
+        _log = log;
     }
 
     [Authorize(AuthenticationSchemes = "Auth0Only")]
@@ -31,8 +33,9 @@ public class UserController : ControllerBase
             await _userService.CreateUser(dto, ct);
             return Ok();
         }
-        catch
+        catch(Exception ex)
         {
+            _log.LogError(ex, "Fatal error on user sign up");
             return StatusCode(StatusCodes.Status500InternalServerError);
         }
     }
@@ -70,10 +73,9 @@ public class UserController : ControllerBase
         {
             return NotFound();
         }
-        catch
+        catch(Exception ex)
         {
-
-            //TODO: Log
+            _log.LogError(ex, "Error on retrieving user by id: {Id}", username);
             return StatusCode(StatusCodes.Status500InternalServerError);
         }
     }
@@ -86,13 +88,14 @@ public class UserController : ControllerBase
         {
             return Ok(await _userService.GetCurrentUserInfo(ct));
         }
-        catch (UserNotFoundException)
+        catch (UserNotFoundException ex)
         {
+            _log.LogWarning(ex, "/me failed as user was not found in DB");
             return Unauthorized();
         }
-        catch
+        catch(Exception ex)
         {
-            //TODO: Log
+            _log.LogError(ex, "Failed to retrieve current user from jwt despite being authenticated");
             return StatusCode(StatusCodes.Status500InternalServerError);
         }
     }
@@ -100,12 +103,12 @@ public class UserController : ControllerBase
     [HttpPut]
     [Route("{username}/updateDetails")]
     [Produces(typeof(bool))]
-    public async Task<IActionResult> UpdateUserDetails(string username, [FromBody] UpdateUserDetailsDto dto, CancellationToken ct = default)
+    public async Task<IActionResult> UpdateUserDetails(string username, [FromBody] UpdateUserDetailsCommand command, CancellationToken ct = default)
     {
         try
         {
             await _userService.ThrowIfUserOperatingOnOtherUser(username, ct);
-            if (await _userService.UpdateUserDetails(username, dto, ct))
+            if (await _userService.UpdateUserDetails(username, command, ct))
             {
                 return Ok(true);
             }
@@ -114,6 +117,7 @@ public class UserController : ControllerBase
         }
         catch (WrongUserException)
         {
+            _log.LogWarning("{Id} tried to operate on {Username}, which is a different user", HttpContext.User.CurrentUserId(), username);
             return Unauthorized();
         }
         catch (UserNotFoundException)
@@ -122,8 +126,7 @@ public class UserController : ControllerBase
         }
         catch (Exception ex)
         {
-            //TODO: Log
-            Console.WriteLine(ex.Message);
+            _log.LogError(ex, "Failed to update user details for {Username} with command: {@Command}", username, command);
             return StatusCode(StatusCodes.Status500InternalServerError);
         }
     }
@@ -141,15 +144,33 @@ public class UserController : ControllerBase
         }
         catch (WrongUserException)
         {
+            _log.LogWarning("{Id} tried to update profile picture for {Username}, which is a different user", HttpContext.User.CurrentUserId(), username);
             return Unauthorized();
         }
         catch (UserNotFoundException)
         {
             return NotFound();
         }
-        catch
+        catch (Exception ex)
         {
-            //TODO: Log
+            _log.LogError(ex, "Failed to update a user's profile picture");
+            return StatusCode(StatusCodes.Status500InternalServerError);
+        }
+    }
+
+    [HttpGet]
+    [Route("Search/{query}")]
+    [Produces(typeof(ICollection<UserDto>))]
+    public async Task<IActionResult> SearchUsers(string query, [Range(1, 125)] int maxResults, CancellationToken ct = default)
+    {
+        try
+        {
+            var results = await _userService.SearchUsers(query, maxResults, ct);
+            return Ok(results);
+        }
+        catch (Exception ex)
+        {
+            _log.LogError(ex, "Failed to search for users with query: {Query}", query);
             return StatusCode(StatusCodes.Status500InternalServerError);
         }
     }
