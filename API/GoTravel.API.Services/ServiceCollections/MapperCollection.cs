@@ -23,6 +23,7 @@ public static class MapperCollection
         services.AddTransient<IMapper<Tuple<GTUserDetails, AuthUserInfoResponse>, CurrentUserDto>, CurrentUserMapper>();
         services.AddTransient<IMapper<GTUserDetails, UserDto>, UserMapper>();
         services.AddTransient<IMapper<GTCrowdsourceInfo, CrowdsourceInfoDto>, CrowdsourceMapper>();
+        services.AddTransient<IMapper<GTScoreboard, ScoreboardDto>, ScoreboardMapper>();
         
         services.AddTransient<IAsyncMapper<Journey, JourneyDto>, JourneyAsyncMapper>();
         return services;

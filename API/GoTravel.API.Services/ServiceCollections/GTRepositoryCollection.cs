@@ -12,6 +12,7 @@ public static class GTRepositoryCollection
         services.AddTransient<IAreaRepository, AreaRepository>();
         services.AddTransient<ILineModeRepository, LineModeRepository>();
         services.AddTransient<ICrowdsourceRepository, CrowdsourceRepository>();
+        services.AddTransient<IScoreboardRepository, ScoreboardRepository>();
         
         return services;
     }
