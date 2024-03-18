@@ -64,8 +64,17 @@ public class ScoreboardController: ControllerBase
     [HttpGet]
     [Route("{scoreboardId}/Users")]
     [Produces(typeof(ICollection<ScoreboardUserDto>))]
-    public async Task<IActionResult> GetScoreboardUsers([Required] int fromPosition = 1, int results = 10, CancellationToken ct = default)
+    public async Task<IActionResult> GetScoreboardUsers(string scoreboardId, [Required] int fromPosition = 1, int results = 10, CancellationToken ct = default)
     {
-        return Ok();
+        try
+        {
+            var users = await _scoreboardService.GetScoreboardUsers(scoreboardId, fromPosition, results, ct);
+            return Ok(users);
+        }
+        catch (Exception ex)
+        {
+            _log.LogError(ex, "Failed to retrieve users for scoreboard");
+            return StatusCode(StatusCodes.Status500InternalServerError);
+        }
     }
 }

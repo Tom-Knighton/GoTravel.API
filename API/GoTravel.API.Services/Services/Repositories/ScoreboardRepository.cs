@@ -55,6 +55,24 @@ public class ScoreboardRepository: IScoreboardRepository
         return new Tuple<int, GTScoreboardUser>(rank.Rank, user);
     }
 
+    public async Task<ICollection<(int rank, GTScoreboardUser user)>> GetUsersForScoreboard(string scoreboardId, int startFrom, int results, CancellationToken ct = default)
+    {
+        var start = Math.Max(0, startFrom - 1);
+        var take = Math.Max(0, results);
+        var users = await _context.ScoreboardUsers
+            .Where(u => u.ScoreboardUUID == scoreboardId)
+            .Include(u => u.User)
+            .Select(u => new
+            {
+                Rank = (int)EF.Functions.Rank(EF.Functions.Over().OrderByDescending(u.Points)),
+                User = u
+            })
+            .OrderBy(u => u.Rank)
+            .ToListAsync(ct);
+
+        return users.Skip(start).Take(take).Select(r => (r.Rank, r.User)).ToList();
+    }
+
     public async Task<GTScoreboard?> GetScoreboard(string scoreboardId, CancellationToken ct = default)
     {
         return await _context.Scoreboards

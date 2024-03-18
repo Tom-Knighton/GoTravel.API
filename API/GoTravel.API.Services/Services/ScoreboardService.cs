@@ -67,6 +67,16 @@ public class ScoreboardService: IScoreboardService
 
     public async Task<ICollection<ScoreboardUserDto>> GetScoreboardUsers(string scoreboardId, int fromPosition, int results, CancellationToken ct = default)
     {
-        throw new NotImplementedException();
+        var users = await _repo.GetUsersForScoreboard(scoreboardId, fromPosition, results, ct);
+
+        var dtos = users.Select(u => new ScoreboardUserDto
+            {
+                Rank = u.rank,
+                Points = u.user.Points,
+                User = _userMap.Map(u.user.User)
+            })
+            .OrderBy(u => u.Rank);
+
+        return dtos.ToList();
     }
 }
