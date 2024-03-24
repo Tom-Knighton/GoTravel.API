@@ -17,6 +17,7 @@ public static class MassTransitCollection
             mt.AddConsumer<IArrivalUpdatedConsumer>();
             mt.AddConsumer<IStopPointInfoUpdatedConsumer>();
             mt.AddConsumer<ILineRouteUpdatedConsumer>();
+            mt.AddConsumer<IAddPointsConsumer>();
             
             mt.UsingRabbitMq((ctx, cfg) =>
             {
@@ -55,7 +56,11 @@ public static class MassTransitCollection
                 {
                     c.ConfigureConsumer<ILineRouteUpdatedConsumer>(ctx);
                 });
-                
+
+                cfg.ReceiveEndpoint("IAddPoints_GTAPI", c =>
+                {
+                    c.ConfigureConsumer<IAddPointsConsumer>(ctx);
+                });
             });
         });
 

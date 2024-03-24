@@ -2,8 +2,10 @@ using GoTravel.API.Domain.Data;
 using GoTravel.API.Domain.Extensions;
 using GoTravel.API.Domain.Models.Database;
 using GoTravel.API.Domain.Models.DTOs.Commands;
+using GoTravel.API.Domain.Models.Lib;
 using GoTravel.API.Domain.Services;
 using GoTravel.API.Domain.Services.Repositories;
+using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using NetTopologySuite.Geometries;
 
@@ -12,8 +14,9 @@ namespace GoTravel.API.Services.Services;
 public class TripService: ITripService
 {
     private readonly GoTravelContext _context;
-    private readonly ILineModeService _lineModeService;
     private readonly ITripRepository _repo;
+    private readonly IPublishEndpoint _publisher;
+    private readonly TimeProvider _time;
     private const double BufferDistance = 0.001;
     private const double IntersectThresholdLength = 0.006;
     
@@ -21,11 +24,12 @@ public class TripService: ITripService
     private const double CoverageThreshold = 50;
     private const double KmPerDegree = 111;
 
-    public TripService(GoTravelContext context, ILineModeService lineMode, ITripRepository repo)
+    public TripService(GoTravelContext context, ITripRepository repo, IPublishEndpoint publisher, TimeProvider time)
     {
         _context = context;
-        _lineModeService = lineMode;
         _repo = repo;
+        _publisher = publisher;
+        _time = time;
     }
 
     public async Task SaveUserTrip(SaveUserTripCommand command, string userId, CancellationToken ct = default)
@@ -59,23 +63,29 @@ public class TripService: ITripService
             LineString = line,
             StartedAt = command.StartedAt,
             EndedAt = command.EndedAt,
+            SubmittedAt = _time.GetUtcNow().UtcDateTime,
             NeedsModeration = false,
             Lines = command.Lines.Select(l => new GTUserSavedJourneyLine
             {
                 LineId = l
             }).ToList(),
-            Points = GetPointsForTrip(line.Length, (command.EndedAt - command.StartedAt).Minutes, 100 - percentageUncovered)
+            Points = GetPointsForTrip(line.Length, (command.EndedAt - command.StartedAt).Minutes, 100 - percentageUncovered, command.Lines.Count != 0)
         };
 
-        if (percentageUncovered >= CoverageThreshold || !command.Lines.Most(l => intersectedRoutes.Any(r => r.LineRoute.LineId == l)))
+        if (percentageUncovered >= CoverageThreshold || (command.Lines.Count != 0 && !command.Lines.Most(l => intersectedRoutes.Any(r => r.LineRoute.LineId == l))))
         {
             journey.NeedsModeration = true;
         }
 
         journey = await _repo.SaveJourney(journey, ct);
+
+        if (!journey.NeedsModeration)
+        {
+            await _publisher.Publish(new AddPointsMessage { UserId = userId, Message = $"User saved trip {journey.UUID} for {journey.Points} points.", Points = journey.Points }, ct);
+        }
     }
 
-    private static int GetPointsForTrip(double distance, double time, double percentageCovered)
+    private static int GetPointsForTrip(double distance, double time, double percentageCovered, bool postedLines)
     {
         // Assign points in the following:
         // - (percentage covered by routes / 2) * km distance * points per km (0.5) rounded to 0dp +
@@ -84,7 +94,7 @@ public class TripService: ITripService
         var km = distance * KmPerDegree;
         
         // Points for covered distance
-        var coveredPoints = (int)((percentageCovered / 2) * km * PointsPerKm);
+        var coveredPoints = (int)((percentageCovered / (postedLines ? 2 : 2.5)) * km * PointsPerKm);
 
         var timeBonus = time switch
         {
