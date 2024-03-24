@@ -7,5 +7,5 @@ public class GLStopPointLine
     public bool IsEnabled { get; set; }
 
     public virtual GTStopPoint StopPoint { get; set; }
-    public virtual GLLine Line { get; set; }
+    public virtual GTLine Line { get; set; }
 }

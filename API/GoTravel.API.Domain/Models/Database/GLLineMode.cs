@@ -13,7 +13,7 @@ public class GLLineMode
     
     public int? AreaId { get; set; }
 
-    public virtual ICollection<GLLine> Lines { get; set; } = new List<GLLine>();
+    public virtual ICollection<GTLine> Lines { get; set; } = new List<GTLine>();
     public virtual GTArea? PrimaryArea { get; set; }
     public virtual ICollection<GLFlag> Flags { get; set; } = new List<GLFlag>();
 }

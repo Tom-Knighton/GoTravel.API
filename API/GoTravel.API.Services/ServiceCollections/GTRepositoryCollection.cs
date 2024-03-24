@@ -13,6 +13,7 @@ public static class GTRepositoryCollection
         services.AddTransient<ILineModeRepository, LineModeRepository>();
         services.AddTransient<ICrowdsourceRepository, CrowdsourceRepository>();
         services.AddTransient<IScoreboardRepository, ScoreboardRepository>();
+        services.AddTransient<ITripRepository, TripRepository>();
         
         return services;
     }
