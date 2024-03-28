@@ -17,4 +17,6 @@ public interface ILineModeRepository
 
     Task<ICollection<GTLineRoute>> GetRoutesForLine(string lineId, CancellationToken ct = default);
     Task<GTLineRoute> UpdateRoute(GTLineRoute route, CancellationToken ct = default);
+
+    Task<ICollection<GTLine>> GetByName(string name, int maxResults, bool includeDisabled = false, CancellationToken ct = default);
 }

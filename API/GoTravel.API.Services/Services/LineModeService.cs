@@ -5,7 +5,6 @@ using GoTravel.API.Domain.Services.Mappers;
 using GoTravel.API.Domain.Services.Repositories;
 using GoTravel.Standard.Models.MessageModels;
 using NetTopologySuite.Geometries;
-using System.Linq;
 
 namespace GoTravel.API.Services.Services;
 
@@ -14,12 +13,14 @@ public class LineModeService: ILineModeService
     private readonly ILineModeRepository _repo;
     private readonly IAreaRepository _areaRepo;
     private readonly IMapper<GLLineMode, LineModeDto> _mapper;
+    private readonly IMapper<GTLine, LineDto> _lineMap;
 
-    public LineModeService(ILineModeRepository repo, IAreaRepository areas, IMapper<GLLineMode, LineModeDto> map)
+    public LineModeService(ILineModeRepository repo, IAreaRepository areas, IMapper<GLLineMode, LineModeDto> map, IMapper<GTLine, LineDto> lineMap)
     {
         _repo = repo;
         _areaRepo = areas;
         _mapper = map;
+        _lineMap = lineMap;
     }
     
     public async Task<IEnumerable<LineModeSearchResult>> ListAsync(float? searchLatitude, float? searchLongitude, CancellationToken ct = default)
@@ -110,5 +111,13 @@ public class LineModeService: ILineModeService
         };
         
         await _repo.UpdateRoute(route, ct);
+    }
+
+    public async Task<ICollection<LineDto>> SearchByName(string query, int maxResults, CancellationToken ct = default)
+    {
+        var lines = await _repo.GetByName(query, maxResults, false, ct);
+        var dtos = lines.Select(l => _lineMap.Map(l));
+
+        return dtos.ToList();
     }
 }
