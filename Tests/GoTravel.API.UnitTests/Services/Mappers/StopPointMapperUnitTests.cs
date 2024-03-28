@@ -27,7 +27,7 @@ public class StopPointMapperUnitTests
             {
                 new()
                 {
-                    Line = new GLLine
+                    Line = new GTLine
                     {
                         LineName = "Test Line",
                         LineId = "789",

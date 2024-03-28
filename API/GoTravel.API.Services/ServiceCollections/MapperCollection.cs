@@ -16,6 +16,7 @@ public static class MapperCollection
     {
         services.AddTransient<IMapper<GTStopPoint, StopPointBaseDto>, StopPointMapper>();
         services.AddTransient<IMapper<GLLineMode, LineModeDto>, LineModeMapper>();
+        services.AddTransient<IMapper<GTLine, LineDto>, LineMapper>();
         services.AddTransient<IMapper<GLFlag, string>, FlagsMapper>();
         services.AddTransient<IMapper<StopPointUpdateDto, GTStopPoint>, StopPointUpdateMapper>();
         services.AddTransient<IMapper<IEnumerable<ArrivalDeparture>, ICollection<LineArrivals>>, ArrivalGroupMapper>();
@@ -24,6 +25,7 @@ public static class MapperCollection
         services.AddTransient<IMapper<GTUserDetails, UserDto>, UserMapper>();
         services.AddTransient<IMapper<GTCrowdsourceInfo, CrowdsourceInfoDto>, CrowdsourceMapper>();
         services.AddTransient<IMapper<GTScoreboard, ScoreboardDto>, ScoreboardMapper>();
+        services.AddTransient<IMapper<GTUserSavedJourney, UserSavedJourneyDto>, SavedTripMapper>();
         
         services.AddTransient<IAsyncMapper<Journey, JourneyDto>, JourneyAsyncMapper>();
         return services;

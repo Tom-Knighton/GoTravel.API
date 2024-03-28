@@ -58,4 +58,23 @@ public class LineModeRepository: ILineModeRepository
 
         return mode;
     }
+
+    public async Task<ICollection<GTLineRoute>> GetRoutesForLine(string lineId, CancellationToken ct = default)
+    {
+        return await _context.LineRoutes
+            .Where(r => r.LineId == lineId)
+            .ToListAsync(ct);
+    }
+
+    public async Task<GTLineRoute> UpdateRoute(GTLineRoute route, CancellationToken ct = default)
+    {
+        await _context.BulkInsertOrUpdateAsync(new List<GTLineRoute> { route }, b =>
+        {
+            b.IncludeGraph = true;
+        }, cancellationToken: ct);
+
+        await _context.BulkSaveChangesAsync(cancellationToken: ct);
+
+        return route;
+    }
 }

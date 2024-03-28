@@ -5,6 +5,7 @@ using GoTravel.API.Domain.Services.Mappers;
 using GoTravel.API.Domain.Services.Repositories;
 using GoTravel.Standard.Models.MessageModels;
 using NetTopologySuite.Geometries;
+using System.Linq;
 
 namespace GoTravel.API.Services.Services;
 
@@ -78,7 +79,7 @@ public class LineModeService: ILineModeService
         // Get all new lines, that exist in update but not in DB
         var newLines = update.Lines?.Where(nl => existing.Lines.All(l => l.LineId != nl)) ?? new List<string>();
 
-        var lines = newLines.Select(l => new GLLine
+        var lines = newLines.Select(l => new GTLine
         {
             LineId = l,
             LineName = string.Empty,
@@ -92,5 +93,22 @@ public class LineModeService: ILineModeService
         }
 
         await _repo.Update(existing, ct);
+    }
+
+    public async Task UpdateLineRoute(LineStringUpdateDto update, CancellationToken ct = default)
+    {
+        var lineStrings = update.Route
+            .Select(r => new LineString(r.Select(p => new Coordinate(p.ElementAt(0), p.ElementAt(1))).ToArray()))
+            .ToArray();
+        var route = new GTLineRoute
+        {
+            LineId = update.LineId,
+            Name = update.Name,
+            ServiceType = update.Service,
+            Direction = update.Direction,
+            Route = new MultiLineString(lineStrings)
+        };
+        
+        await _repo.UpdateRoute(route, ct);
     }
 }

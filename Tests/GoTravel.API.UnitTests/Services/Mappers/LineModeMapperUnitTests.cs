@@ -18,7 +18,7 @@ public class LineModeMapperUnitTests
         {
             LineModeName = "LINE MODE 1",
             IsEnabled = true,
-            Lines = new List<GLLine>
+            Lines = new List<GTLine>
             {
                 new()
                 {

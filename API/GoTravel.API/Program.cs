@@ -2,6 +2,8 @@ using System.Reflection;
 using System.Text.Json.Serialization;
 using GoTravel.API.Domain.Data;
 using GoTravel.API.Services.ServiceCollections;
+using IdempotentAPI.Cache.DistributedCache.Extensions.DependencyInjection;
+using IdempotentAPI.Extensions.DependencyInjection;
 using NetTopologySuite;
 using NetTopologySuite.IO.Converters;
 
@@ -39,6 +41,9 @@ builder.Services
     .AddRedis(builder.Configuration.GetSection("Redis"))
     .AddMinioCollection(builder.Configuration.GetSection("CDN"))
     .AddLogs()
+    .AddDistributedMemoryCache()
+    .AddIdempotentAPI()
+    .AddIdempotentAPIUsingDistributedCache()
     .ConfigureHttpJsonOptions(o =>
     {
         o.SerializerOptions.PropertyNameCaseInsensitive = true;
