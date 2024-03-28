@@ -7,6 +7,9 @@ public class UserSavedJourneyDto
     public DateTime StartedAt { get; set; }
     public DateTime EndedAt { get; set; }
     public int PointsReceived { get; set; }
-    public int IsUnderReview { get; set; }
-    public ICollection<ICollection<double>> Coordinates { get; set; }
+    public bool IsUnderReview { get; set; }
+    public string? Note { get; set; }
+    public IEnumerable<IEnumerable<double>> Coordinates { get; set; }
+    
+    public ICollection<LineDto> Lines { get; set; }
 }

@@ -6,6 +6,7 @@ public class GTUserSavedJourney
 {
     public string UUID { get; set; }
     public string UserId { get; set; }
+    public string? Name { get; set; }
 
     public DateTime StartedAt { get; set; }
     public DateTime EndedAt { get; set; }

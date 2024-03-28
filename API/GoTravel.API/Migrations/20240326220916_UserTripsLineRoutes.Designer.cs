@@ -13,8 +13,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace GoTravel.API.Migrations
 {
     [DbContext(typeof(GoTravelContext))]
-    [Migration("20240324120420_LineRoutesUserTrips")]
-    partial class LineRoutesUserTrips
+    [Migration("20240326220916_UserTripsLineRoutes")]
+    partial class UserTripsLineRoutes
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -492,6 +492,9 @@ namespace GoTravel.API.Migrations
                     b.Property<LineString>("LineString")
                         .IsRequired()
                         .HasColumnType("geometry");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("text");
 
                     b.Property<bool>("NeedsModeration")
                         .HasColumnType("boolean");

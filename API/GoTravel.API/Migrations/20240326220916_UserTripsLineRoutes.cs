@@ -7,7 +7,7 @@ using NetTopologySuite.Geometries;
 namespace GoTravel.API.Migrations
 {
     /// <inheritdoc />
-    public partial class LineRoutesUserTrips : Migration
+    public partial class UserTripsLineRoutes : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -39,6 +39,7 @@ namespace GoTravel.API.Migrations
                 {
                     UUID = table.Column<string>(type: "text", nullable: false),
                     UserId = table.Column<string>(type: "text", nullable: false),
+                    Name = table.Column<string>(type: "text", nullable: true),
                     StartedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     EndedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     SubmittedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),

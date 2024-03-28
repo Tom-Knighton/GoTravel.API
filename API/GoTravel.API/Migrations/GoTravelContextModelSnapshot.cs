@@ -490,6 +490,9 @@ namespace GoTravel.API.Migrations
                         .IsRequired()
                         .HasColumnType("geometry");
 
+                    b.Property<string>("Name")
+                        .HasColumnType("text");
+
                     b.Property<bool>("NeedsModeration")
                         .HasColumnType("boolean");
 

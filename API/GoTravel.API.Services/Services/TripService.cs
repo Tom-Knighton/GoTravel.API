@@ -1,19 +1,19 @@
-using GoTravel.API.Domain.Data;
 using GoTravel.API.Domain.Extensions;
 using GoTravel.API.Domain.Models.Database;
+using GoTravel.API.Domain.Models.DTOs;
 using GoTravel.API.Domain.Models.DTOs.Commands;
 using GoTravel.API.Domain.Models.Lib;
 using GoTravel.API.Domain.Services;
+using GoTravel.API.Domain.Services.Mappers;
 using GoTravel.API.Domain.Services.Repositories;
 using MassTransit;
-using Microsoft.EntityFrameworkCore;
 using NetTopologySuite.Geometries;
 
 namespace GoTravel.API.Services.Services;
 
 public class TripService: ITripService
 {
-    private readonly GoTravelContext _context;
+    private readonly IMapper<GTUserSavedJourney, UserSavedJourneyDto> _map;
     private readonly ITripRepository _repo;
     private readonly IPublishEndpoint _publisher;
     private readonly TimeProvider _time;
@@ -24,9 +24,9 @@ public class TripService: ITripService
     private const double CoverageThreshold = 50;
     private const double KmPerDegree = 111;
 
-    public TripService(GoTravelContext context, ITripRepository repo, IPublishEndpoint publisher, TimeProvider time)
+    public TripService(IMapper<GTUserSavedJourney, UserSavedJourneyDto> mapper, ITripRepository repo,  IPublishEndpoint publisher, TimeProvider time)
     {
-        _context = context;
+        _map = mapper;
         _repo = repo;
         _publisher = publisher;
         _time = time;
@@ -37,18 +37,9 @@ public class TripService: ITripService
         var line = new LineString(command.Coordinates.Select(c => new Coordinate(c.ElementAt(0), c.ElementAt(1))).ToArray());
         var buffer = line.Buffer(BufferDistance);
 
-        var intersectedRoutes = await _context.LineRoutes
-            .Where(r => r.Route.Intersects(buffer))
-            .Select(r => new
-            {
-                LineRoute = r,
-                r.Route.Intersection(buffer).Length
-            })
-            .Where(r => r.Length >= IntersectThresholdLength)
-            .OrderByDescending(r => r.Length)
-            .ToListAsync(ct);
+        var intersectedRoutes = await _repo.GetIntersections(buffer, IntersectThresholdLength, ct);
         
-        var unionOfIntersectedAreas = new GeometryCollection(intersectedRoutes.Select(g => g.LineRoute.Route.Buffer(BufferDistance).Intersection(buffer)).ToArray())
+        var unionOfIntersectedAreas = new GeometryCollection(intersectedRoutes.Select(g => g.route.Route.Buffer(BufferDistance).Intersection(buffer)).ToArray())
             .Union();
         var nonIntersectedAreas = buffer.Difference(unionOfIntersectedAreas);
 
@@ -61,6 +52,7 @@ public class TripService: ITripService
             UUID = Guid.NewGuid().ToString("N"),
             UserId = userId,
             LineString = line,
+            Name = command.Name,
             StartedAt = command.StartedAt,
             EndedAt = command.EndedAt,
             SubmittedAt = _time.GetUtcNow().UtcDateTime,
@@ -72,7 +64,7 @@ public class TripService: ITripService
             Points = GetPointsForTrip(line.Length, (command.EndedAt - command.StartedAt).Minutes, 100 - percentageUncovered, command.Lines.Count != 0)
         };
 
-        if (percentageUncovered >= CoverageThreshold || (command.Lines.Count != 0 && !command.Lines.Most(l => intersectedRoutes.Any(r => r.LineRoute.LineId == l))))
+        if (percentageUncovered >= CoverageThreshold || (command.Lines.Count != 0 && !command.Lines.Most(l => intersectedRoutes.Any(r => r.route.LineId == l))))
         {
             journey.NeedsModeration = true;
         }
@@ -83,6 +75,14 @@ public class TripService: ITripService
         {
             await _publisher.Publish(new AddPointsMessage { UserId = userId, Message = $"User saved trip {journey.UUID} for {journey.Points} points.", Points = journey.Points }, ct);
         }
+    }
+
+    public async Task<ICollection<UserSavedJourneyDto>> GetTripsForUser(string userId, int results, int startFrom, CancellationToken ct = default)
+    {
+        var trips = await _repo.GetJourneysForUser(userId, results, startFrom, ct);
+        var dtos = trips.Select(t => _map.Map(t));
+        
+        return dtos.ToList();
     }
 
     private static int GetPointsForTrip(double distance, double time, double percentageCovered, bool postedLines)

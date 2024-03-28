@@ -67,4 +67,21 @@ public class JourneyController: ControllerBase
             return StatusCode(StatusCodes.Status500InternalServerError);
         }
     }
+
+    [HttpGet]
+    [Route("Trips")]
+    [Authorize]
+    public async Task<IActionResult> GetUserTrips(int results = 25, int startFrom = 1, CancellationToken ct = default)
+    {
+        try
+        {
+            var dtos = await _tripService.GetTripsForUser(HttpContext.User.CurrentUserId(), results, startFrom, ct);
+            return Ok(dtos);
+        }
+        catch (Exception ex)
+        {
+            _log.LogError(ex, "Failed to retrieve trips for user {UserId}, results = {Results}, start = {Start}", HttpContext.User.CurrentUserId(), results, startFrom);
+            return StatusCode(StatusCodes.Status500InternalServerError);
+        }
+    }
 }
