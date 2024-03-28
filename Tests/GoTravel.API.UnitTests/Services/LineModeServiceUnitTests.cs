@@ -12,6 +12,7 @@ public class LineModeServiceUnitTests
     private Mock<ILineModeRepository> _repo;
     private Mock<IAreaRepository> _areaRepo;
     private Mock<IMapper<GLLineMode, LineModeDto>> _mapper;
+    private Mock<IMapper<GTLine, LineDto>> _lineMap;
     private ILineModeService _sut;
 
     [SetUp]
@@ -20,7 +21,8 @@ public class LineModeServiceUnitTests
         _repo = new Mock<ILineModeRepository>();
         _areaRepo = new Mock<IAreaRepository>();
         _mapper = new Mock<IMapper<GLLineMode, LineModeDto>>();
-        _sut = new LineModeService(_repo.Object, _areaRepo.Object, _mapper.Object);
+        _lineMap = new Mock<IMapper<GTLine, LineDto>>();
+        _sut = new LineModeService(_repo.Object, _areaRepo.Object, _mapper.Object, _lineMap.Object);
     }
 
     [Test]

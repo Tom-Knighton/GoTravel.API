@@ -77,4 +77,14 @@ public class LineModeRepository: ILineModeRepository
 
         return route;
     }
+
+    public async Task<ICollection<GTLine>> GetByName(string name, int maxResults, bool includeDisabled = false, CancellationToken ct = default)
+    {
+        var lines = await _context.Lines
+            .Where(l => EF.Functions.ILike(l.LineName, $"%{name}%") && (includeDisabled || l.IsEnabled))
+            .Take(maxResults)
+            .ToListAsync(ct);
+
+        return lines;
+    }
 }
