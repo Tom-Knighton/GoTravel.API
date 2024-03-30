@@ -53,8 +53,8 @@ public class TripService: ITripService
             UserId = userId,
             LineString = line,
             Name = command.Name,
-            StartedAt = command.StartedAt,
-            EndedAt = command.EndedAt,
+            StartedAt = command.StartedAt.ToUniversalTime(),
+            EndedAt = command.EndedAt.ToUniversalTime(),
             SubmittedAt = _time.GetUtcNow().UtcDateTime,
             NeedsModeration = false,
             Lines = command.Lines.Select(l => new GTUserSavedJourneyLine
