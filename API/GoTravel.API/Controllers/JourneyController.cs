@@ -58,8 +58,8 @@ public class JourneyController: ControllerBase
         
         try
         {
-            await _tripService.SaveUserTrip(command, HttpContext.User.CurrentUserId(), ct);
-            return Ok();
+            var dto = await _tripService.SaveUserTrip(command, HttpContext.User.CurrentUserId(), ct);
+            return Ok(dto);
         }
         catch (Exception ex)
         {

@@ -32,7 +32,7 @@ public class TripService: ITripService
         _time = time;
     }
 
-    public async Task SaveUserTrip(SaveUserTripCommand command, string userId, CancellationToken ct = default)
+    public async Task<UserSavedJourneyDto?> SaveUserTrip(SaveUserTripCommand command, string userId, CancellationToken ct = default)
     {
         var line = new LineString(command.Coordinates.Select(c => new Coordinate(c.ElementAt(0), c.ElementAt(1))).ToArray());
         var buffer = line.Buffer(BufferDistance);
@@ -75,6 +75,8 @@ public class TripService: ITripService
         {
             await _publisher.Publish(new AddPointsMessage { UserId = userId, Message = $"User saved trip {journey.UUID} for {journey.Points} points.", Points = journey.Points }, ct);
         }
+
+        return _map.Map(journey);
     }
 
     public async Task<ICollection<UserSavedJourneyDto>> GetTripsForUser(string userId, int results, int startFrom, CancellationToken ct = default)
