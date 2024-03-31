@@ -44,6 +44,7 @@ builder.Services
     .AddDistributedMemoryCache()
     .AddIdempotentAPI()
     .AddIdempotentAPIUsingDistributedCache()
+    .AddHangfireCollection(builder.Configuration.GetSection("Hangfire"))
     .ConfigureHttpJsonOptions(o =>
     {
         o.SerializerOptions.PropertyNameCaseInsensitive = true;
@@ -57,8 +58,9 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerServices(builder.Configuration.GetSection("Authentication"));
 }
 
-
+app.UseRouting();
 app.UseAuthServices();
+app.UseHangfire(builder.Configuration.GetSection("Hangfire"));
 app.UseHttpsRedirection();
 app.MapControllers();
 

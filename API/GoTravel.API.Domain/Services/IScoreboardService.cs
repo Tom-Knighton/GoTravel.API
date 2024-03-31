@@ -9,4 +9,6 @@ public interface IScoreboardService
     public Task<ScoreboardDto?> GetScoreboard(string scoreboardId, CancellationToken ct = default);
 
     public Task<ICollection<ScoreboardUserDto>> GetScoreboardUsers(string scoreboardId, int fromPosition, int results, CancellationToken ct = default);
+
+    public Task ResetAnyScoreboards(CancellationToken ct = default);
 }

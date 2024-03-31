@@ -9,6 +9,7 @@ public interface IScoreboardRepository
     Task<ICollection<(int rank, GTScoreboardUser user)>> GetUsersForScoreboard(string scoreboardId, int startFrom, int results, CancellationToken ct = default);
 
     Task<GTScoreboard?> GetScoreboard(string scoreboardId, CancellationToken ct = default);
-    
 
+    Task<ICollection<GTScoreboard>> GetScoreboardsToReset(CancellationToken ct = default);
+    Task SaveScoreboards(ICollection<GTScoreboard> scoreboards, CancellationToken ct = default);
 }
