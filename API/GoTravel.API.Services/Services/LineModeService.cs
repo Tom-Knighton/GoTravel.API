@@ -13,12 +13,14 @@ public class LineModeService: ILineModeService
     private readonly ILineModeRepository _repo;
     private readonly IAreaRepository _areaRepo;
     private readonly IMapper<GLLineMode, LineModeDto> _mapper;
+    private readonly IMapper<GTLine, LineDto> _lineMap;
 
-    public LineModeService(ILineModeRepository repo, IAreaRepository areas, IMapper<GLLineMode, LineModeDto> map)
+    public LineModeService(ILineModeRepository repo, IAreaRepository areas, IMapper<GLLineMode, LineModeDto> map, IMapper<GTLine, LineDto> lineMap)
     {
         _repo = repo;
         _areaRepo = areas;
         _mapper = map;
+        _lineMap = lineMap;
     }
     
     public async Task<IEnumerable<LineModeSearchResult>> ListAsync(float? searchLatitude, float? searchLongitude, CancellationToken ct = default)
@@ -78,7 +80,7 @@ public class LineModeService: ILineModeService
         // Get all new lines, that exist in update but not in DB
         var newLines = update.Lines?.Where(nl => existing.Lines.All(l => l.LineId != nl)) ?? new List<string>();
 
-        var lines = newLines.Select(l => new GLLine
+        var lines = newLines.Select(l => new GTLine
         {
             LineId = l,
             LineName = string.Empty,
@@ -92,5 +94,30 @@ public class LineModeService: ILineModeService
         }
 
         await _repo.Update(existing, ct);
+    }
+
+    public async Task UpdateLineRoute(LineStringUpdateDto update, CancellationToken ct = default)
+    {
+        var lineStrings = update.Route
+            .Select(r => new LineString(r.Select(p => new Coordinate(p.ElementAt(0), p.ElementAt(1))).ToArray()))
+            .ToArray();
+        var route = new GTLineRoute
+        {
+            LineId = update.LineId,
+            Name = update.Name,
+            ServiceType = update.Service,
+            Direction = update.Direction,
+            Route = new MultiLineString(lineStrings)
+        };
+        
+        await _repo.UpdateRoute(route, ct);
+    }
+
+    public async Task<ICollection<LineDto>> SearchByName(string query, int maxResults, CancellationToken ct = default)
+    {
+        var lines = await _repo.GetByName(query, maxResults, false, ct);
+        var dtos = lines.Select(l => _lineMap.Map(l));
+
+        return dtos.ToList();
     }
 }

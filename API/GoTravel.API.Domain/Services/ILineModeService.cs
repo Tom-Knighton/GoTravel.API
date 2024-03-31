@@ -10,4 +10,8 @@ public interface ILineModeService
     public Task<string> GetAreaNameFromCoordinates(float latitude, float longitude, CancellationToken ct = default);
 
     public Task UpdateLineMode(LineModeUpdateDto update, CancellationToken ct = default);
+
+    public Task UpdateLineRoute(LineStringUpdateDto update, CancellationToken ct = default);
+
+    public Task<ICollection<LineDto>> SearchByName(string query, int maxResults, CancellationToken ct = default);
 }

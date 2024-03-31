@@ -1,6 +1,5 @@
 using GoTravel.API.Domain.Services;
 using GoTravel.API.Domain.Services.Auth;
-using GoTravel.API.Domain.Services.Repositories;
 using GoTravel.API.Services.Services;
 using GoTravel.API.Services.Services.Auth;
 using Microsoft.Extensions.DependencyInjection;
@@ -20,6 +19,7 @@ public static class GTServiceCollection
         services.AddTransient<IPointsService, PointsService>();
         services.AddTransient<ICrowdsourceService, CrowdsourceService>();
         services.AddTransient<IScoreboardService, ScoreboardService>();
+        services.AddTransient<ITripService, TripService>();
         
         return services;
     }

@@ -13,9 +13,10 @@ public class GoTravelContext: DbContext
     public GoTravelContext(DbContextOptions<GoTravelContext> options): base(options) {}
     
     public virtual DbSet<GTStopPoint> StopPoints { get; set; }
-    public virtual DbSet<GLLine> Lines { get; set; }
+    public virtual DbSet<GTLine> Lines { get; set; }
     public virtual DbSet<GLLineMode> LineModes { get; set; }
     public virtual DbSet<GLStopPointLine> StopPointLines { get; set; }
+    public virtual DbSet<GTLineRoute> LineRoutes { get; set; }
     public virtual DbSet<GTArea> Areas { get; set; }
     public virtual DbSet<GTStopPointInfoKey> StopPointInfoKeys { get; set; }
     public virtual DbSet<GTStopPointInfoValue> StopPointInfoValues { get; set; }
@@ -23,6 +24,8 @@ public class GoTravelContext: DbContext
     public virtual DbSet<GTUserDetails> Users { get; set; }
     public virtual DbSet<GTUserFollowings> UserFollowings { get; set; }
     public virtual DbSet<GTUserPointsAudit> UserPointsAudit { get; set; }
+    public virtual DbSet<GTUserSavedJourney> UserSavedJourneys { get; set; }
+    public virtual DbSet<GTUserSavedJourneyLine> UserSavedJourneyLines { get; set; }
     
     public virtual DbSet<GTCrowdsourceInfo> CrowdsourceInfo { get; set; }
     public virtual DbSet<GTCrowdsourceVotes> CrowdsourceVotes { get; set; }
@@ -66,13 +69,24 @@ public class GoTravelContext: DbContext
                 .HasForeignKey(l => l.LineId);
         });
 
-        modelBuilder.Entity<GLLine>(e =>
+        modelBuilder.Entity<GTLine>(e =>
         {
             e.ToTable("Line");
             e.HasKey(l => l.LineId);
             e.HasOne(l => l.LineMode)
                 .WithMany(m => m.Lines)
                 .HasForeignKey(l => l.LineModeId);
+        });
+
+        modelBuilder.Entity<GTLineRoute>(e =>
+        {
+            e.ToTable("LineRoute");
+            e.HasKey(r => new { r.LineId, r.Direction, r.Name });
+            
+            e.HasOne(r => r.Line)
+                .WithMany(l => l.Routes)
+                .HasForeignKey(r => r.LineId);
+            e.HasIndex(r => r.LineId);
         });
 
         modelBuilder.Entity<GLLineMode>(e =>
@@ -196,6 +210,26 @@ public class GoTravelContext: DbContext
             e.HasOne(u => u.User)
                 .WithMany()
                 .HasForeignKey(u => u.UserId);
+        });
+
+        modelBuilder.Entity<GTUserSavedJourney>(e =>
+        {
+            e.ToTable("UserSavedJourney");
+            e.HasKey(j => j.UUID);
+
+            e.HasMany(j => j.Lines)
+                .WithOne(jl => jl.Journey)
+                .HasForeignKey(jl => jl.SavedJourneyId);
+        });
+
+        modelBuilder.Entity<GTUserSavedJourneyLine>(e =>
+        {
+            e.ToTable("UserSavedJourneyLine");
+            e.HasKey(j => new { j.SavedJourneyId, j.LineId });
+
+            e.HasOne(l => l.Line)
+                .WithMany()
+                .HasForeignKey(l => l.LineId);
         });
     }
 }

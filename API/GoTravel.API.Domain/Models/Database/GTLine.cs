@@ -1,6 +1,8 @@
+using System.Collections;
+
 namespace GoTravel.API.Domain.Models.Database;
 
-public class GLLine
+public class GTLine
 {
     public string LineId { get; set; }
     public string LineName { get; set; }
@@ -10,4 +12,5 @@ public class GLLine
     
     public virtual GLLineMode LineMode { get; set; }
     public virtual ICollection<GLStopPointLine> StopPointLines { get; set; }
+    public virtual ICollection<GTLineRoute> Routes { get; set; }
 }

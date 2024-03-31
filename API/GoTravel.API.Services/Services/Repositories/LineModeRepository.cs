@@ -58,4 +58,33 @@ public class LineModeRepository: ILineModeRepository
 
         return mode;
     }
+
+    public async Task<ICollection<GTLineRoute>> GetRoutesForLine(string lineId, CancellationToken ct = default)
+    {
+        return await _context.LineRoutes
+            .Where(r => r.LineId == lineId)
+            .ToListAsync(ct);
+    }
+
+    public async Task<GTLineRoute> UpdateRoute(GTLineRoute route, CancellationToken ct = default)
+    {
+        await _context.BulkInsertOrUpdateAsync(new List<GTLineRoute> { route }, b =>
+        {
+            b.IncludeGraph = true;
+        }, cancellationToken: ct);
+
+        await _context.BulkSaveChangesAsync(cancellationToken: ct);
+
+        return route;
+    }
+
+    public async Task<ICollection<GTLine>> GetByName(string name, int maxResults, bool includeDisabled = false, CancellationToken ct = default)
+    {
+        var lines = await _context.Lines
+            .Where(l => EF.Functions.ILike(l.LineName, $"%{name}%") && (includeDisabled || l.IsEnabled))
+            .Take(maxResults)
+            .ToListAsync(ct);
+
+        return lines;
+    }
 }
