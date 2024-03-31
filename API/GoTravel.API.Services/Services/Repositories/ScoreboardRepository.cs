@@ -28,7 +28,7 @@ public class ScoreboardRepository: IScoreboardRepository
         var results = await _context.Scoreboards
             .Include(s => s.Users.OrderByDescending(u => u.Points).Take(InitialUsersToTake))
             .ThenInclude(u => u.User)
-            .Where(s => s.Users.Any(u => u.UserId == userId))
+            .Where(s => s.JoinType == GTScoreboadJoinType.AllEnrolled || s.Users.Any(u => u.UserId == userId))
             .ToListAsync(ct);
         
         return results;
