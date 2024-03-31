@@ -48,6 +48,8 @@ public class GoTravelSeeder
                 ActiveFrom = DateTime.UtcNow,
                 ScoreboardDescription = "Compete against friends to use the most public transport!",
                 JoinType = GTScoreboadJoinType.AllEnrolled,
+                DoesReset = true,
+                EndsAt = DateTime.UtcNow.AddDays(14)
             });
             _context.SaveChanges();
         }

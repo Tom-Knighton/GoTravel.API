@@ -73,7 +73,7 @@ public class TripService: ITripService
 
         if (!journey.NeedsModeration)
         {
-            await _publisher.Publish(new AddPointsMessage { UserId = userId, Message = $"User saved trip {journey.UUID} for {journey.Points} points.", Points = journey.Points }, ct);
+            await _publisher.Publish(new AddPointsMessage { UserId = userId, Message = $"User saved trip {journey.UUID} for {journey.Points} points.", Points = journey.Points, ReasonType = AddPointsReasonType.Travel}, ct);
         }
 
         return _map.Map(journey);

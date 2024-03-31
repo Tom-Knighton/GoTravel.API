@@ -18,6 +18,7 @@ public class GTScoreboard
     public DateTime ActiveFrom { get; set; }
     public DateTime? EndsAt { get; set; }
     public GTScoreboadJoinType JoinType { get; set; }
+    public bool DoesReset { get; set; }
     
     public virtual ICollection<GTScoreboardUser> Users { get; set; }
 }

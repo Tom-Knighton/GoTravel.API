@@ -1,3 +1,4 @@
+using EFCore.BulkExtensions;
 using GoTravel.API.Domain.Data;
 using GoTravel.API.Domain.Models.Database;
 using GoTravel.API.Domain.Services.Repositories;
@@ -11,13 +12,15 @@ public class ScoreboardRepository: IScoreboardRepository
 {
     private readonly GoTravelContext _context;
     private readonly ILogger<ScoreboardRepository> _log;
-
+    private readonly TimeProvider _time;
+    
     private const int InitialUsersToTake = 10;
 
-    public ScoreboardRepository(GoTravelContext context, ILogger<ScoreboardRepository> log)
+    public ScoreboardRepository(GoTravelContext context, ILogger<ScoreboardRepository> log, TimeProvider time)
     {
         _context = context;
         _log = log;
+        _time = time;
     }
 
     public async Task<ICollection<GTScoreboard>> GetScoreboardsForUser(string userId, CancellationToken ct = default)
@@ -79,5 +82,49 @@ public class ScoreboardRepository: IScoreboardRepository
             .Include(s => s.Users.OrderByDescending(u => u.Points).Take(InitialUsersToTake))
             .ThenInclude(u => u.User)
             .FirstOrDefaultAsync(s => s.UUID == scoreboardId, ct);
+    }
+
+    public async Task<ICollection<GTScoreboard>> GetScoreboardsToReset(CancellationToken ct = default)
+    {
+        return await _context.Scoreboards
+            .Include(s => s.Users)
+            .Where(s => s.EndsAt < _time.GetUtcNow().UtcDateTime && s.DoesReset)
+            .ToListAsync(ct);
+    }
+
+    public async Task SaveScoreboards(ICollection<GTScoreboard> scoreboards, CancellationToken ct = default)
+    {
+        await _context.BulkUpdateAsync(scoreboards.ToList(), b =>
+        {
+            b.IncludeGraph = true;
+        }, cancellationToken: ct);
+
+        await _context.BulkSaveChangesAsync(cancellationToken: ct);
+    }
+
+    public async Task<GTScoreboard?> GetSingleByName(string name, CancellationToken ct = default)
+    {
+        return await _context.Scoreboards
+            .FirstOrDefaultAsync(s => s.ScoreboardName == name, ct);
+    }
+
+    public async Task<GTScoreboardUser?> GetUserInScoreboard(string scoreboardId, string userId, CancellationToken ct = default)
+    {
+        return await _context.ScoreboardUsers
+            .FirstOrDefaultAsync(s => s.ScoreboardUUID == scoreboardId && s.UserId == userId, ct);
+    }
+
+    public async Task SaveUser(GTScoreboardUser user, CancellationToken ct = default)
+    {
+        if (await _context.ScoreboardUsers.AnyAsync(u => u.UserId == user.UserId && u.ScoreboardUUID == user.ScoreboardUUID, ct))
+        {
+            _context.ScoreboardUsers.Update(user);
+        }
+        else
+        {
+            _context.ScoreboardUsers.Add(user);
+        }
+
+        await _context.SaveChangesAsync(ct);
     }
 }
