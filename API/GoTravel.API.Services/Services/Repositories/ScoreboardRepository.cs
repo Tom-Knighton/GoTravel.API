@@ -101,4 +101,30 @@ public class ScoreboardRepository: IScoreboardRepository
 
         await _context.BulkSaveChangesAsync(cancellationToken: ct);
     }
+
+    public async Task<GTScoreboard?> GetSingleByName(string name, CancellationToken ct = default)
+    {
+        return await _context.Scoreboards
+            .FirstOrDefaultAsync(s => s.ScoreboardName == name, ct);
+    }
+
+    public async Task<GTScoreboardUser?> GetUserInScoreboard(string scoreboardId, string userId, CancellationToken ct = default)
+    {
+        return await _context.ScoreboardUsers
+            .FirstOrDefaultAsync(s => s.ScoreboardUUID == scoreboardId && s.UserId == userId, ct);
+    }
+
+    public async Task SaveUser(GTScoreboardUser user, CancellationToken ct = default)
+    {
+        if (await _context.ScoreboardUsers.AnyAsync(u => u.UserId == user.UserId && u.ScoreboardUUID == user.ScoreboardUUID, ct))
+        {
+            _context.ScoreboardUsers.Update(user);
+        }
+        else
+        {
+            _context.ScoreboardUsers.Add(user);
+        }
+
+        await _context.SaveChangesAsync(ct);
+    }
 }

@@ -12,4 +12,8 @@ public interface IScoreboardRepository
 
     Task<ICollection<GTScoreboard>> GetScoreboardsToReset(CancellationToken ct = default);
     Task SaveScoreboards(ICollection<GTScoreboard> scoreboards, CancellationToken ct = default);
+
+    Task<GTScoreboard?> GetSingleByName(string name, CancellationToken ct = default);
+    Task<GTScoreboardUser?> GetUserInScoreboard(string scoreboardId, string userId, CancellationToken ct = default);
+    Task SaveUser(GTScoreboardUser user, CancellationToken ct = default);
 }

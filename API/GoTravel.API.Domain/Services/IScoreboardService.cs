@@ -11,4 +11,6 @@ public interface IScoreboardService
     public Task<ICollection<ScoreboardUserDto>> GetScoreboardUsers(string scoreboardId, int fromPosition, int results, CancellationToken ct = default);
 
     public Task ResetAnyScoreboards(CancellationToken ct = default);
+
+    public Task AddToTravelBoard(string userId, int points, CancellationToken ct = default);
 }
