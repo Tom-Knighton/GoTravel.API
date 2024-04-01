@@ -13,4 +13,6 @@ public interface IScoreboardService
     public Task ResetAnyScoreboards(CancellationToken ct = default);
 
     public Task AddToTravelBoard(string userId, int points, CancellationToken ct = default);
+    public Task SeenWin(string winId, string userId, DateTime at, CancellationToken ct = default);
+    public Task<ICollection<ScoreboardWinDto>> GetUnseenWinsForUser(string userId, CancellationToken ct = default);
 }

@@ -92,9 +92,23 @@ public class ScoreboardService: IScoreboardService
             var originalDifference = sb.EndsAt - sb.ActiveFrom;
             sb.ActiveFrom = _time.GetUtcNow().UtcDateTime;
             sb.EndsAt = originalDifference == null ? null : _time.GetUtcNow().UtcDateTime.Add(originalDifference.Value);
-            foreach (var gtScoreboardUser in sb.Users)
+
+            var winner = sb.Users.MaxBy(u => u.Points);
+            if (winner is not null)
             {
-                gtScoreboardUser.Points = 0;
+                var random = new Random();
+                var rewards = Enum.GetValues<ScoreboardWinRewardType>();
+                var win = new GTScoreboardWin
+                {
+                    UUID = Guid.NewGuid().ToString("N"),
+                    UserId = winner.UserId,
+                    ScoreboardId = winner.ScoreboardUUID,
+                    HasSeen = false,
+                    ScoreboardPosition = 1,
+                    WonAt = _time.GetUtcNow().UtcDateTime,
+                    RewardType = rewards[random.Next(0, rewards.Length)]
+                };
+                await _repo.SaveWin(win, ct);
             }
         }
 
@@ -127,5 +141,38 @@ public class ScoreboardService: IScoreboardService
         }
 
         await _repo.SaveUser(user, ct);
+    }
+
+    public async Task SeenWin(string winId, string userId, DateTime at, CancellationToken ct = default)
+    {
+        var win = await _repo.GetWin(winId, ct);
+
+        if (win is null)
+        {
+            throw new WinNotFoundException(winId);
+        }
+
+        if (win.UserId != userId)
+        {
+            throw new WrongUserException(userId);
+        }
+
+        win.HasSeen = true;
+        await _repo.SaveWin(win, ct);
+    }
+
+    public async Task<ICollection<ScoreboardWinDto>> GetUnseenWinsForUser(string userId, CancellationToken ct = default)
+    {
+        var wins = await _repo.GetUnseenWinsForUser(userId, ct);
+
+        var dtos = wins.Select(w => new ScoreboardWinDto
+        {
+            ScoreboardName = w.Scoreboard.ScoreboardName,
+            WonAt = w.WonAt,
+            Position = w.ScoreboardPosition,
+            RewardType = w.RewardType
+        });
+
+        return dtos.ToList();
     }
 }

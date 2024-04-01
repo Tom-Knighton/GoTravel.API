@@ -33,6 +33,7 @@ public class GoTravelContext: DbContext
     
     public virtual DbSet<GTScoreboard> Scoreboards { get; set; }
     public virtual DbSet<GTScoreboardUser> ScoreboardUsers { get; set; }
+    public virtual DbSet<GTScoreboardWin> ScoreboardWins { get; set; }
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -230,6 +231,20 @@ public class GoTravelContext: DbContext
             e.HasOne(l => l.Line)
                 .WithMany()
                 .HasForeignKey(l => l.LineId);
+        });
+
+        modelBuilder.Entity<GTScoreboardWin>(e =>
+        {
+            e.ToTable("ScoreboardWins");
+            e.HasKey(s => new { s.ScoreboardId, s.UserId, s.WonAt });
+
+            e.HasOne(s => s.User)
+                .WithMany()
+                .HasForeignKey(s => s.UserId);
+
+            e.HasOne(s => s.Scoreboard)
+                .WithMany()
+                .HasForeignKey(s => s.ScoreboardId);
         });
     }
 }
