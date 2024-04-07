@@ -7,5 +7,9 @@ public class ScoreboardDto
     public string? ScoreboardDescription { get; set; }
     public string? ScoreboardLogoUrl { get; set; }
     
+    public bool DoesReset { get; set; }
+    public DateTime StartDate { get; set; }
+    public DateTime? EndDate { get; set; }
+    
     public ICollection<ScoreboardUserDto> ScoreboardUsers { get; set; }
 }

@@ -1,6 +1,6 @@
-using System.Collections;
 using System.ComponentModel.DataAnnotations;
 using GoTravel.API.Domain.Exceptions;
+using GoTravel.API.Domain.Extensions;
 using GoTravel.API.Domain.Models.DTOs;
 using GoTravel.API.Domain.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -74,6 +74,64 @@ public class ScoreboardController: ControllerBase
         catch (Exception ex)
         {
             _log.LogError(ex, "Failed to retrieve users for scoreboard");
+            return StatusCode(StatusCodes.Status500InternalServerError);
+        }
+    }
+
+    [HttpPut]
+    [Route("win/{winId}/consumed")]
+    public async Task<IActionResult> ConsumedFinalPosition(string winId, CancellationToken ct = default)
+    {
+        try
+        {
+            await _scoreboardService.SeenWin(winId, HttpContext.User.CurrentUserId(), ct);
+            return Ok();
+        }
+        catch (WinNotFoundException ex)
+        {
+            _log.LogWarning(ex, "Could not find win '{WinId}'", winId);
+            return NotFound();
+        }
+        catch (WrongUserException ex)
+        {
+            _log.LogWarning(ex, "User {User} tried to consume win that did not belong to them: {Win}", HttpContext.User.CurrentUserId(), winId);
+            return BadRequest();
+        }
+        catch (Exception ex)
+        {
+            _log.LogError(ex, "Failed to save Win seen for win: {Id}, {User}", winId, HttpContext.User.CurrentUserId());
+            return StatusCode(StatusCodes.Status500InternalServerError);
+        }
+    }
+
+    [HttpGet]
+    [Route("UnseenWins")]
+    public async Task<IActionResult> GetUnseenWins(CancellationToken ct = default)
+    {
+        try
+        {
+            var wins = await _scoreboardService.GetUnseenWinsForUser(HttpContext.User.CurrentUserId(), ct);
+            return Ok(wins);
+        }
+        catch (Exception ex)
+        {
+            _log.LogError(ex, "Failed to retrieve wins for user");
+            return StatusCode(StatusCodes.Status500InternalServerError);
+        }
+    }
+
+    [HttpGet]
+    [Route("SeenWins")]
+    public async Task<IActionResult> GetSeenWins(CancellationToken ct = default)
+    {
+        try
+        {
+            var wins = await _scoreboardService.GetSeenWinsForUser(HttpContext.User.CurrentUserId(), ct);
+            return Ok(wins);
+        }
+        catch (Exception ex)
+        {
+            _log.LogError(ex, "Failed to retrieve wins for user");
             return StatusCode(StatusCodes.Status500InternalServerError);
         }
     }

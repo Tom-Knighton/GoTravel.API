@@ -22,4 +22,6 @@ public interface IUserRepository
 
     Task AddUserAudit(GTUserPointsAudit audit, CancellationToken ct = default);
 
+    Task SaveTitle(string userId, GTUserSubtitle subtitle, CancellationToken ct = default);
+
 }

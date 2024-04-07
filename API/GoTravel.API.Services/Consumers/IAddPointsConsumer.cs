@@ -19,6 +19,6 @@ public class IAddPointsConsumer: IConsumer<AddPointsMessage>
     public async Task Consume(ConsumeContext<AddPointsMessage> context)
     {
         _log.LogInformation("Adding {Points} to {User} for {Reason}", context.Message.Points, context.Message.UserId, context.Message.Message);
-        await _points.AddPointsToUser(context.Message.UserId, (int)context.Message.Points, context.Message.Message);
+        await _points.AddPointsToUser(context.Message.UserId, (int)context.Message.Points, context.Message.Message, context.Message.ReasonType);
     }
 }

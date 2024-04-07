@@ -1,3 +1,4 @@
+using GoTravel.API.Domain.Models.Database;
 using GoTravel.API.Domain.Models.DTOs;
 using GoTravel.API.Domain.Models.Lib;
 using Microsoft.AspNetCore.Http;
@@ -42,4 +43,9 @@ public interface IUserService
     /// Returns a list of UserDtos IGNORING the current user, based on a case-insensitive query
     /// </summary>
     Task<ICollection<UserDto>> SearchUsers(string query, int maxResults, CancellationToken ct = default);
+
+    /// <summary>
+    /// 
+    /// </summary>
+    Task AddSubtitle(string userId, GTUserSubtitle subtitle, CancellationToken ct = default);
 }

@@ -14,7 +14,10 @@ public class ScoreboardMapper(IMapper<GTUserDetails, UserDto> userMapper): IMapp
             ScoreboardName = source.ScoreboardName,
             ScoreboardDescription = source.ScoreboardDescription,
             ScoreboardLogoUrl = source.ScoreboardIconUrl,
-            ScoreboardUsers = new List<ScoreboardUserDto>()
+            ScoreboardUsers = new List<ScoreboardUserDto>(),
+            StartDate = source.ActiveFrom,
+            EndDate = source.EndsAt,
+            DoesReset = source.DoesReset
         };
 
         var ordered = source.Users.OrderByDescending(u => u.Points).ToList();

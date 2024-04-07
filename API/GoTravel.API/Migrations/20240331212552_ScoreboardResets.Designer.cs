@@ -3,6 +3,7 @@ using System;
 using GoTravel.API.Domain.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NetTopologySuite.Geometries;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -12,9 +13,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace GoTravel.API.Migrations
 {
     [DbContext(typeof(GoTravelContext))]
-    partial class GoTravelContextModelSnapshot : ModelSnapshot
+    [Migration("20240331212552_ScoreboardResets")]
+    partial class ScoreboardResets
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -330,37 +333,6 @@ namespace GoTravel.API.Migrations
                     b.ToTable("ScoreboardUsers", (string)null);
                 });
 
-            modelBuilder.Entity("GoTravel.API.Domain.Models.Database.GTScoreboardWin", b =>
-                {
-                    b.Property<string>("ScoreboardId")
-                        .HasColumnType("text");
-
-                    b.Property<string>("UserId")
-                        .HasColumnType("text");
-
-                    b.Property<DateTime>("WonAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<bool>("HasSeen")
-                        .HasColumnType("boolean");
-
-                    b.Property<int>("RewardType")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("ScoreboardPosition")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("UUID")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("ScoreboardId", "UserId", "WonAt");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("ScoreboardWins", (string)null);
-                });
-
             modelBuilder.Entity("GoTravel.API.Domain.Models.Database.GTStopPoint", b =>
                 {
                     b.Property<string>("StopPointId")
@@ -566,38 +538,6 @@ namespace GoTravel.API.Migrations
                     b.ToTable("UserSavedJourneyLine", (string)null);
                 });
 
-            modelBuilder.Entity("GoTravel.API.Domain.Models.Database.GTUserSubtitle", b =>
-                {
-                    b.Property<int>("SubtitleId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("SubtitleId"));
-
-                    b.Property<DateTime>("ExpiresAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<DateTime>("ValidFrom")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.HasKey("SubtitleId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("UserSubtitles", (string)null);
-                });
-
             modelBuilder.Entity("GLFlagGLLineMode", b =>
                 {
                     b.HasOne("GoTravel.API.Domain.Models.Database.GLFlag", null)
@@ -715,25 +655,6 @@ namespace GoTravel.API.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("GoTravel.API.Domain.Models.Database.GTScoreboardWin", b =>
-                {
-                    b.HasOne("GoTravel.API.Domain.Models.Database.GTScoreboard", "Scoreboard")
-                        .WithMany()
-                        .HasForeignKey("ScoreboardId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("GoTravel.API.Domain.Models.Database.GTUserDetails", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Scoreboard");
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("GoTravel.API.Domain.Models.Database.GTStopPoint", b =>
                 {
                     b.HasOne("GoTravel.API.Domain.Models.Database.GTStopPoint", "Parent")
@@ -811,17 +732,6 @@ namespace GoTravel.API.Migrations
                     b.Navigation("Line");
                 });
 
-            modelBuilder.Entity("GoTravel.API.Domain.Models.Database.GTUserSubtitle", b =>
-                {
-                    b.HasOne("GoTravel.API.Domain.Models.Database.GTUserDetails", "User")
-                        .WithMany("Subtitles")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("GoTravel.API.Domain.Models.Database.GLLineMode", b =>
                 {
                     b.Navigation("Lines");
@@ -861,8 +771,6 @@ namespace GoTravel.API.Migrations
                     b.Navigation("Followers");
 
                     b.Navigation("FollowingUsers");
-
-                    b.Navigation("Subtitles");
                 });
 
             modelBuilder.Entity("GoTravel.API.Domain.Models.Database.GTUserSavedJourney", b =>

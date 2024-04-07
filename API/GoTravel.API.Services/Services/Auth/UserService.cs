@@ -194,6 +194,11 @@ public class UserService: IUserService
         return mapped.ToList();
     }
 
+    public async Task AddSubtitle(string userId, GTUserSubtitle subtitle, CancellationToken ct = default)
+    {
+        await _userRepo.SaveTitle(userId, subtitle, ct);
+    }
+
     private string GetMimeType(string fileName)
     {
         var provider = new FileExtensionContentTypeProvider();

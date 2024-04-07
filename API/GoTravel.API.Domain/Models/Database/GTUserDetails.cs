@@ -12,6 +12,8 @@ public class GTUserDetails
     public virtual ICollection<GTUserFollowings> FollowingUsers { get; set; } = new List<GTUserFollowings>();
     public virtual ICollection<GTUserFollowings> Followers { get; set; } = new List<GTUserFollowings>();
 
+    public virtual ICollection<GTUserSubtitle> Subtitles { get; set; } = new List<GTUserSubtitle>();
+
 }
 
 public enum GTUserFollowerAcceptLevel
