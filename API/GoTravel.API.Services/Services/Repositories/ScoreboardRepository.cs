@@ -152,6 +152,7 @@ public class ScoreboardRepository: IScoreboardRepository
     {
         return await _context.ScoreboardWins
             .Where(w => w.UserId == userId && !w.HasSeen)
+            .Include(s => s.Scoreboard)
             .ToListAsync(ct);
     }
 
@@ -159,7 +160,8 @@ public class ScoreboardRepository: IScoreboardRepository
     {
         var twoWeeksAgo = _time.GetUtcNow().UtcDateTime.AddDays(-14);
         return await _context.ScoreboardWins
-            .Where(w => w.UserId == userId && w.WonAt < twoWeeksAgo)
+            .Include(s => s.Scoreboard)
+            .Where(w => w.UserId == userId && w.WonAt > twoWeeksAgo)
             .ToListAsync(ct);
     }
 }

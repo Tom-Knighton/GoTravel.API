@@ -8,4 +8,6 @@ public class UserDto
     public int FollowerCount { get; set; }
     
     public int UserPoints { get; set; }
+    
+    public string? Subtitle { get; set; }
 }

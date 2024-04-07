@@ -3,7 +3,6 @@ namespace GoTravel.API.Domain.Models.DTOs;
 public enum ScoreboardWinRewardType
 {
     None,
-    AppIcon,
     PointMultiplier_1_5,
     PointMultiplier_2,
     StartingPoints_30,
@@ -14,6 +13,7 @@ public enum ScoreboardWinRewardType
 
 public class ScoreboardWinDto
 {
+    public string WinId { get; set; }
     public string ScoreboardName { get; set; }
     public DateTime WonAt { get; set; }
     public int Position { get; set; }

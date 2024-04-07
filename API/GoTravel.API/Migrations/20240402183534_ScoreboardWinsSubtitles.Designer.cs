@@ -13,8 +13,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace GoTravel.API.Migrations
 {
     [DbContext(typeof(GoTravelContext))]
-    [Migration("20240401172004_ScoreboardWins")]
-    partial class ScoreboardWins
+    [Migration("20240402183534_ScoreboardWinsSubtitles")]
+    partial class ScoreboardWinsSubtitles
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -569,6 +569,38 @@ namespace GoTravel.API.Migrations
                     b.ToTable("UserSavedJourneyLine", (string)null);
                 });
 
+            modelBuilder.Entity("GoTravel.API.Domain.Models.Database.GTUserSubtitle", b =>
+                {
+                    b.Property<int>("SubtitleId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("SubtitleId"));
+
+                    b.Property<DateTime>("ExpiresAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("ValidFrom")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("SubtitleId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("UserSubtitles", (string)null);
+                });
+
             modelBuilder.Entity("GLFlagGLLineMode", b =>
                 {
                     b.HasOne("GoTravel.API.Domain.Models.Database.GLFlag", null)
@@ -782,6 +814,17 @@ namespace GoTravel.API.Migrations
                     b.Navigation("Line");
                 });
 
+            modelBuilder.Entity("GoTravel.API.Domain.Models.Database.GTUserSubtitle", b =>
+                {
+                    b.HasOne("GoTravel.API.Domain.Models.Database.GTUserDetails", "User")
+                        .WithMany("Subtitles")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("GoTravel.API.Domain.Models.Database.GLLineMode", b =>
                 {
                     b.Navigation("Lines");
@@ -821,6 +864,8 @@ namespace GoTravel.API.Migrations
                     b.Navigation("Followers");
 
                     b.Navigation("FollowingUsers");
+
+                    b.Navigation("Subtitles");
                 });
 
             modelBuilder.Entity("GoTravel.API.Domain.Models.Database.GTUserSavedJourney", b =>

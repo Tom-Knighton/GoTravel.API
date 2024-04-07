@@ -1,9 +1,12 @@
 using GoTravel.API.Domain.Exceptions;
 using GoTravel.API.Domain.Models.Database;
 using GoTravel.API.Domain.Models.DTOs;
+using GoTravel.API.Domain.Models.Lib;
 using GoTravel.API.Domain.Services;
+using GoTravel.API.Domain.Services.Auth;
 using GoTravel.API.Domain.Services.Mappers;
 using GoTravel.API.Domain.Services.Repositories;
+using MassTransit;
 using Microsoft.Extensions.Logging;
 
 namespace GoTravel.API.Services.Services;
@@ -11,19 +14,23 @@ namespace GoTravel.API.Services.Services;
 public class ScoreboardService: IScoreboardService
 {
     private readonly IScoreboardRepository _repo;
+    private readonly IUserService _userService;
     private readonly IMapper<GTScoreboard, ScoreboardDto> _map;
     private readonly IMapper<GTUserDetails, UserDto> _userMap;
     private readonly ILogger<ScoreboardService> _log;
     private readonly TimeProvider _time;
+    private readonly IPublishEndpoint _publisher;
     private const string MostTravelName = "Most Travel";
 
-    public ScoreboardService(IScoreboardRepository repo, IMapper<GTScoreboard, ScoreboardDto> map, IMapper<GTUserDetails, UserDto> userMap, ILogger<ScoreboardService> log, TimeProvider time)
+    public ScoreboardService(IScoreboardRepository repo, IUserService userService, IMapper<GTScoreboard, ScoreboardDto> map, IMapper<GTUserDetails, UserDto> userMap, ILogger<ScoreboardService> log, TimeProvider time, IPublishEndpoint publisher)
     {
         _repo = repo;
         _log = log;
         _map = map;
         _userMap = userMap;
         _time = time;
+        _publisher = publisher;
+        _userService = userService;
     }
 
     public async Task<ICollection<ScoreboardDto>> GetScoreboardsForUser(string userId, CancellationToken ct = default)
@@ -143,7 +150,7 @@ public class ScoreboardService: IScoreboardService
         await _repo.SaveUser(user, ct);
     }
 
-    public async Task SeenWin(string winId, string userId, DateTime at, CancellationToken ct = default)
+    public async Task SeenWin(string winId, string userId, CancellationToken ct = default)
     {
         var win = await _repo.GetWin(winId, ct);
 
@@ -158,6 +165,32 @@ public class ScoreboardService: IScoreboardService
         }
 
         win.HasSeen = true;
+
+        switch (win.RewardType)
+        {
+            case ScoreboardWinRewardType.Title_SuperTraveller:
+                var stTitle = new GTUserSubtitle
+                    { UserId = userId, ExpiresAt = _time.GetUtcNow().UtcDateTime.AddDays(14), IsActive = true, ValidFrom = _time.GetUtcNow().UtcDateTime, Title = "Super Traveller!" };
+                await _userService.AddSubtitle(userId, stTitle, ct);
+                break;
+            case ScoreboardWinRewardType.Title_PublicTransportExpert:
+                var pteTitle = new GTUserSubtitle
+                    { UserId = userId, ExpiresAt = _time.GetUtcNow().UtcDateTime.AddDays(14), IsActive = true, ValidFrom = _time.GetUtcNow().UtcDateTime, Title = "Public Transport Expert!" };
+                await _userService.AddSubtitle(userId, pteTitle, ct);
+                break;
+            case ScoreboardWinRewardType.StartingPoints_10:
+                await _publisher.Publish(new AddPointsMessage { UserId = userId, Message = "Won Most Travel Competition", Points = 10, ReasonType = AddPointsReasonType.Travel }, ct);
+                break;
+            case ScoreboardWinRewardType.StartingPoints_30:
+                await _publisher.Publish(new AddPointsMessage { UserId = userId, Message = "Won Most Travel Competition", Points = 30, ReasonType = AddPointsReasonType.Travel }, ct);
+                break;
+            case ScoreboardWinRewardType.None:
+            case ScoreboardWinRewardType.PointMultiplier_1_5:
+            case ScoreboardWinRewardType.PointMultiplier_2:
+            default:
+                break;
+        }
+        
         await _repo.SaveWin(win, ct);
     }
 
@@ -167,6 +200,23 @@ public class ScoreboardService: IScoreboardService
 
         var dtos = wins.Select(w => new ScoreboardWinDto
         {
+            WinId = w.UUID,
+            ScoreboardName = w.Scoreboard.ScoreboardName,
+            WonAt = w.WonAt,
+            Position = w.ScoreboardPosition,
+            RewardType = w.RewardType
+        });
+
+        return dtos.ToList();
+    }
+
+    public async Task<ICollection<ScoreboardWinDto>> GetSeenWinsForUser(string userId, CancellationToken ct = default)
+    {
+        var wins = await _repo.GetAppliedWins(userId, ct);
+
+        var dtos = wins.Select(w => new ScoreboardWinDto
+        {
+            WinId = w.UUID,
             ScoreboardName = w.Scoreboard.ScoreboardName,
             WonAt = w.WonAt,
             Position = w.ScoreboardPosition,

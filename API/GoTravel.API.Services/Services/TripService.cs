@@ -18,7 +18,7 @@ public class TripService: ITripService
     private readonly IScoreboardRepository _scoreboardRepo;
     private readonly IPublishEndpoint _publisher;
     private readonly TimeProvider _time;
-    private const double BufferDistance = 0.001;
+    private const double BufferDistance = 0.001; // 0.5km
     private const double IntersectThresholdLength = 0.006;
     
     private const double PointsPerKm = 0.5;
@@ -118,6 +118,7 @@ public class TripService: ITripService
         // Points for covered distance
         var coveredPoints = (int)((percentageCovered / (postedLines ? 2 : 2.5)) * km * PointsPerKm * winMult);
 
+        // Is time bonus good? 
         var timeBonus = time switch
         {
             > 60 => 10 + (int)((time - 60) * 1.05),

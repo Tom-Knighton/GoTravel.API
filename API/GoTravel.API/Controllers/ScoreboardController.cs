@@ -80,11 +80,11 @@ public class ScoreboardController: ControllerBase
 
     [HttpPut]
     [Route("win/{winId}/consumed")]
-    public async Task<IActionResult> ConsumedFinalPosition(string winId, [Required] DateTime at, CancellationToken ct = default)
+    public async Task<IActionResult> ConsumedFinalPosition(string winId, CancellationToken ct = default)
     {
         try
         {
-            await _scoreboardService.SeenWin(winId, HttpContext.User.CurrentUserId(), at, ct);
+            await _scoreboardService.SeenWin(winId, HttpContext.User.CurrentUserId(), ct);
             return Ok();
         }
         catch (WinNotFoundException ex)
@@ -99,7 +99,7 @@ public class ScoreboardController: ControllerBase
         }
         catch (Exception ex)
         {
-            _log.LogError(ex, "Failed to save Win seen for win: {Id}, {User}, at: {Date}", winId, HttpContext.User.CurrentUserId(), at);
+            _log.LogError(ex, "Failed to save Win seen for win: {Id}, {User}", winId, HttpContext.User.CurrentUserId());
             return StatusCode(StatusCodes.Status500InternalServerError);
         }
     }
@@ -111,6 +111,22 @@ public class ScoreboardController: ControllerBase
         try
         {
             var wins = await _scoreboardService.GetUnseenWinsForUser(HttpContext.User.CurrentUserId(), ct);
+            return Ok(wins);
+        }
+        catch (Exception ex)
+        {
+            _log.LogError(ex, "Failed to retrieve wins for user");
+            return StatusCode(StatusCodes.Status500InternalServerError);
+        }
+    }
+
+    [HttpGet]
+    [Route("SeenWins")]
+    public async Task<IActionResult> GetSeenWins(CancellationToken ct = default)
+    {
+        try
+        {
+            var wins = await _scoreboardService.GetSeenWinsForUser(HttpContext.User.CurrentUserId(), ct);
             return Ok(wins);
         }
         catch (Exception ex)

@@ -26,6 +26,7 @@ public class GoTravelContext: DbContext
     public virtual DbSet<GTUserPointsAudit> UserPointsAudit { get; set; }
     public virtual DbSet<GTUserSavedJourney> UserSavedJourneys { get; set; }
     public virtual DbSet<GTUserSavedJourneyLine> UserSavedJourneyLines { get; set; }
+    public virtual DbSet<GTUserSubtitle> UserSubtitles { get; set; }
     
     public virtual DbSet<GTCrowdsourceInfo> CrowdsourceInfo { get; set; }
     public virtual DbSet<GTCrowdsourceVotes> CrowdsourceVotes { get; set; }
@@ -245,6 +246,18 @@ public class GoTravelContext: DbContext
             e.HasOne(s => s.Scoreboard)
                 .WithMany()
                 .HasForeignKey(s => s.ScoreboardId);
+        });
+
+        modelBuilder.Entity<GTUserSubtitle>(e =>
+        {
+            e.ToTable("UserSubtitles");
+
+            e.Property(u => u.SubtitleId).ValueGeneratedOnAdd();
+            e.HasKey(u => u.SubtitleId);
+
+            e.HasOne(u => u.User)
+                .WithMany(u => u.Subtitles)
+                .HasForeignKey(u => u.UserId);
         });
     }
 }

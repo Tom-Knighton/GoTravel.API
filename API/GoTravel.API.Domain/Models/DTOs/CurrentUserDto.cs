@@ -13,4 +13,6 @@ public class CurrentUserDto
     public IEnumerable<UserFollowingDto> Following { get; set; }
     
     public int UserPoints { get; set; }
+    
+    public string? Subtitle { get; set; }
 }
