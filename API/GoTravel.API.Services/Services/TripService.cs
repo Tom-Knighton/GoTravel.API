@@ -15,19 +15,27 @@ public class TripService: ITripService
 {
     private readonly IMapper<GTUserSavedJourney, UserSavedJourneyDto> _map;
     private readonly ITripRepository _repo;
+    private readonly IScoreboardRepository _scoreboardRepo;
     private readonly IPublishEndpoint _publisher;
     private readonly TimeProvider _time;
-    private const double BufferDistance = 0.001;
+    private const double BufferDistance = 0.001; // 0.5km
     private const double IntersectThresholdLength = 0.006;
     
     private const double PointsPerKm = 0.5;
     private const double CoverageThreshold = 50;
     private const double KmPerDegree = 111;
 
-    public TripService(IMapper<GTUserSavedJourney, UserSavedJourneyDto> mapper, ITripRepository repo,  IPublishEndpoint publisher, TimeProvider time)
+    private Dictionary<ScoreboardWinRewardType, double> rewardDict = new()
+    {
+        { ScoreboardWinRewardType.PointMultiplier_1_5, 1.5},
+        { ScoreboardWinRewardType.PointMultiplier_2, 2},
+    };
+
+    public TripService(IMapper<GTUserSavedJourney, UserSavedJourneyDto> mapper, ITripRepository repo, IScoreboardRepository scoreboardRepo, IPublishEndpoint publisher, TimeProvider time)
     {
         _map = mapper;
         _repo = repo;
+        _scoreboardRepo = scoreboardRepo;
         _publisher = publisher;
         _time = time;
     }
@@ -46,7 +54,7 @@ public class TripService: ITripService
         
         var nonIntersectedArea = nonIntersectedAreas.Area;
         var percentageUncovered = (nonIntersectedArea / buffer.Area) * 100;
-
+        
         var journey = new GTUserSavedJourney
         {
             UUID = Guid.NewGuid().ToString("N"),
@@ -61,7 +69,7 @@ public class TripService: ITripService
             {
                 LineId = l
             }).ToList(),
-            Points = GetPointsForTrip(line.Length, (command.EndedAt - command.StartedAt).Minutes, 100 - percentageUncovered, command.Lines.Count != 0)
+            Points = await GetPointsForTrip(userId, line.Length, (command.EndedAt - command.StartedAt).Minutes, 100 - percentageUncovered, command.Lines.Count != 0, ct)
         };
 
         if (percentageUncovered >= CoverageThreshold || (command.Lines.Count != 0 && !command.Lines.Most(l => intersectedRoutes.Any(r => r.route.LineId == l))))
@@ -87,17 +95,30 @@ public class TripService: ITripService
         return dtos.ToList();
     }
 
-    private static int GetPointsForTrip(double distance, double time, double percentageCovered, bool postedLines)
+    private async Task<int> GetPointsForTrip(string userId, double distance, double time, double percentageCovered, bool postedLines, CancellationToken ct = default)
     {
         // Assign points in the following:
         // - (percentage covered by routes / 2) * km distance * points per km (0.5) rounded to 0dp +
         // - time bonus: 3 points for <= 10 mins, 5 points for <= 30m, 10 points for <= 1hr, beyond that: 10 + (time - 1hr) * 1.05
+        // - All Multiplied by any winning bonus
 
         var km = distance * KmPerDegree;
         
+        // Points multiplier from winning
+        var winMult = 1.0;
+        var wins = await _scoreboardRepo.GetAppliedWins(userId, ct);
+        foreach (var win in wins)
+        {
+            if (rewardDict.ContainsKey(win.RewardType) && rewardDict[win.RewardType] > winMult)
+            {
+                winMult = rewardDict[win.RewardType];
+            }
+        }
+        
         // Points for covered distance
-        var coveredPoints = (int)((percentageCovered / (postedLines ? 2 : 2.5)) * km * PointsPerKm);
+        var coveredPoints = (int)((percentageCovered / (postedLines ? 2 : 2.5)) * km * PointsPerKm * winMult);
 
+        // Is time bonus good? 
         var timeBonus = time switch
         {
             > 60 => 10 + (int)((time - 60) * 1.05),

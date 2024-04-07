@@ -127,4 +127,41 @@ public class ScoreboardRepository: IScoreboardRepository
 
         await _context.SaveChangesAsync(ct);
     }
+
+    public async Task<GTScoreboardWin?> GetWin(string winId, CancellationToken ct = default)
+    {
+        return await _context.ScoreboardWins
+            .FirstOrDefaultAsync(w => w.UUID == winId, ct);
+    }
+
+    public async Task SaveWin(GTScoreboardWin win, CancellationToken ct = default)
+    {
+        if (await _context.ScoreboardWins.AnyAsync(w => w.UUID == win.UUID, ct))
+        {
+            _context.ScoreboardWins.Update(win);
+        }
+        else
+        {
+            _context.ScoreboardWins.Add(win);
+        }
+
+        await _context.SaveChangesAsync(ct);
+    }
+
+    public async Task<ICollection<GTScoreboardWin>> GetUnseenWinsForUser(string userId, CancellationToken ct = default)
+    {
+        return await _context.ScoreboardWins
+            .Where(w => w.UserId == userId && !w.HasSeen)
+            .Include(s => s.Scoreboard)
+            .ToListAsync(ct);
+    }
+
+    public async Task<ICollection<GTScoreboardWin>> GetAppliedWins(string userId, CancellationToken ct = default)
+    {
+        var twoWeeksAgo = _time.GetUtcNow().UtcDateTime.AddDays(-14);
+        return await _context.ScoreboardWins
+            .Include(s => s.Scoreboard)
+            .Where(w => w.UserId == userId && w.WonAt > twoWeeksAgo)
+            .ToListAsync(ct);
+    }
 }
