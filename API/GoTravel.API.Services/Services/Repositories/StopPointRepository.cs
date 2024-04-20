@@ -44,6 +44,17 @@ public class StopPointRepository: IStopPointRepository
         return results;
     }
 
+    public async Task<ICollection<GTStopPoint>> GetStopPoints(int maxResults, int startFrom, CancellationToken ct = default)
+    {
+        var results = await _context.StopPoints
+            .IncludeLineHierarchy()
+            .Skip(startFrom)
+            .Take(maxResults)
+            .ToListAsync(ct);
+
+        return results;
+    }
+
     public async Task<ICollection<GTStopPoint>> GetAllChildrenOf(string stopPointId, CancellationToken ct = default)
     {
         var results = await _context.StopPoints

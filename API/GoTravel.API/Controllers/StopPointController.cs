@@ -2,6 +2,7 @@ using System.ComponentModel.DataAnnotations;
 using GoTravel.API.Domain.Exceptions;
 using GoTravel.API.Domain.Models.DTOs;
 using GoTravel.API.Domain.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GoTravel.API.Controllers;
@@ -12,11 +13,13 @@ public class StopPointController: ControllerBase
 {
     private readonly IStopPointService _stopPointService;
     private readonly IArrivalsService _arrivalsService;
+    private readonly ILogger<StopPointController> _logger;
 
-    public StopPointController(IStopPointService stopPointService, IArrivalsService arrivals)
+    public StopPointController(IStopPointService stopPointService, IArrivalsService arrivals, ILogger<StopPointController> log)
     {
         _stopPointService = stopPointService;
         _arrivalsService = arrivals;
+        _logger = log;
     }
 
     [HttpGet]
@@ -127,6 +130,24 @@ public class StopPointController: ControllerBase
         catch (Exception e)
         {
             return StatusCode(500);
+        }
+    }
+
+    [Authorize("ManageStops")]
+    [HttpGet]
+    [Route("All")]
+    [Produces(typeof(StopPointBaseDto[]))]
+    public async Task<IActionResult> GetAllStopPoints(int results = 25, int startFrom = 0, CancellationToken ct = default)
+    {
+        try
+        {
+            var stops = await _stopPointService.RetrievePaginated(results, startFrom, ct);
+            return Ok(stops);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to retrieve stop points");
+            return StatusCode(StatusCodes.Status500InternalServerError);
         }
     }
 }

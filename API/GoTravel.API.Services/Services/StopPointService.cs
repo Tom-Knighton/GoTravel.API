@@ -239,6 +239,18 @@ public class StopPointService: IStopPointService
         return ordered;
     }
 
+    public async Task<ICollection<StopPointBaseDto>> RetrievePaginated(int results, int startFrom, CancellationToken ct = default)
+    {
+        var stops = await _repo.GetStopPoints(results, startFrom, ct);
+        var mapped = stops.Select(s => _mapper.Map(s)).ToList();
+        foreach (var stop in mapped)
+        {
+            stop.Children = await GetStopPointChildrenAsync(stop, ct);
+        }
+
+        return mapped;
+    }
+
     private async Task GetChildIdsRecursive(string id, ICollection<string> results)
     {
         results.Add(id);
