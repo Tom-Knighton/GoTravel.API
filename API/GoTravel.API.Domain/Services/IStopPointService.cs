@@ -63,4 +63,9 @@ public interface IStopPointService
     /// </summary>
     /// <param name="stopIds">The stop ids to request</param>
     public Task<ICollection<JourneyLegStopPointDto>> GetBasicLegStopPointDtos(ICollection<string> stopIds, CancellationToken ct = default);
+
+    /// <summary>
+    /// Returns all stop points, paginated
+    /// </summary>
+    public Task<ICollection<StopPointBaseDto>> RetrievePaginated(int results, int startFrom, CancellationToken ct = default);
 }
