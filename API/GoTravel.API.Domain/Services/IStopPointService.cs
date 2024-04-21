@@ -66,10 +66,15 @@ public interface IStopPointService
     /// <summary>
     /// Returns all stop points, paginated
     /// </summary>
-    public Task<ICollection<StopPointBaseDto>> RetrievePaginated(int results, int startFrom, CancellationToken ct = default);
+    public Task<ICollection<GTStopPoint>> RetrievePaginated(string? query, int results, int startFrom, CancellationToken ct = default);
 
     /// <summary>
     /// Retrieves the raw info k/vs as a list of value objects for a stop
     /// </summary>
     public Task<ICollection<GTStopPointInfoValue>> GetStopPointInfoKvs(string stopId, CancellationToken ct = default);
+
+    /// <summary>
+    /// Retrieves a GTStopPoint model
+    /// </summary>
+    public Task<GTStopPoint?> GetGTStop(string stopId, CancellationToken ct = default);
 }

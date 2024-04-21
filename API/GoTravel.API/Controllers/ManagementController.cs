@@ -1,3 +1,4 @@
+using GoTravel.API.Domain.Models.Database;
 using GoTravel.API.Domain.Models.DTOs;
 using GoTravel.API.Domain.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -22,12 +23,12 @@ public class ManagementController: ControllerBase
     [Authorize("ManageStops")]
     [HttpGet]
     [Route("Stops/All")]
-    [Produces(typeof(StopPointBaseDto[]))]
-    public async Task<IActionResult> GetAllStopPoints(int results = 25, int startFrom = 0, CancellationToken ct = default)
+    [Produces(typeof(ICollection<GTStopPoint>))]
+    public async Task<IActionResult> GetAllStopPoints(string? query = null, int results = 25, int startFrom = 0, CancellationToken ct = default)
     {
         try
         {
-            var stops = await _stopPointService.RetrievePaginated(results, startFrom, ct);
+            var stops = await _stopPointService.RetrievePaginated(query, results, startFrom, ct);
             return Ok(stops);
         }
         catch (Exception ex)
@@ -36,11 +37,28 @@ public class ManagementController: ControllerBase
             return StatusCode(StatusCodes.Status500InternalServerError);
         }
     }
+
+    [Authorize("ManageStops")]
+    [HttpGet("Stops/{stopId}")]
+    [Produces(typeof(ICollection<GTStopPoint>))]
+    public async Task<IActionResult> GetStopPoint(string stopId, CancellationToken ct = default)
+    {
+        try
+        {
+            var stops = await _stopPointService.GetGTStop(stopId, ct);
+            return Ok(stops);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to retrieve stop point {Id}", stopId);
+            return StatusCode(StatusCodes.Status500InternalServerError);
+        }
+    }
     
     [Authorize("ManageStops")]
     [HttpGet]
     [Route("Stops/{stopId}/InfoKVs")]
-    [Produces(typeof(Dictionary<string, string>))]
+    [Produces(typeof(ICollection<GTStopPointInfoValue>))]
     public async Task<IActionResult> GetStopPointInfoKvs(string stopId, CancellationToken ct = default)
     {
         try
@@ -50,7 +68,7 @@ public class ManagementController: ControllerBase
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to retrieve stop points");
+            _logger.LogError(ex, "Failed to retrieve stop point infos for {Id}", stopId);
             return StatusCode(StatusCodes.Status500InternalServerError);
         }
     }

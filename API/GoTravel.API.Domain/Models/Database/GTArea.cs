@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using NetTopologySuite.Geometries;
 
 namespace GoTravel.API.Domain.Models.Database;
@@ -8,6 +9,7 @@ public class GTArea
     
     public string AreaName { get; set; }
     
+    [JsonIgnore]
     public Polygon AreaCatchment { get; set; }
     
     public virtual ICollection<GLLineMode> LineModes { get; set; }
