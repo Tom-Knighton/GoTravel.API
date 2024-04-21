@@ -1,7 +1,6 @@
-using System.Collections;
+using GoTravel.API.Domain.Models.Database;
 using GoTravel.API.Domain.Models.DTOs;
 using GoTravel.Standard.Models;
-using GoTravel.Standard.Models.Arrivals;
 using GoTravel.Standard.Models.MessageModels;
 
 namespace GoTravel.API.Domain.Services;
@@ -68,4 +67,9 @@ public interface IStopPointService
     /// Returns all stop points, paginated
     /// </summary>
     public Task<ICollection<StopPointBaseDto>> RetrievePaginated(int results, int startFrom, CancellationToken ct = default);
+
+    /// <summary>
+    /// Retrieves the raw info k/vs as a list of value objects for a stop
+    /// </summary>
+    public Task<ICollection<GTStopPointInfoValue>> GetStopPointInfoKvs(string stopId, CancellationToken ct = default);
 }

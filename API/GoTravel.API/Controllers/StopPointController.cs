@@ -132,22 +132,4 @@ public class StopPointController: ControllerBase
             return StatusCode(500);
         }
     }
-
-    [Authorize("ManageStops")]
-    [HttpGet]
-    [Route("All")]
-    [Produces(typeof(StopPointBaseDto[]))]
-    public async Task<IActionResult> GetAllStopPoints(int results = 25, int startFrom = 0, CancellationToken ct = default)
-    {
-        try
-        {
-            var stops = await _stopPointService.RetrievePaginated(results, startFrom, ct);
-            return Ok(stops);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Failed to retrieve stop points");
-            return StatusCode(StatusCodes.Status500InternalServerError);
-        }
-    }
 }

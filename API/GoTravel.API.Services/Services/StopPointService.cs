@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Text;
 using GoTravel.API.Domain.Exceptions;
 using GoTravel.API.Domain.Models.Database;
@@ -249,6 +250,13 @@ public class StopPointService: IStopPointService
         }
 
         return mapped;
+    }
+
+    public async Task<ICollection<GTStopPointInfoValue>> GetStopPointInfoKvs(string stopId, CancellationToken ct = default)
+    {
+        var infos = await _repo.GetInfoForStop(stopId, ct);
+
+        return infos;
     }
 
     private async Task GetChildIdsRecursive(string id, ICollection<string> results)
