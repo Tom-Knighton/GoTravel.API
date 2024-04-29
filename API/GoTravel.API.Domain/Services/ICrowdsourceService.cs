@@ -1,3 +1,5 @@
+using System.Collections;
+using GoTravel.API.Domain.Models.Database;
 using GoTravel.API.Domain.Models.DTOs;
 using GoTravel.API.Domain.Models.DTOs.Commands;
 
@@ -10,4 +12,6 @@ public interface ICrowdsourceService
     
     Task<bool> VoteOnCrowdsource(string crowdsourceId, string userId, CrowdsourceVoteStatus voteType, CancellationToken ct = default);
     Task<bool> ReportCrowdsource(string crowdsourceId, string userId, ReportCrowdsourceCommand command, CancellationToken ct = default);
+
+    Task<ICollection<GTCrowdsourceInfo>> GetGTSubmissions(string entityId, CancellationToken ct = default);
 }

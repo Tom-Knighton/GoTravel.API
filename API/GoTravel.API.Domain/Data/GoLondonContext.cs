@@ -189,6 +189,10 @@ public class GoTravelContext: DbContext
                 .WithMany()
                 .HasForeignKey(c => c.ReporterId);
 
+            e.HasOne(c => c.Crowdsource)
+                .WithMany(c => c.Reports)
+                .HasForeignKey(r => r.CrowdsourceId);
+
             e.HasIndex(c => c.CrowdsourceId);
         });
 

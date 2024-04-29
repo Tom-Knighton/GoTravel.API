@@ -145,6 +145,11 @@ public class CrowdsourceService: ICrowdsourceService
         return await _repo.SaveReport(report, ct);
     }
 
+    public async Task<ICollection<GTCrowdsourceInfo>> GetGTSubmissions(string entityId, CancellationToken ct = default)
+    {
+        var infos = await _repo.GetCrowdsourcesAndVotesForEntity()
+    }
+
 
     private IEnumerable<IEnumerable<GTCrowdsourceInfo>> GroupBySemanticSimilarity(IEnumerable<GTCrowdsourceInfo> crowdsourceInfos)
     {

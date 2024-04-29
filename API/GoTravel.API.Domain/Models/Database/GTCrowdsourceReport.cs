@@ -10,4 +10,5 @@ public class GTCrowdsourceReport
     public bool Handled { get; set; }
     
     public virtual GTUserDetails Reporter { get; set; }
+    public virtual GTCrowdsourceInfo Crowdsource { get; set; }
 }

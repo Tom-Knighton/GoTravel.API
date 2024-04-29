@@ -17,7 +17,7 @@ public class CrowdsourceRepository: ICrowdsourceRepository
     }
     
     
-    public async Task<IEnumerable<GTCrowdsourceInfo>> GetCrowdsourcesAndVotesForEntity(string entityId, CancellationToken ct = default)
+    public async Task<IEnumerable<GTCrowdsourceInfo>> GetCrowdsourcesAndVotesForEntity(string entityId, bool includeReports = false, CancellationToken ct = default)
     {
         var infos = await _context.CrowdsourceInfo
             .Where(c => c.SubmittedAt < _time.GetUtcNow().UtcDateTime && c.ExpectedEnd > _time.GetUtcNow().UtcDateTime)

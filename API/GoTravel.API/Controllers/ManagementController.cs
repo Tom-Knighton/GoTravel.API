@@ -13,10 +13,12 @@ public class ManagementController: ControllerBase
 {
     private readonly ILogger<ManagementController> _logger;
     private readonly IStopPointService _stopPointService;
+    private readonly ICrowdsourceService _crowdsourceServide;
 
-    public ManagementController(IStopPointService sps, ILogger<ManagementController> log)
+    public ManagementController(IStopPointService sps, ICrowdsourceService css, ILogger<ManagementController> log)
     {
         _stopPointService = sps;
+        _crowdsourceServide = css;
         _logger = log;
     }
     
@@ -69,6 +71,24 @@ public class ManagementController: ControllerBase
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to retrieve stop point infos for {Id}", stopId);
+            return StatusCode(StatusCodes.Status500InternalServerError);
+        }
+    }
+
+    [Authorize("ManageStops")]
+    [HttpGet]
+    [Route("CrowdsourceSubmissions/{entityId}")]
+    [Produces(typeof(ICollection<GTCrowdsourceInfo>))]
+    public async Task<IActionResult> GetCrowdsources(string entityId, CancellationToken ct = default)
+    {
+        try
+        {
+            var infos = await _crowdsourceServide.GetGTSubmissions(entityId, ct);
+            return Ok(infos);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to retrieve crowdsource submissions for entity: {Id}", entityId);
             return StatusCode(StatusCodes.Status500InternalServerError);
         }
     }

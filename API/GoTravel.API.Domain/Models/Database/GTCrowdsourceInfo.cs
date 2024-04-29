@@ -16,4 +16,5 @@ public class GTCrowdsourceInfo
     
     public virtual GTUserDetails SubmittedBy { get; set; }
     public virtual ICollection<GTCrowdsourceVotes> Votes { get; set; }
+    public virtual ICollection<GTCrowdsourceReport> Reports { get; set }
 }
