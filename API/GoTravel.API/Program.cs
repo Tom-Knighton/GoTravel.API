@@ -25,6 +25,7 @@ builder.Services.AddControllers().AddJsonOptions(o =>
     var geoJsonConverterFactory = new GeoJsonConverterFactory();
     o.JsonSerializerOptions.Converters.Add(geoJsonConverterFactory);
     o.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+    o.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
 });
 builder.Services.AddSingleton(NtsGeometryServices.Instance);
 

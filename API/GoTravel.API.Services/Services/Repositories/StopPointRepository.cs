@@ -44,6 +44,18 @@ public class StopPointRepository: IStopPointRepository
         return results;
     }
 
+    public async Task<ICollection<GTStopPoint>> GetStopPoints(int maxResults, int startFrom, string? query = null, CancellationToken ct = default)
+    {
+        var results = await _context.StopPoints
+            .Where(s => string.IsNullOrWhiteSpace(query) || EF.Functions.ILike(s.StopPointName, $"%{query}%"))
+            .IncludeLineHierarchy()
+            .Skip(startFrom)
+            .Take(maxResults)
+            .ToListAsync(ct);
+
+        return results;
+    }
+
     public async Task<ICollection<GTStopPoint>> GetAllChildrenOf(string stopPointId, CancellationToken ct = default)
     {
         var results = await _context.StopPoints
@@ -143,6 +155,7 @@ public static class StopPointRepositoryExtensions
     public static IQueryable<GTStopPoint> IncludeLineHierarchy(this IQueryable<GTStopPoint> query)
     {
         return query
+            .AsNoTracking()
             .Include(x => x.StopPointLines.Where(l => l.IsEnabled))
                 .ThenInclude(l => l.Line)
                     .ThenInclude(l => l.LineMode)

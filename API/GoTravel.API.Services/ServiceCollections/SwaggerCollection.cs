@@ -26,7 +26,15 @@ public static class SwaggerCollection
                 {
                     Implicit = new OpenApiOAuthFlow
                     {
-                        AuthorizationUrl = new Uri($"{domain}authorize?audience={audience}")
+                        AuthorizationUrl = new Uri($"{domain}authorize?audience={audience}"),
+                        Scopes = new Dictionary<string, string>
+                        {
+                            { "openid", "Basic User Details"},
+                            { "profile", "Basic User Details"},
+                            { "https://gotravel/nickname", "Custom nickname"},
+                            { "preferred_username", "Auth0 nickname"},
+                            { "offline_access", "Refresh Token"},
+                        },
                     }
                 }
             });

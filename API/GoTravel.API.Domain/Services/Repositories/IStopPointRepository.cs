@@ -24,6 +24,11 @@ public interface IStopPointRepository
     public Task<ICollection<GTStopPoint>> GetStopPoints(Point searchPoint, int searchRadius, int maxResults, CancellationToken ct = default);
 
     /// <summary>
+    /// Returns a list of stop points
+    /// </summary>
+    public Task<ICollection<GTStopPoint>> GetStopPoints(int maxResults, int startFrom, string? query = null, CancellationToken ct = default);
+
+    /// <summary>
     /// Returns a list of StopPoints that are children of a given StopPoint.
     /// </summary>
     public Task<ICollection<GTStopPoint>> GetAllChildrenOf(string stopPointId, CancellationToken ct = default);

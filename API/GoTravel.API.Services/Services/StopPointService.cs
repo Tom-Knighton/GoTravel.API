@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Text;
 using GoTravel.API.Domain.Exceptions;
 using GoTravel.API.Domain.Models.Database;
@@ -239,6 +240,29 @@ public class StopPointService: IStopPointService
         return ordered;
     }
 
+    public async Task<ICollection<GTStopPoint>> RetrievePaginated(string? query, int results, int startFrom, CancellationToken ct = default)
+    {
+        var stops = await _repo.GetStopPoints(results, startFrom, query, ct);
+        foreach (var stop in stops)
+        {
+            stop.Children = await GetGTChildren(stop.StopPointId, ct);
+        }
+
+        return stops;
+    }
+
+    public async Task<ICollection<GTStopPointInfoValue>> GetStopPointInfoKvs(string stopId, CancellationToken ct = default)
+    {
+        var infos = await _repo.GetInfoForStop(stopId, ct);
+
+        return infos;
+    }
+
+    public async Task<GTStopPoint?> GetGTStop(string stopId, CancellationToken ct = default)
+    {
+        return await _repo.GetStopPoint(stopId, ct);
+    }
+
     private async Task GetChildIdsRecursive(string id, ICollection<string> results)
     {
         results.Add(id);
@@ -249,6 +273,17 @@ public class StopPointService: IStopPointService
         {
             await GetChildIdsRecursive(child, results);
         }
+    }
+
+    private async Task<ICollection<GTStopPoint>> GetGTChildren(string stopPointId, CancellationToken ct = default)
+    {
+        var children = await _repo.GetAllChildrenOf(stopPointId, ct);
+        foreach (var child in children)
+        {
+            child.Children = await GetGTChildren(child.StopPointId, ct);
+        }
+
+        return children;
     }
 
     /// <summary>
